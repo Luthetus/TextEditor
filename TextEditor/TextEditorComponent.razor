@@ -1,4 +1,6 @@
+@using System.Text
 
+@{ var stringBuilder = new StringBuilder(capacity: 16); }
 
 <div>
     CharacterWidth:@Model.Measurements.CharacterWidth<br/>
@@ -20,8 +22,21 @@
     
     @Model.Content.ToString()
     
+    @{
+        stringBuilder.Append("left:");
+        //
+        // Two decimal places for the double values avoids excessive information being sent when the visual difference is negligible.
+        //
+        // Avoid ',' in css when user's culture would default to using that in place of '.'
+        // with System.Globalization.CultureInfo.InvariantCulture
+        //
+        stringBuilder.Append((Model.Measurements.CharacterWidth * Model.PositionIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var cursorStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+    }
     <div class="te_cursor-class"
          id="te_cursor-id"
-         style="">
+         style="@cursorStyle">
     </div>
 </div>
