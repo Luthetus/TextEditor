@@ -2,11 +2,35 @@
 // https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/
 
 window.ideTextEditor = {
+    mouseMoveLastCall: 0,
+    //mouseMoveSkippedCount: 0,
+    //mouseMoveDidCount: 0,
+    thinksLeftMouseButtonIsDown: false,
+    mouseStopTimer: null,
+    stopDelay: 300,
     setFocus: function () {
         let textEditorElement = document.getElementById("te_component-id");
         if (textEditorElement) {
             textEditorElement.focus();
         }
+    },
+    initializeAndGetMeasurements: function (dotNetHelper) {
+    
+        let contentElement = document.getElementById("te_component-id");
+        if (!contentElement) {
+            return {
+                CharacterWidth: 0,
+                LineHeight: 0,
+                EditorWidth: 0,
+                EditorHeight: 0,
+                EditorLeft: 0,
+    			EditorTop: 0,
+    			ScrollbarLiteralWidth: 0,
+    			ScrollbarLiteralHeight: 0,
+            };
+        }
+        
+        return this.getTextEditorMeasurements();
     },
     getTextEditorMeasurements: function () {
 		let textEditorElement = document.getElementById("te_component-id");
@@ -21,7 +45,7 @@ window.ideTextEditor = {
     			EditorTop: 0,
     			ScrollbarLiteralWidth: 0,
     			ScrollbarLiteralHeight: 0,
-            }
+            };
         }
         
         let boundingClientRect = textEditorElement.getBoundingClientRect();

@@ -13,4 +13,16 @@ public struct TextEditorMeasurements
     public double ScrollbarLiteralWidth { get; set; }
     /// <summary>"literal" as opposed to the "scrollWidth", this is the amount of height the x-axis scrollbar measures</summary>
 	public double ScrollbarLiteralHeight { get; set; }
+	
+	public bool IsDefault()
+	{
+	    return CharacterWidth == default &&
+               LineHeight == default &&
+               EditorWidth == default &&
+               EditorHeight == default &&
+               EditorLeft == default &&
+               EditorTop == default &&
+               ScrollbarLiteralWidth == default &&
+               ScrollbarLiteralHeight == default;
+	}
 }

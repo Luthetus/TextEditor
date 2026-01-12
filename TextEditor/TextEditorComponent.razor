@@ -1,5 +1,12 @@
 @using System.Text
 
+@if (_failedToInitialize)
+{
+    <div>
+        Failed to initialize
+    </div>
+}
+
 @{ var stringBuilder = new StringBuilder(capacity: 16); }
 
 <div>

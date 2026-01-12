@@ -5,7 +5,7 @@ using Microsoft.JSInterop;
 
 namespace TextEditor;
 
-public sealed partial class TextEditorComponent : ComponentBase
+public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 {
     [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
@@ -13,10 +13,32 @@ public sealed partial class TextEditorComponent : ComponentBase
     [Parameter, EditorRequired]
     public TextEditorModel Model { get; set; } = null!;
     
+    private DotNetObjectReference<TextEditorViewModelSlimDisplay>? _dotNetHelper;
+    /// <summary>
+    /// No persistence of TextEditorModel comes with the library.
+    ///
+    /// But the presumption here is that someone might choose to persist a TextEditorModel,
+    /// and that they'd like to know what the measurements last were,
+    /// because those measurements relate to the virtualized content that was displayed.
+    ///
+    /// In 'OnParametersSet()' the Model has its 'Measurements' property set to that of the component's '_measurements' field.
+    /// Additionally this set is performed within 'InitializeAndGetMeasurements()'.
+    /// </summary>
+    private TextEditorMeasurements _measurements;
+    private bool _failedToInitialize;
+    
+    protected override void OnInitialized()
+    {
+        _dotNetHelper = DotNetObjectReference.Create(this);
+    }
+    
     protected override void OnParametersSet()
     {
         if (Model is null)
             throw new NotImplementedException($"The Blazor parameter '{nameof(Model)}' cannot be null");
+        
+        Model.Measurements = _measurements;
+            
         base.OnParametersSet();
     }
     
@@ -24,9 +46,17 @@ public sealed partial class TextEditorComponent : ComponentBase
     {
         if (firstRender)
         {
-            Model.Measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.getTextEditorMeasurements");
+            await InitializeAndGetMeasurements();
             await InvokeAsync(StateHasChanged);
         }
+    }
+    
+    public async Task InitializeAndGetMeasurements()
+    {
+        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.initializeAndGetMeasurements");
+        Model.Measurements = _measurements;
+        if (_measurements.IsDefault())
+            _failedToInitialize = true;
     }
     
     private async Task FocusOnClick()
@@ -79,5 +109,16 @@ public sealed partial class TextEditorComponent : ComponentBase
         
         var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
         Model.PositionIndex = characterIndex;
+    }
+    
+    [JSInvokable]
+    private void OnMouseMove(MouseEventArgs e)
+    {
+        
+    }
+    
+    public void Dispose()
+    {
+        _dotNetHelper?.Dispose();
     }
 }
