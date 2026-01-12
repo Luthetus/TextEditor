@@ -9,8 +9,16 @@ public sealed partial class TextEditorComponent : ComponentBase
 {
     [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
-
-    private StringBuilder _content = new("test");
+    
+    [Parameter, EditorRequired]
+    public TextEditorModel TextEditorModel { get; set; } = null!;
+    
+    protected override void OnParametersSet()
+    {
+        if (TextEditorModel is null)
+            throw new NotImplementedException($"{nameof(TextEditorModel)} cannot be null");
+        base.OnParametersSet();
+    }
     
     private async Task FocusOnClick()
     {
@@ -19,7 +27,6 @@ public sealed partial class TextEditorComponent : ComponentBase
     
     private void OnKeydown(KeyboardEventArgs e)
     {
-        _content.Append(e.Key);
+        TextEditorModel.Content.Append(e.Key);
     }
 }
-
