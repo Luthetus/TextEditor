@@ -30,15 +30,16 @@
     else
     {
         stringBuilder.Append("left:");
-        stringBuilder.Append(_tooltipClientX.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append(Math.Max(0, _tooltipClientX - Model.Measurements.ScrollbarLiteralWidth).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
         stringBuilder.Append("top:");
-        stringBuilder.Append(_tooltipClientY.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append(Math.Max(0, _tooltipClientY - Model.Measurements.ScrollbarLiteralHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
         var tooltipStyle = stringBuilder.ToString();
         stringBuilder.Clear();
         
-        <div style="@tooltipStyle">
+        <div class="te_tooltip"
+             style="@tooltipStyle">
             @tooltipText
         </div>
     }

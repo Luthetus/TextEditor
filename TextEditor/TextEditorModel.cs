@@ -56,5 +56,8 @@ public class TextEditorModel
                 ++PositionIndex;
                 break;
         }
+        
+        if (PositionIndex > Content.Length)
+            PositionIndex = Content.Length;
     }
 }
