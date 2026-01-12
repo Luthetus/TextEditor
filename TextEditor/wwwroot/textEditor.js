@@ -37,9 +37,6 @@ window.ideTextEditor = {
                (measurements.ScrollbarLiteralHeight && measurements.ScrollbarLiteralHeight == 0);
     },
     initializeAndTakeMeasurements: function (dotNetHelper) {
-    
-        
-        
         let contentElement = document.getElementById("te_component-id");
         if (!contentElement) {
             return this.constructDefaultMeasurements();
@@ -94,23 +91,26 @@ window.ideTextEditor = {
 			ScrollbarLiteralHeight: scrollbarLiteralHeight,
         }
     },
+    stopBlinking: function () {
+        if (this.cursorIsBlinking) {
+            cursorElement.className = "ide_te_text-editor-cursor ide_te_cursor-beam";
+            this.cursorIsBlinking = false;
+            clearTimeout(this.cursorBlinkingStopTimer); // Reset timer on every move
+            this.cursorBlinkingStopTimer = setTimeout(() => {
+                if (!this.cursorIsBlinking) {
+                    cursorElement.className = "ide_te_text-editor-cursor ide_te_blink ide_te_cursor-beam";
+                    this.cursorIsBlinking = true;
+                }
+            }, this.cursorBlinkingStopDelay);
+        }
+    },
     mouseMove: function (event) {
         if ((event.buttons & 1) === 0) {
             this.thinksLeftMouseButtonIsDown = false;
         }
         if (this.thinksLeftMouseButtonIsDown) {
 
-            if (this.cursorIsBlinking) {
-                cursorElement.className = "ide_te_text-editor-cursor ide_te_cursor-beam";
-                this.cursorIsBlinking = false;
-                clearTimeout(this.cursorBlinkingStopTimer); // Reset timer on every move
-                this.cursorBlinkingStopTimer = setTimeout(() => {
-                    if (!this.cursorIsBlinking) {
-                        cursorElement.className = "ide_te_text-editor-cursor ide_te_blink ide_te_cursor-beam";
-                        this.cursorIsBlinking = true;
-                    }
-                }, this.cursorBlinkingStopDelay);
-            }
+            if (this.cursorIsBlinking) this.stopBlinking();
 
             const now = new Date().getTime();
             // Check if enough time has passed since the last execution
@@ -130,7 +130,7 @@ window.ideTextEditor = {
                 //this.mouseMoveDidCount++;
                 ideTextEditor.mouseMoveLastCall = now;
                 dotNetHelper.invokeMethodAsync(
-                    "ReceiveContentOnMouseMove",
+                    "OnMouseMove",
                     event.buttons,
                     event.clientX,
                     event.clientY,
