@@ -13,12 +13,14 @@ window.ideTextEditor = {
 
         if (!textEditorElement) {
             return {
-                CharacterWidth: 5,
-                LineHeight: 5,
+                CharacterWidth: 0,
+                LineHeight: 0,
                 EditorWidth: 0,
                 EditorHeight: 0,
-				BoundingClientRectLeft: 0,
-				BoundingClientRectTop: 0,
+                EditorLeft: 0,
+    			EditorTop: 0,
+    			ScrollbarLiteralWidth: 0,
+    			ScrollbarLiteralHeight: 0,
             }
         }
         
@@ -36,16 +38,17 @@ window.ideTextEditor = {
         // "literal" as opposed to the "scrollWidth", this is the amount of height the x-axis scrollbar measures
         let measureScrollbarLiteralElement = document.createElement("div");
         textEditorElement.appendChild(measureScrollbarLiteralElement);
-        measureScrollbarLiteralElement.setAttribute('style', "width:0; height:0; overflow:scroll;");
-        let scrollbarLiteralWidth = Math.ceil(elementReference.offsetWidth);
-        let scrollbarLiteralHeight = Math.ceil(elementReference.offsetHeight),
+        measureScrollbarLiteralElement.setAttribute('style', "width:200px; height:200px; overflow:scroll;");
+        let scrollbarLiteralWidth = measureScrollbarLiteralElement.offsetWidth;
+        let scrollbarLiteralHeight = measureScrollbarLiteralElement.offsetHeight;
+        let aaa = measureScrollbarLiteralElement.getBoundingClientRect();
         textEditorElement.removeChild(measureScrollbarLiteralElement);
 
         return {
             CharacterWidth: characterWidth,
             LineHeight: lineHeight,
-            EditorWidth: Math.ceil(textEditorElement.offsetWidth),
-            EditorHeight: Math.ceil(textEditorElement.offsetHeight),
+            EditorWidth: textEditorElement.offsetWidth,
+            EditorHeight: textEditorElement.offsetHeight,
             EditorLeft: boundingClientRect.left,
 			EditorTop: boundingClientRect.top,
 			ScrollbarLiteralWidth: scrollbarLiteralWidth,
