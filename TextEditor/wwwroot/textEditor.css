@@ -6,6 +6,7 @@
     border: 2px solid red;
     font-family: monospace;
     overflow: scroll;
+    position: relative;
 }
 
 .te_component-class:focus {
@@ -16,4 +17,7 @@
     width: 2.5px;
     height: var(--te_line-height);
     background-color: currentColor;
+    position: absolute;
+    left: 0;
+    top: 0;
 }
