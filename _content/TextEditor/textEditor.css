@@ -1,0 +1,23 @@
+:root {
+    --te_line-height: 30px;
+}
+
+.te_component-class {
+    border: 2px solid red;
+    font-family: monospace;
+    overflow: scroll;
+    position: relative;
+}
+
+.te_component-class:focus {
+    border: 2px solid purple;
+}
+
+.te_cursor-class {
+    width: 2.5px;
+    height: var(--te_line-height);
+    background-color: currentColor;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
