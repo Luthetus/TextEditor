@@ -1,6 +1,7 @@
 .te_component-class {
     border: 2px solid red;
     font-family: monospace;
+    overflow: scroll;
 }
 
 .te_component-class:focus {
