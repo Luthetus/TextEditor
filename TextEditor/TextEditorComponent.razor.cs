@@ -75,19 +75,26 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         Model.Measurements = _measurements;
     }
     
-    private void OnKeydown(KeyboardEventArgs e)
+    [JSInvokable]
+    public void ReceiveKeyboardDebounce()
+    {
+        Model.ReceiveKeyboardDebounce();
+    }
+    
+    [JSInvokable]
+    public void OnKeydown(string key)
     {
         // TODO: perhaps use code for the software implemented dvorak and etc... people. I'm not sure if all ways of doing other layouts change 'Key'.
         //
         // TODO: another such scenario that I recall was for Linux, I think it was the gnome tweaks settings to make capslock act as an escape key,...
         //       ...I'm not sure the details but something about it needed a special case.
         //
-        if (e.Key.Length == 1)
+        if (key.Length == 1)
         {
-            Model.Content.Append(e.Key);
+            Model.Content.Append(key);
         }
     
-        switch (e.Key)
+        switch (key)
         {
             case "ArrowLeft":
                 Model.MoveCursor(MoveCursorKind.ArrowLeft);

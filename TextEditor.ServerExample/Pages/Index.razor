@@ -17,6 +17,8 @@ Welcome to your new app.
         endPositionIndex: 1,
         foreignKey: 0,
         byteKind: TextEditorModel.CharacterTooltipByteKind));
+    model.EnableDecorations();
+    model.ReceiveKeyboardDebounce();
 }
 
 <TextEditorComponent Model="model"/>
