@@ -47,11 +47,11 @@
 
 <div class="te_component-class"
      tabindex="-1"
-     id="te_component-id"
-     @onkeydown="OnKeydown"
-     @onkeydown:preventDefault="true">
+     id="te_component-id">
     
-    @Model.Content.ToString()
+    <div>
+        @Model.Content.ToString()
+    </div>
     
     @{
         stringBuilder.Append("left:");

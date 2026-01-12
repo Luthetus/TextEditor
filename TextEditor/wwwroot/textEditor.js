@@ -7,7 +7,9 @@ window.ideTextEditor = {
     //mouseMoveDidCount: 0,
     thinksLeftMouseButtonIsDown: false,
     mouseStopTimer: null,
-    stopDelay: 300,
+    mouseStopDelay: 300,
+    keydownStopTimer: 3000,
+    keydownStopDelay: 3000,
     setFocus: function () {
         let textEditorElement = document.getElementById("te_component-id");
         if (textEditorElement) {
@@ -113,8 +115,18 @@ window.ideTextEditor = {
                                 event.clientX,
                                 event.clientY);
                         }
-                    }, this.stopDelay);
+                    }, this.mouseStopDelay);
                 }
+            });
+            
+            contentElement.addEventListener('keydown', (event) => {
+                dotNetHelper.invokeMethodAsync(
+                    "OnKeydown",
+                    event.key);
+                clearTimeout(this.keydownStopTimer); // Reset timer on every move
+                    this.keydownStopTimer = setTimeout(() => {
+                        dotNetHelper.invokeMethodAsync("ReceiveKeyboardDebounce");
+                    }, this.keydownStopDelay);
             });
         }
         
