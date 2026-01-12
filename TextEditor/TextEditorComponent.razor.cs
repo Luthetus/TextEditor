@@ -25,6 +25,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     /// Additionally this set is performed within 'InitializeAndTakeMeasurements()'.
     /// </summary>
     private TextEditorMeasurements _measurements;
+    /// <summary>
+    /// This field most closely relates to whether the non-Blazor UI events were added via JavaScript or not.
+    /// </summary>
     private bool _failedToInitialize;
     
     private TextEditorTooltip _tooltip;
@@ -70,7 +73,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.takeMeasurements");
         Model.Measurements = _measurements;
-        _failedToInitialize = _measurements.IsDefault();
     }
     
     private async Task FocusOnClick()
