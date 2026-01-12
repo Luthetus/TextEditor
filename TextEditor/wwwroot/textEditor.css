@@ -1,0 +1,7 @@
+.te_component-class {
+    border: 2px solid red;
+}
+
+.te_component-class:focus {
+    border: 2px solid purple;
+}

@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using Microsoft.AspNetCore.Components.Web
 @namespace TextEditor.ServerExample.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
@@ -11,6 +11,9 @@
     <base href="~/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
+    
+    <link href="_content/TextEditor/textEditor.css" rel="stylesheet" />
+    
     <link href="TextEditor.ServerExample.styles.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.png"/>
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
@@ -28,6 +31,8 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+    
+    <script src="_content/TextEditor/textEditor.js"></script>
 
     <script src="_framework/blazor.server.js"></script>
 </body>
