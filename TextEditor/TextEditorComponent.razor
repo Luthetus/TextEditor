@@ -63,7 +63,12 @@
             var currentDecorationByte = 0;
         }
         
-        if (Model.DecorationArray is null || Model.DecorationArray.Length <= i)
+        @* 
+            Less than in an if statement's expression breaks the razor lexer?
+            Okay I'm missing an '@@' before the if...
+            but now I'm seeing that I don't escape the '@@'...
+        *@
+        @if (Model.DecorationArray is null || Model.DecorationArray.Length < Model.Content.Length)
         {
             // I'm just going to avoid the decorations if things look sketchy.
             // I need to figure out how to do this with good precision.
@@ -77,10 +82,22 @@
         {
             @for (int i = 0; i < Model.Content.Length; i++)
             {
-                if (Model.DecorationArray.Length > i)
+                if (Model.DecorationArray[i] == currentDecorationByte)
                 {
-                    
+                    spanBuilder.Append(Model.Content[i]);
                 }
+                else
+                {
+                    <span>@spanBuilder.ToString();</span>
+                    spanBuilder.Clear();
+                    currentDecorationByte = Model.DecorationArray[i];
+                    spanBuilder.Append(Model.Content[i]);
+                }
+            }
+            
+            if (spanBuilder.Length > 0)
+            {
+                <span>@spanBuilder.ToString();</span>
             }
         }
     </div>
