@@ -3,7 +3,7 @@ using System.Text;
 namespace TextEditor;
 
 public class TextEditorModel
-{
+{// Draft PR
     public StringBuilder Content = new("test...tset");
     
     public int PositionIndex { get; set; }

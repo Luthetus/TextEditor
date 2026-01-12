@@ -79,6 +79,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     public void ReceiveKeyboardDebounce()
     {
         Model.ReceiveKeyboardDebounce();
+        StateHasChanged();
     }
     
     [JSInvokable]
@@ -109,6 +110,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 Model.MoveCursor(MoveCursorKind.ArrowRight);
                 break;
         }
+        
+        StateHasChanged();
     }
     
     [JSInvokable]
@@ -120,6 +123,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         var (characterIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
         Model.PositionIndex = characterIndex;
+        StateHasChanged();
     }
     
     [JSInvokable]
