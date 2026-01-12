@@ -55,8 +55,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.initializeAndGetMeasurements");
         Model.Measurements = _measurements;
-        if (_measurements.IsDefault())
-            _failedToInitialize = true;
+        _failedToInitialize = _measurements.IsDefault();
     }
     
     private async Task FocusOnClick()
