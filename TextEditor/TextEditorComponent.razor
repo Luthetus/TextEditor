@@ -23,19 +23,25 @@
 @if (_tooltipOccurred)
 {
     var tooltipText = Model.GetTooltipText(_tooltip);
-    
-    stringBuilder.Append("left:");
-    stringBuilder.Append(_tooltipClientX.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-    stringBuilder.Append("px;");
-    stringBuilder.Append("top:");
-    stringBuilder.Append(_tooltipClientY.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-    stringBuilder.Append("px;");
-    var tooltipStyle = stringBuilder.ToString();
-    stringBuilder.Clear();
-    
-    <div style="@tooltipStyle">
-        @tooltipText
-    </div>
+    if (tooltipText is null)
+    {
+        _tooltipOccurred = false;
+    }
+    else
+    {
+        stringBuilder.Append("left:");
+        stringBuilder.Append(_tooltipClientX.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("top:");
+        stringBuilder.Append(_tooltipClientY.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var tooltipStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        
+        <div style="@tooltipStyle">
+            @tooltipText
+        </div>
+    }
 }
 
 <div class="te_component-class"

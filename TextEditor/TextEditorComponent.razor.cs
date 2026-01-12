@@ -135,16 +135,34 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     
         var (characterIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
         
+        var tooltipFound = false;
+        
         foreach (var tooltip in Model.TooltipList)
         {
             if (tooltip.StartPositionIndex <= characterIndex && tooltip.EndPositionIndex > characterIndex)
             {
+                tooltipFound = true;
                 _tooltip = tooltip;
                 _tooltipOccurred = true;
                 _tooltipClientX = clientX;
                 _tooltipClientY = clientY;
+            }
+        }
+        
+        if (!tooltipFound)
+        {
+            // Check whether there previously was a tooltip being shown.
+            // Because if two tooltip events result in no tooltip found, then there is no need to re-render.
+            if (_tooltipOccurred)
+            {
+                _tooltipOccurred = false;
                 StateHasChanged();
             }
+        }
+        else
+        {
+            // If there is tooltip found, re-render everytime.
+            StateHasChanged();
         }
     }
     
