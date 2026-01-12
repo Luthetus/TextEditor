@@ -64,7 +64,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     
     public async Task InitializeAndTakeMeasurements()
     {
-        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.initializeAndTakeMeasurements");
+        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.initializeAndTakeMeasurements", _dotNetHelper);
         Model.Measurements = _measurements;
         _failedToInitialize = _measurements.IsDefault();
     }
@@ -109,31 +109,40 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
     }
     
-    private void OnMouseDown(MouseEventArgs e)
+    [JSInvokable]
+    public void OnMouseDown(
+        long buttons,
+        double clientX,
+        double clientY,
+        bool shiftKey)
     {
-        var (rX, rY) = GetRelativeCoordinates();
+        var (rX, rY) = GetRelativeCoordinates(clientX, clientY);
         
         var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
         Model.PositionIndex = characterIndex;
     }
     
     [JSInvokable]
-    private void OnMouseMove(
+    public void OnMouseMove(
         long buttons,
         double clientX,
         double clientY,
         bool shiftKey)
     {
+        var (rX, rY) = GetRelativeCoordinates(clientX, clientY);
         
+        var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
+        Model.PositionIndex = characterIndex;
+        StateHasChanged();
     }
     
     [JSInvokable]
-    private void ReceiveTooltip(double clientX, double clientY)
+    public void ReceiveTooltip(double clientX, double clientY)
     {
         if (Model.TooltipList is null)
             return;
     
-        var (rX, rY) = GetRelativeCoordinates();
+        var (rX, rY) = GetRelativeCoordinates(clientX, clientY);
         
         var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
         
@@ -149,7 +158,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
     }
     
-    private (double rX, double rY) GetRelativeCoordinates()
+    private (double rX, double rY) GetRelativeCoordinates(double clientX, double clientY)
     {
         // rX => relativeX
         // rY => relativeY

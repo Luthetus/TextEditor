@@ -44,8 +44,78 @@ window.ideTextEditor = {
         
         let measurements = this.takeMeasurements();
         if (!this.isDefaultMeasurements(measurements)) {
-            // only add the listener if the measurements were non-default
-            contentElement.addEventListener('mousemove', mouseMove);
+            // only add the listeners if the measurements were non-default
+            
+            contentElement.addEventListener('mousedown', (event) => {
+                if ((event.buttons & 1) === 1) {
+                    this.thinksLeftMouseButtonIsDown = true;
+                }
+
+                if (this.cursorIsBlinking) {
+                    this.stopCursorBlinking();
+                }
+
+                dotNetHelper.invokeMethodAsync(
+                    "OnMouseDown",
+                    event.buttons,
+                    event.clientX,
+                    event.clientY,
+                    event.shiftKey);
+            });
+            
+            contentElement.addEventListener('mousemove', (event) => {
+                if ((event.buttons & 1) === 0) {
+                    this.thinksLeftMouseButtonIsDown = false;
+                }
+                if (this.thinksLeftMouseButtonIsDown) {
+        
+                    //if (this.cursorIsBlinking) this.stopCursorBlinking();
+        
+                    const now = new Date().getTime();
+                    // Check if enough time has passed since the last execution
+                    // 157 did, 1000 skipped, at 15ms throttle
+                    // TODO: Fine tune this more
+                    // 155 did, 1000 skipped, at 16ms throttle
+                    // 141 did, 1000 skipped, at 17ms throttle
+                    // 138 did, 1000 skipped, at 18ms throttle
+                    // 124 did, 1000 skipped, at 19ms throttle
+                    // 123 did, 1000 skipped, at 20ms throttle
+                    // 119 did, 1000 skipped, at 20ms throttle
+                    // 103 did, 1000 skipped, at 23ms throttle
+                    // 101 did, 1000 skipped, at 24ms throttle
+                    // 95 did, 1000 skipped, at 25ms throttle
+                    // 83 did, 1000 skipped, at 30ms throttle
+                    if (now - ideTextEditor.mouseMoveLastCall >= 25) {
+                        //this.mouseMoveDidCount++;
+                        ideTextEditor.mouseMoveLastCall = now;
+                        dotNetHelper.invokeMethodAsync(
+                            "OnMouseMove",
+                            event.buttons,
+                            event.clientX,
+                            event.clientY,
+                            event.shiftKey);
+                    }
+                    /*else {
+                        this.mouseMoveSkippedCount++;
+        				
+                        if (this.mouseMoveSkippedCount % 1000 == 0) {
+        				    // Breakpoint here in the user agent debugger
+                            this.mouseMoveSkippedCount = this.mouseMoveSkippedCount;
+        				}
+                    }*/
+                }
+                else {
+                    clearTimeout(this.mouseStopTimer); // Reset timer on every move
+                    this.mouseStopTimer = setTimeout(() => {
+                        if (!this.thinksLeftMouseButtonIsDown) {
+                            dotNetHelper.invokeMethodAsync(
+                                "ReceiveTooltip",
+                                event.clientX,
+                                event.clientY);
+                        }
+                    }, this.stopDelay);
+                }
+            });
         }
         
         return measurements;
@@ -91,7 +161,7 @@ window.ideTextEditor = {
 			ScrollbarLiteralHeight: scrollbarLiteralHeight,
         }
     },
-    stopBlinking: function () {
+    /*stopCursorBlinking: function () {
         if (this.cursorIsBlinking) {
             cursorElement.className = "ide_te_text-editor-cursor ide_te_cursor-beam";
             this.cursorIsBlinking = false;
@@ -103,58 +173,5 @@ window.ideTextEditor = {
                 }
             }, this.cursorBlinkingStopDelay);
         }
-    },
-    mouseMove: function (event) {
-        if ((event.buttons & 1) === 0) {
-            this.thinksLeftMouseButtonIsDown = false;
-        }
-        if (this.thinksLeftMouseButtonIsDown) {
-
-            if (this.cursorIsBlinking) this.stopBlinking();
-
-            const now = new Date().getTime();
-            // Check if enough time has passed since the last execution
-            // 157 did, 1000 skipped, at 15ms throttle
-            // TODO: Fine tune this more
-            // 155 did, 1000 skipped, at 16ms throttle
-            // 141 did, 1000 skipped, at 17ms throttle
-            // 138 did, 1000 skipped, at 18ms throttle
-            // 124 did, 1000 skipped, at 19ms throttle
-            // 123 did, 1000 skipped, at 20ms throttle
-            // 119 did, 1000 skipped, at 20ms throttle
-            // 103 did, 1000 skipped, at 23ms throttle
-            // 101 did, 1000 skipped, at 24ms throttle
-            // 95 did, 1000 skipped, at 25ms throttle
-            // 83 did, 1000 skipped, at 30ms throttle
-            if (now - ideTextEditor.mouseMoveLastCall >= 25) {
-                //this.mouseMoveDidCount++;
-                ideTextEditor.mouseMoveLastCall = now;
-                dotNetHelper.invokeMethodAsync(
-                    "OnMouseMove",
-                    event.buttons,
-                    event.clientX,
-                    event.clientY,
-                    event.shiftKey);
-            }
-            /*else {
-                this.mouseMoveSkippedCount++;
-				
-                if (this.mouseMoveSkippedCount % 1000 == 0) {
-				    // Breakpoint here in the user agent debugger
-                    this.mouseMoveSkippedCount = this.mouseMoveSkippedCount;
-				}
-            }*/
-        }
-        else {
-            clearTimeout(this.mouseStopTimer); // Reset timer on every move
-            this.mouseStopTimer = setTimeout(() => {
-                if (!this.thinksLeftMouseButtonIsDown) {
-                    dotNetHelper.invokeMethodAsync(
-                        "ReceiveTooltip",
-                        event.clientX,
-                        event.clientY);
-                }
-            }, this.stopDelay);
-        }
-    }
+    },*/
 }
