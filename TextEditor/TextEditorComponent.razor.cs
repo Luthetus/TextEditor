@@ -27,6 +27,11 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     private TextEditorMeasurements _measurements;
     private bool _failedToInitialize;
     
+    private TextEditorTooltip _tooltip;
+    private bool _tooltipOccurred;
+    private double _tooltipClientX;
+    private double _tooltipClientY;
+    
     protected override void OnInitialized()
     {
         _dotNetHelper = DotNetObjectReference.Create(this);
@@ -118,6 +123,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     private void ReceiveTooltip(double clientX, double clientY)
     {
+        if (Model.TooltipList is null)
+            return;
+    
         // rX => relativeX
         // rY => relativeY
         double rX;
@@ -130,9 +138,16 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (rY < 0) rY = 0;
         
         var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
-        if (Model.Content.Length > characterIndex)
+        
+        foreach (var tooltip in Model.TooltipList)
         {
-            characterIndex;
+            if (tooltip.PositionIndex == characterIndex)
+            {
+                _tooltip = tooltip;
+                _tooltipOccurred = true;
+                _tooltipClientX = clientX;
+                _tooltipClientY = clientY;
+            }
         }
     }
     

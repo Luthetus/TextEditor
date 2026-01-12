@@ -20,8 +20,10 @@
     ScrollbarLiteralHeight:@Model.Measurements.ScrollbarLiteralHeight<br/>
 </div>
 
-@if (_tooltipText is not null)
+@if (_tooltipOccurred)
 {
+    var tooltipText = GetTooltipText(_tooltip);
+    
     stringBuilder.Append("left:");
     stringBuilder.Append(_tooltipClientX);
     stringBuilder.Append("px;");
