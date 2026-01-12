@@ -20,6 +20,14 @@ public sealed partial class TextEditorComponent : ComponentBase
         base.OnParametersSet();
     }
     
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            JsRuntime.InvokeAsync<TextEditorMeasurements>();
+        }
+    }
+    
     private async Task FocusOnClick()
     {
         await JsRuntime.InvokeVoidAsync("ideTextEditor.setFocus");
