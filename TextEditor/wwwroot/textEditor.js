@@ -44,6 +44,9 @@ window.ideTextEditor = {
         
         textEditorElement.removeChild(measureScrollbarLiteralElement);
 
+        const root = document.documentElement;
+        root.style.setProperty('--te_line-height', lineHeight + "px");
+
         return {
             CharacterWidth: characterWidth,
             LineHeight: lineHeight,
