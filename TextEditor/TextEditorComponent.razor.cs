@@ -13,7 +13,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [Parameter, EditorRequired]
     public TextEditorModel Model { get; set; } = null!;
     
-    private DotNetObjectReference<TextEditorViewModelSlimDisplay>? _dotNetHelper;
+    private DotNetObjectReference<TextEditorComponent>? _dotNetHelper;
     /// <summary>
     /// No persistence of TextEditorModel comes with the library.
     ///
@@ -22,7 +22,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     /// because those measurements relate to the virtualized content that was displayed.
     ///
     /// In 'OnParametersSet()' the Model has its 'Measurements' property set to that of the component's '_measurements' field.
-    /// Additionally this set is performed within 'InitializeAndGetMeasurements()'.
+    /// Additionally this set is performed within 'InitializeAndTakeMeasurements()'.
     /// </summary>
     private TextEditorMeasurements _measurements;
     private bool _failedToInitialize;
@@ -31,6 +31,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     private bool _tooltipOccurred;
     private double _tooltipClientX;
     private double _tooltipClientY;
+    
+    public TextEditorMeasurements Measurements => _measurements;
+    public bool FailedToInitialize => _failedToInitialize;
     
     protected override void OnInitialized()
     {
@@ -51,14 +54,21 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         if (firstRender)
         {
-            await InitializeAndGetMeasurements();
+            await InitializeAndTakeMeasurements();
             await InvokeAsync(StateHasChanged);
         }
     }
     
-    public async Task InitializeAndGetMeasurements()
+    public async Task InitializeAndTakeMeasurements()
     {
-        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.initializeAndGetMeasurements");
+        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.initializeAndTakeMeasurements");
+        Model.Measurements = _measurements;
+        _failedToInitialize = _measurements.IsDefault();
+    }
+    
+    public async Task TakeMeasurements()
+    {
+        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.takeMeasurements");
         Model.Measurements = _measurements;
         _failedToInitialize = _measurements.IsDefault();
     }
@@ -131,8 +141,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         double rX;
         double rY;
         
-        rX = e.ClientX - Model.Measurements.EditorLeft;
-        rY = e.ClientY - Model.Measurements.EditorTop;
+        rX = clientX - Model.Measurements.EditorLeft;
+        rY = clientY - Model.Measurements.EditorTop;
         
         if (rX < 0) rX = 0;
         if (rY < 0) rY = 0;

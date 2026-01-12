@@ -22,19 +22,19 @@
 
 @if (_tooltipOccurred)
 {
-    var tooltipText = GetTooltipText(_tooltip);
+    var tooltipText = Model.GetTooltipText(_tooltip);
     
     stringBuilder.Append("left:");
-    stringBuilder.Append(_tooltipClientX);
+    stringBuilder.Append(_tooltipClientX.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
     stringBuilder.Append("px;");
     stringBuilder.Append("top:");
-    stringBuilder.Append(_tooltipClientY);
+    stringBuilder.Append(_tooltipClientY.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
     stringBuilder.Append("px;");
     var tooltipStyle = stringBuilder.ToString();
     stringBuilder.Clear();
     
     <div style="@tooltipStyle">
-        @_tooltipText
+        @tooltipText
     </div>
 }
 
