@@ -20,6 +20,22 @@
     ScrollbarLiteralHeight:@Model.Measurements.ScrollbarLiteralHeight<br/>
 </div>
 
+@if (_tooltipText is not null)
+{
+    stringBuilder.Append("left:");
+    stringBuilder.Append(_tooltipClientX);
+    stringBuilder.Append("px;");
+    stringBuilder.Append("top:");
+    stringBuilder.Append(_tooltipClientY);
+    stringBuilder.Append("px;");
+    var tooltipStyle = stringBuilder.ToString();
+    stringBuilder.Clear();
+    
+    <div style="@tooltipStyle">
+        @_tooltipText
+    </div>
+}
+
 <div class="te_component-class"
      tabindex="-1"
      id="te_component-id"

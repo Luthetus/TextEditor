@@ -90,7 +90,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 Model.MoveCursor(MoveCursorKind.ArrowRight);
                 break;
         }
-        
     }
     
     private void OnMouseDown(MouseEventArgs e)
@@ -114,6 +113,27 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     private void OnMouseMove(MouseEventArgs e)
     {
         
+    }
+    
+    [JSInvokable]
+    private void ReceiveTooltip(double clientX, double clientY)
+    {
+        // rX => relativeX
+        // rY => relativeY
+        double rX;
+        double rY;
+        
+        rX = e.ClientX - Model.Measurements.EditorLeft;
+        rY = e.ClientY - Model.Measurements.EditorTop;
+        
+        if (rX < 0) rX = 0;
+        if (rY < 0) rY = 0;
+        
+        var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
+        if (Model.Content.Length > characterIndex)
+        {
+            characterIndex;
+        }
     }
     
     public void Dispose()
