@@ -4,7 +4,7 @@ namespace TextEditor;
 
 public class TextEditorModel
 {
-    public StringBuilder Content = new("test");
+    public StringBuilder Content = new("test...tset");
     
     public int PositionIndex { get; set; }
     
@@ -80,6 +80,30 @@ public class TextEditorModel
         
         if (PositionIndex > Content.Length)
             PositionIndex = Content.Length;
+    }
+    
+    /// <summary>
+    /// Maybe this is more a remark...
+    /// but something to keep in mind when wanting plain text MIGHT be:
+    ///
+    /// Returning 'null' avoids the HTML attribute name 'class' from being written.
+    /// Whereas 'string.Empty' will still write the HTML attribute name 'class'.
+    ///
+    ///
+    /// But, if you ever wanted to change the color of plain text you'd be in trouble
+    /// without a CSS class to target.
+    /// </summary>
+    public virtual string? DecorationMapToCssClass(byte decorationByte)
+    {
+        switch (decorationByte)
+        {
+            case NoneDecorationByte:
+                return null;
+            case KeywordDecorationByte:
+                return "te_k";
+            default:
+                return null;
+        }
     }
     
     public virtual void ReceiveKeyboardDebounce()

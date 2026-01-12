@@ -59,8 +59,6 @@
             // I'm not sure on the details of what me making this initial capacity larger
             // would have on the collection of this StringBuilder so... 64 is the number for now I guess.
             var spanBuilder = new StringBuilder(capacity: 64);
-            
-            var currentDecorationByte = 0;
         }
         
         @* 
@@ -68,7 +66,7 @@
             Okay I'm missing an '@@' before the if...
             but now I'm seeing that I don't escape the '@@'...
         *@
-        @if (Model.DecorationArray is null || Model.DecorationArray.Length < Model.Content.Length)
+        @if (Model.DecorationArray is null || Model.DecorationArray.Length < Model.Content.Length || Model.DecorationArray.Length == 0)
         {
             // I'm just going to avoid the decorations if things look sketchy.
             // I need to figure out how to do this with good precision.
@@ -80,7 +78,9 @@
         }
         else
         {
-            @for (int i = 0; i < Model.Content.Length; i++)
+            var currentDecorationByte = Model.DecorationArray[0];
+            
+            for (int i = 0; i < Model.Content.Length; i++)
             {
                 if (Model.DecorationArray[i] == currentDecorationByte)
                 {
@@ -88,7 +88,7 @@
                 }
                 else
                 {
-                    <span>@spanBuilder.ToString();</span>
+                    <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@spanBuilder.ToString()</span>
                     spanBuilder.Clear();
                     currentDecorationByte = Model.DecorationArray[i];
                     spanBuilder.Append(Model.Content[i]);
@@ -97,7 +97,7 @@
             
             if (spanBuilder.Length > 0)
             {
-                <span>@spanBuilder.ToString();</span>
+                <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@spanBuilder.ToString()</span>
             }
         }
     </div>
