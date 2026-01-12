@@ -28,3 +28,10 @@
     left: 0;
     top: 0;
 }
+
+.te_tooltip {
+    position: fixed;
+    background-color: orange;
+    min-width: 30px;
+    min-height: 30px;
+}
