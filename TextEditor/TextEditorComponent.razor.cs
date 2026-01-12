@@ -1,7 +1,7 @@
+using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using System.Text;
 
 namespace TextEditor;
 
@@ -11,12 +11,12 @@ public sealed partial class TextEditorComponent : ComponentBase
     private IJSRuntime JsRuntime { get; set; } = null!;
     
     [Parameter, EditorRequired]
-    public TextEditorModel TextEditorModel { get; set; } = null!;
+    public TextEditorModel Model { get; set; } = null!;
     
     protected override void OnParametersSet()
     {
-        if (TextEditorModel is null)
-            throw new NotImplementedException($"{nameof(TextEditorModel)} cannot be null");
+        if (Model is null)
+            throw new NotImplementedException($"The Blazor parameter '{nameof(Model)}' cannot be null");
         base.OnParametersSet();
     }
     
@@ -24,7 +24,8 @@ public sealed partial class TextEditorComponent : ComponentBase
     {
         if (firstRender)
         {
-            JsRuntime.InvokeAsync<TextEditorMeasurements>();
+            Model.Measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.getTextEditorMeasurements");
+            await InvokeAsync(StateHasChanged);
         }
     }
     
@@ -35,6 +36,6 @@ public sealed partial class TextEditorComponent : ComponentBase
     
     private void OnKeydown(KeyboardEventArgs e)
     {
-        TextEditorModel.Content.Append(e.Key);
+        Model.Content.Append(e.Key);
     }
 }

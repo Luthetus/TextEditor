@@ -8,5 +8,5 @@ public class TextEditorModel
     
     public int PositionIndex { get; set; }
     
-    public TextEditorMeasurements TextEditorMeasurements { get; set; }
+    public TextEditorMeasurements Measurements { get; set; }
 }

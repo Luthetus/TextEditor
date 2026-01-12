@@ -1,4 +1,12 @@
 
+
+<div>
+
+    @Model.Measurements.CharacterWidth<br/>
+    @Model.Measurements.LineHeight
+
+</div>
+
 <div class="te_component-class"
      tabindex="-1"
      id="te_component-id"
@@ -6,7 +14,7 @@
      @onkeydown="OnKeydown"
      @onkeydown:preventDefault="true">
     
-    @TextEditorModel.Content.ToString()
+    @Model.Content.ToString()
     
     <div class="te_cursor-class"
          id="te_cursor-id">
