@@ -50,7 +50,39 @@
      id="te_component-id">
     
     <div>
-        @Model.Content.ToString()
+        @{
+            // This is a bit awkward because I don't believe I can stack alloc in the markup / (I think I
+            // also have seen in the past that I can't stackalloc Blazor WASM maybe it was related to unsafe code?).
+            //
+            // I'm going to throw an initial capacity based on feeling alone.
+            // If this is 64, it hopefully will often miss a reallocation.
+            // I'm not sure on the details of what me making this initial capacity larger
+            // would have on the collection of this StringBuilder so... 64 is the number for now I guess.
+            var spanBuilder = new StringBuilder(capacity: 64);
+            
+            var currentDecorationByte = 0;
+        }
+        
+        if (Model.DecorationArray is null || Model.DecorationArray.Length <= i)
+        {
+            // I'm just going to avoid the decorations if things look sketchy.
+            // I need to figure out how to do this with good precision.
+            //
+            // In the IDE repo, I put the character and the decoration byte as a singular struct.
+            // Thus the Content and the decorations are in the same "List".
+            // But that forces you to carry around decorations even if you don't intend on using them...
+            <text>@Model.Content.ToString()</text>
+        }
+        else
+        {
+            @for (int i = 0; i < Model.Content.Length; i++)
+            {
+                if (Model.DecorationArray.Length > i)
+                {
+                    
+                }
+            }
+        }
     </div>
     
     @{

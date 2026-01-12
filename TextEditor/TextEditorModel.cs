@@ -84,7 +84,8 @@ public class TextEditorModel
     
     public virtual void ReceiveKeyboardDebounce()
     {
-        TooltipList.Clear();
+        if (TooltipList is not null)
+            TooltipList.Clear();
         Decorate(0, Content.Length, NoneDecorationByte);
         
         int position = 0;
