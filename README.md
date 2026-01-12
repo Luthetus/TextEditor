@@ -1,3 +1,6 @@
+DEMO:
+https://luthetus.github.io/TextEditor/
+
 A text editor written with Blazor.
 
 It edits the text synchronously with the UI SynchronizationContext in order to ensure the simplest implementation details.
