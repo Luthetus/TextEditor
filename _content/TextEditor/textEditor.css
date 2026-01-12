@@ -35,3 +35,17 @@
     min-width: 30px;
     min-height: 30px;
 }
+
+.te_k {
+    /*
+        te_k => texteditor_keyword
+        
+        The CSS classes that used for syntax highlighting could theoretically add up.
+        For example, if there were a screen full of characters.
+        And each character had a different syntax highlighting applied to it.
+        Then each character writes HTML for the span, and the HTML attribute name "class" and the attribute value.
+        
+        Thus this class name is somewhat cryptic.
+    */
+    color: blue;
+}
