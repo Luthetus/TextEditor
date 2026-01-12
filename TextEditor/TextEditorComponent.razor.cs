@@ -6,7 +6,7 @@ using Microsoft.JSInterop;
 namespace TextEditor;
 
 public sealed partial class TextEditorComponent : ComponentBase, IDisposable
-{//Draft PR
+{
     [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
     
