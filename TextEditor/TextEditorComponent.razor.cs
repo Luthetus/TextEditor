@@ -63,4 +63,21 @@ public sealed partial class TextEditorComponent : ComponentBase
         }
         
     }
+    
+    private void OnMouseDown(MouseEventArgs e)
+    {
+        // rX => relativeX
+        // rY => relativeY
+        double rX;
+        double rY;
+        
+        rX = e.ClientX - Model.Measurements.EditorLeft;
+        rY = e.ClientY - Model.Measurements.EditorTop;
+        
+        if (rX < 0) rX = 0;
+        if (rY < 0) rY = 0;
+        
+        var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
+        Model.PositionIndex = characterIndex;
+    }
 }
