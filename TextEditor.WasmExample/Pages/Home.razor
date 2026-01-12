@@ -7,4 +7,14 @@
 
 Welcome to your new app.
 
-<TextEditorComponent Model="new()"/>
+@{
+    var model = new TextEditorModel();
+    model.TooltipList = new();
+    model.TooltipList.Add(new TextEditorTooltip(
+        startPositionIndex: 0,
+        endPositionIndex: 1,
+        foreignKey: 0,
+        byteKind: TextEditorModel.CharacterTooltipByteKind));
+}
+
+<TextEditorComponent Model="model" />

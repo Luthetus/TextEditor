@@ -137,7 +137,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         
         foreach (var tooltip in Model.TooltipList)
         {
-            if (tooltip.PositionIndex == characterIndex)
+            if (tooltip.StartPositionIndex <= characterIndex && tooltip.EndPositionIndex > characterIndex)
             {
                 _tooltip = tooltip;
                 _tooltipOccurred = true;
@@ -154,7 +154,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     /// Furthermore, this method in particular takes the original clientX and clientY.
     /// Do NOT pass the results of "the other method" to this one.
     /// </summary>
-    private double (int characterIndex, int lineIndex) GetRelativeIndices(double clientX, double clientY)
+    private (int characterIndex, int lineIndex) GetRelativeIndices(double clientX, double clientY)
     {
         // rX => relativeX
         // rY => relativeY
@@ -170,7 +170,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         return
             (
                 (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero),
-                rY
+                (int)rY
             );
     }
     

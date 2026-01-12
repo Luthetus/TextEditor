@@ -2,7 +2,26 @@ namespace TextEditor;
 
 public struct TextEditorTooltip
 {
-    public int PositionIndex { get; set; }
+    /// <summary>
+    /// 'startPositionIndex' is inclusive;
+    /// 'endPositionIndex' is exclusive;
+    /// </summary>
+    public TextEditorTooltip(int startPositionIndex, int endPositionIndex, int foreignKey, byte byteKind)
+    {
+        StartPositionIndex = startPositionIndex;
+        EndPositionIndex = endPositionIndex;
+        ForeignKey = foreignKey;
+        ByteKind = byteKind;
+    }
+
+    /// <summary>
+    /// Inclusive
+    /// </summary>
+    public int StartPositionIndex { get; set; }
+    /// <summary>
+    /// Exclusive
+    /// </summary>
+    public int EndPositionIndex { get; set; }
     /// <summary>
     /// Rather than duplicating your data, this is a means of on-demand retrieving the data.
     /// This can be whatever is useful to you.

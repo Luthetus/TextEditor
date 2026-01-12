@@ -29,9 +29,9 @@ public class TextEditorModel
         switch (tooltip.ByteKind)
         {
             case CharacterTooltipByteKind:
-                if (Content.Length > tooltip.PositionIndex)
+                if (Content.Length > tooltip.StartPositionIndex)
                 {
-                    return Content[tooltip.PositionIndex].ToString();
+                    return Content[tooltip.StartPositionIndex].ToString();
                 }
                 break;
         }
