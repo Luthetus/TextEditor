@@ -111,9 +111,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         double clientY,
         bool shiftKey)
     {
-        var (rX, rY) = GetRelativeCoordinates(clientX, clientY);
-        
-        var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
+        var (characterIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
         Model.PositionIndex = characterIndex;
     }
     
@@ -124,9 +122,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         double clientY,
         bool shiftKey)
     {
-        var (rX, rY) = GetRelativeCoordinates(clientX, clientY);
-        
-        var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
+        var (characterIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
         Model.PositionIndex = characterIndex;
         StateHasChanged();
     }
@@ -137,9 +133,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (Model.TooltipList is null)
             return;
     
-        var (rX, rY) = GetRelativeCoordinates(clientX, clientY);
-        
-        var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
+        var (characterIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
         
         foreach (var tooltip in Model.TooltipList)
         {
@@ -149,12 +143,45 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 _tooltipOccurred = true;
                 _tooltipClientX = clientX;
                 _tooltipClientY = clientY;
+                StateHasChanged();
             }
         }
     }
     
+    /// <summary>
+    /// Careful, this method and <see cref="GetRelativeCoordinates"/> take similar arguments
+    ///
+    /// Furthermore, this method in particular takes the original clientX and clientY.
+    /// Do NOT pass the results of "the other method" to this one.
+    /// </summary>
+    private double (int characterIndex, int lineIndex) GetRelativeIndices(double clientX, double clientY)
+    {
+        // rX => relativeX
+        // rY => relativeY
+        double rX;
+        double rY;
+        
+        rX = clientX - Model.Measurements.EditorLeft;
+        rY = clientY - Model.Measurements.EditorTop;
+        
+        if (rX < 0) rX = 0;
+        if (rY < 0) rY = 0;
+        
+        return
+            (
+                (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero),
+                rY
+            );
+    }
+    
+    /// <summary>
+    /// Careful, this method and <see cref="GetRelativeIndices"/> take similar arguments
+    /// </summary>
     private (double rX, double rY) GetRelativeCoordinates(double clientX, double clientY)
     {
+        // I don't understand how method inlining works so
+        // I'm gonna explicitly duplicate this code in GetRelativeIndices(...)
+        
         // rX => relativeX
         // rY => relativeY
         double rX;
