@@ -75,11 +75,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         Model.Measurements = _measurements;
     }
     
-    private async Task FocusOnClick()
-    {
-        await JsRuntime.InvokeVoidAsync("ideTextEditor.setFocus");
-    }
-    
     private void OnKeydown(KeyboardEventArgs e)
     {
         // TODO: perhaps use code for the software implemented dvorak and etc... people. I'm not sure if all ways of doing other layouts change 'Key'.
