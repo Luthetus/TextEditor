@@ -1,5 +1,4 @@
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TextEditor;
 
@@ -342,7 +341,7 @@ public class TextEditorModel
             // this logic is duplicated in:
             // - SetText(...)
             // - InsertTextAtPosition()
-            // - InsertCharacter() // only partially duplicated here since it is a char insertion
+            // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
             //
             if (character == '\n')
             {
@@ -405,7 +404,7 @@ public class TextEditorModel
             // this logic is duplicated in:
             // - SetText(...)
             // - InsertTextAtPosition()
-            // - InsertCharacter() // only partially duplicated here since it is a char insertion
+            // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
             //
             if (character == '\n')
             {
@@ -448,11 +447,20 @@ public class TextEditorModel
     }
 
     /// <summary>
-    /// If either '\n' or '\r' is provided, '\n' will be inserted because:
-    /// always insert '\n' for line endings, and then track separately the desired line end.
-    /// upon saving, create a string that has the '\n' included as the desired line end.
+    /// See <see cref="InsertText(string)"/> for explanation, this method is the same but with a char.
     /// </summary>
-    public void InsertCharacter(char character)
+    public void InsertCharacter(char character) => InsertCharacterAtPosition(character, PositionIndex);
+
+    /// <summary>
+    /// See <see cref="InsertTextAtLineColumn(string, int, int)"/> for explanation, this method is the same but with a char.
+    /// </summary>
+    public void InsertCharacterAtLineColumn(char character, int lineIndex, int columnIndex) =>
+        InsertCharacterAtPosition(character, GetPositionIndex(lineIndex, columnIndex));
+
+    /// <summary>
+    /// See <see cref="InsertTextAtPosition(string, int)"/> for explanation, this method is the same but with a char.
+    /// </summary>
+    public void InsertCharacterAtPosition(char character, int positionIndex)
     {
         // always insert '\n' for line endings, and then track separately the desired line end.
         // upon saving, create a string that has the '\n' included as the desired line end.
@@ -460,12 +468,10 @@ public class TextEditorModel
         // this logic is duplicated in:
         // - SetText(...)
         // - InsertTextAtPosition()
-        // - InsertCharacter() // only partially duplicated here since it is a char insertion
+        // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
         //
         if (character == '\n')
         {
-            if (i < text.Length - 1 && text[i + 1] == '\r')
-                ++character;
             _textBuilder.Insert('\n');
         }
         else if (character == '\r')
@@ -483,7 +489,7 @@ public class TextEditorModel
         {
             var character = text[i];
 
-            
+
         }
     }
 }
