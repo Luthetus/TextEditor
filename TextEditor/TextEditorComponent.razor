@@ -37,11 +37,15 @@
     EditorTop:@Model.Measurements.EditorTop<br/>
     ScrollbarLiteralWidth:@Model.Measurements.ScrollbarLiteralWidth<br/>
     ScrollbarLiteralHeight:@Model.Measurements.ScrollbarLiteralHeight<br/>
+
+    <hr/>
+
+    LineEndPositionList.Count:@Model.LineBreakPositionList.Count<br />
 </div>
 
 @if (_tooltipOccurred)
 {
-    var tooltipTextBreakModel.GetTooltipText(_tooltip);
+    var tooltipText = Model.GetTooltipText(_tooltip);
     if (tooltipText is null)
     {
         _tooltipOccurred = false;
@@ -74,7 +78,7 @@
             Okay I'm missing an '@@' before the if...
             but now I'm seeing that I don't escape the '@@'...
         *@
-        @if (Model.DecorationArray is null || Model.DecorationArray.Length < Model.Content.Length || Model.DecorationArray.Length == 0)
+        @if (Model.DecorationArray is null || Model.DecorationArray.Length < Model.Length || Model.DecorationArray.Length == 0)
         {
             // I'm just going to avoid the decorations if things look sketchy.
             // I need to figure out how to do this with good precision.
@@ -82,24 +86,24 @@
             // In the IDE repo, I put the character and the decoration byte as a singular struct.
             // Thus the Content and the decorations are in the same "List".
             // But that forces you to carry around decorations even if you don't intend on using them...
-            <text>@Model.Content.ToString()</text>
+            <text>@Model.ToString()</text>
         }
         else
         {
             var currentDecorationByte = Model.DecorationArray[0];
             
-            for (int i = 0; i < Model.Content.Length; i++)
+            for (int i = 0; i < Model.Length; i++)
             {
                 if (Model.DecorationArray[i] == currentDecorationByte)
                 {
-                    stringBuilder.Append(Model._content[i]);
+                    stringBuilder.Append(Model[i]);
                 }
                 else
                 {
                     <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
                     stringBuilder.Clear();
                     currentDecorationByte = Model.DecorationArray[i];
-                    stringBuilder.Append(Model._content[i]);
+                    stringBuilder.Append(Model[i]);
                 }
             }
             

@@ -195,8 +195,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (rY < 0) rY = 0;
         
         var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
-        if (characterIndex > Model.Content.Length)
-            characterIndex = Model.Content.Length;
+        if (characterIndex > Model.Length)
+            characterIndex = Model.Length;
         
         return
             (
