@@ -106,7 +106,6 @@
                     {
                         <span>@stringBuilder.ToString()</span>
                         stringBuilder.Clear();
-                        stringBuilder.Append(Model[i]);
 
                         if (Model[i] == '\n')
                         {
@@ -150,7 +149,6 @@
                         <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
                         stringBuilder.Clear();
                         currentDecorationByte = Model.DecorationArray[i];
-                        stringBuilder.Append(Model[i]);
 
                         if (Model[i] == '\n')
                         {

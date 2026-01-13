@@ -317,7 +317,8 @@ public class TextEditorModel
     /// <summary>Various parts of the List.cs source code were pasted/modified in here</summary>
     public void DecorateEnsureCapacityWritable()
     {
-        if (_decorationArrayCapacity < _textBuilder.Length) {
+        if (_decorationArrayCapacity < _textBuilder.Length)
+        {
             int newCapacity = _textBuilder.Length == 0? _defaultCapacity : _decorationArrayCapacity * 2;
             // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
             // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
@@ -365,9 +366,10 @@ public class TextEditorModel
 
     public void SetText(string text)
     {
-        for (int i = 0; i < text.Length; i++)
+        var indexBuilder = 0;
+        for (int indexText = 0; indexText < text.Length; indexText++)
         {
-            var character = text[i];
+            var character = text[indexText];
 
             // always insert '\n' for line endings, and then track separately the desired line end.
             // upon saving, create a string that has the '\n' included as the desired line end.
@@ -379,19 +381,22 @@ public class TextEditorModel
             //
             if (character == '\n')
             {
-                if (i < text.Length - 1 && text[i + 1] == '\r')
-                    ++i;
+                if (indexText < text.Length - 1 && text[indexText + 1] == '\r')
+                    ++indexText;
                 _textBuilder.Append('\n');
-                LineBreakPositionList.Add(i);
+                LineBreakPositionList.Add(indexBuilder);
+                ++indexBuilder;
             }
             else if (character == '\r')
             {
                 _textBuilder.Append('\n');
-                LineBreakPositionList.Add(i);
+                LineBreakPositionList.Add(indexBuilder);
+                ++indexBuilder;
             }
             else
             {
                 _textBuilder.Append(character);
+                ++indexBuilder;
             }
         }
     }
@@ -444,6 +449,8 @@ public class TextEditorModel
     /// </summary>
     public void InsertTextAtPosition(string text, int positionIndex)
     {
+        var (lineIndex, columnIndex) = GetLineColumnIndices(positionIndex);
+
         for (int i = 0; i < text.Length; i++)
         {
             var character = text[i];
@@ -461,20 +468,22 @@ public class TextEditorModel
                 if (i < text.Length - 1 && text[i + 1] == '\r')
                     ++i;
                 _textBuilder.Insert(positionIndex, '\n');
-                LineBreakPositionList.Add(i);
+                LineBreakPositionList.Add(positionIndex);
             }
             else if (character == '\r')
             {
                 _textBuilder.Insert(positionIndex, '\n');
-                LineBreakPositionList.Add(i);
+                LineBreakPositionList.Add(positionIndex);
             }
             else
             {
                 _textBuilder.Insert(positionIndex, character);
             }
 
-            if (positionIndex < PositionIndex)
+            if (lineIndex == LineIndex && columnIndex <= ColumnIndex)
             {
+                ++columnIndex;
+                ++ColumnIndex;
                 ++PositionIndex;
             }
             ++positionIndex;
