@@ -43,10 +43,14 @@ public class TextEditorModel
     public const byte TextTooltipByteKind = 1;
 
     /// <summary>
+    /// This tracks in particular LineBreaks, thus the count of lines is this list's count + 1.
+    /// 
     /// always insert '\n' for line endings, and then track separately the desired line end.
     /// upon saving, create a string that has the '\n' included as the desired line end.
     /// </summary>
-    public List<int> LineEndPositionList { get; set; } = new();
+    public List<int> LineBreakPositionList { get; set; } = new();
+
+    public int LineCount => LineBreakPositionList.Count + 1;
 
     /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
@@ -348,12 +352,12 @@ public class TextEditorModel
                 if (i < text.Length - 1 && text[i + 1] == '\r')
                     ++i;
                 _textBuilder.Append('\n');
-                LineEndPositionList.Add(i);
+                LineBreakPositionList.Add(i);
             }
             else if (character == '\r')
             {
                 _textBuilder.Append('\n');
-                LineEndPositionList.Add(i);
+                LineBreakPositionList.Add(i);
             }
             else
             {
@@ -380,6 +384,22 @@ public class TextEditorModel
     /// upon saving, create a string that has the '\n' included as the desired line end.
     /// </summary>
     public void InsertText(string text) => InsertTextAtPosition(text, PositionIndex);
+
+    /// <summary>
+    /// This method inserts at the provided lineIndex and columnIndex,
+    /// and if the 'calculated positionIndex' is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted
+    /// (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file
+    ///  they are written out as the desired line ending)
+    ///  
+    /// This method internally invokes 'InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));'
+    /// 
+    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
+    /// if that is the desired insertion point.
+    /// </summary>
+    public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex) =>
+        InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));
 
     /// <summary>
     /// This method inserts at the provided positionIndex,
@@ -411,12 +431,12 @@ public class TextEditorModel
                 if (i < text.Length - 1 && text[i + 1] == '\r')
                     ++i;
                 _textBuilder.Append('\n');
-                LineEndPositionList.Add(i);
+                LineBreakPositionList.Add(i);
             }
             else if (character == '\r')
             {
                 _textBuilder.Append('\n');
-                LineEndPositionList.Add(i);
+                LineBreakPositionList.Add(i);
             }
             else
             {
@@ -425,25 +445,20 @@ public class TextEditorModel
         }
     }
 
-    /// <summary>
-    /// This method inserts at the provided lineIndex and columnIndex,
-    /// and if the 'calculated positionIndex' is <= the user's position index,
-    /// then the user's position index is increased by the amount of text inserted
-    /// (note that the text ultimately inserted might not be equal to the text parameter
-    ///  because line endings are always inserted as '\n' then upon saving the file
-    ///  they are written out as the desired line ending)
-    ///  
-    /// This method internally invokes 'InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));'
-    /// 
-    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
-    /// if that is the desired insertion point.
-    /// </summary>
-    public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex) =>
-        InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));
-
     public int GetPositionIndex(int lineIndex, int columnIndex)
     {
+        if (lineIndex == 0)
+        {
+            return columnIndex;
+        }
 
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (i + 1 == lineIndex)
+            {
+                return LineBreakPositionList[i] + columnIndex;
+            }
+        }
     }
 
     /// <summary>
@@ -477,7 +492,7 @@ public class TextEditorModel
         else if (character == '\r')
         {
             _textBuilder.Append('\n');
-            LineEndPositionList.Add(i);
+            LineBreakPositionList.Add(i);
         }
         else
         {
