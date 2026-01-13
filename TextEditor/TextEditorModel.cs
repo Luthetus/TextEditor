@@ -282,17 +282,42 @@ public class TextEditorModel
 
                     (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
                 }
-                else if (ColumnIndex < GetLastValidColumnIndex(LineIndex))
+                else
                 {
-                    ++ColumnIndex;
-                    ++PositionIndex;
+                    var lastValidColumnIndex = GetLastValidColumnIndex(LineIndex);
+                    if (ColumnIndex < lastValidColumnIndex)
+                    {
+                        ++ColumnIndex;
+                        ++PositionIndex;
+                        if (ctrlKey)
+                        {
+                            var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex - 1]);
+                            var localPositionIndex = PositionIndex;
+                            var localColumnIndex = ColumnIndex;
+                            while (localColumnIndex < lastValidColumnIndex)
+                            {
+                                if (GetCharacterKind(_textBuilder[localPositionIndex]) == originalCharacterKind)
+                                {
+                                    ++localColumnIndex;
+                                    ++localPositionIndex;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            PositionIndex = localPositionIndex;
+                            ColumnIndex = localColumnIndex;
+                        }
+                    }
+                    else if (LineIndex < LineBreakPositionList.Count)
+                    {
+                        ++LineIndex;
+                        ColumnIndex = 0;
+                        PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
+                    }
                 }
-                else if (LineIndex < LineBreakPositionList.Count)
-                {
-                    ++LineIndex;
-                    ColumnIndex = 0;
-                    PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
-                }
+                
                 break;
         }
 
