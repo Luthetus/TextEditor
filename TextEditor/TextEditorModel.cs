@@ -6,7 +6,7 @@ public class TextEditorModel
 {
     private readonly StringBuilder _textBuilder = new();
 
-    public int this[int key]
+    public char this[int key]
     {
         get => _textBuilder[key];
     }
