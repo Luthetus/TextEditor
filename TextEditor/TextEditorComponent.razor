@@ -72,48 +72,92 @@
      tabindex="-1"
      id="te_component-id">
     
-    <div>
-        @* 
-            Less than in an if statement's expression breaks the razor lexer?
-            Okay I'm missing an '@@' before the if...
-            but now I'm seeing that I don't escape the '@@'...
-        *@
-        @if (Model.DecorationArray is null || Model.DecorationArray.Length < Model.Length || Model.DecorationArray.Length == 0)
+    @* 
+        Less than in an if statement's expression breaks the razor lexer?
+        Okay I'm missing an '@@' before the if...
+        but now I'm seeing that I don't escape the '@@'...
+    *@
+    @if (Model.DecorationArray is null || Model.DecorationArray.Length < Model.Length || Model.DecorationArray.Length == 0)
+    {
+        // I'm just going to avoid the decorations if things look sketchy.
+        // I need to figure out how to do this with good precision.
+        //
+        // In the IDE repo, I put the character and the decoration byte as a singular struct.
+        // Thus the Content and the decorations are in the same "List".
+        // But that forces you to carry around decorations even if you don't intend on using them...
+        int i = 0;
+
+        while (i < Model.Length)
         {
-            // I'm just going to avoid the decorations if things look sketchy.
-            // I need to figure out how to do this with good precision.
-            //
-            // In the IDE repo, I put the character and the decoration byte as a singular struct.
-            // Thus the Content and the decorations are in the same "List".
-            // But that forces you to carry around decorations even if you don't intend on using them...
-            <text>@Model.ToString()</text>
-        }
-        else
-        {
-            var currentDecorationByte = Model.DecorationArray[0];
-            
-            for (int i = 0; i < Model.Length; i++)
-            {
-                if (Model.DecorationArray[i] == currentDecorationByte)
+            <div>
+                @for (; i < Model.Length; i++)
                 {
-                    stringBuilder.Append(Model[i]);
+                    if (Model[i] != '\n')
+                    {
+                        stringBuilder.Append(Model[i]);
+                    }
+                    else
+                    {
+                        <span>@stringBuilder.ToString()</span>
+                        stringBuilder.Clear();
+                        stringBuilder.Append(Model[i]);
+
+                        if (Model[i] == '\n')
+                        {
+                            ++i;
+                            break;
+                        }
+                    }
                 }
-                else
+                
+                @if (stringBuilder.Length > 0)
+                {
+                    <span>@stringBuilder.ToString()</span>
+                    stringBuilder.Clear();
+                }
+            </div>
+        }
+    }
+    else
+    {
+        int i = 0;
+
+        byte currentDecorationByte;
+
+        while (i < Model.Length)
+        {
+            currentDecorationByte = Model.DecorationArray[i];
+
+            <div>
+                @for (; i < Model.Length; i++)
+                {
+                    if (Model[i] != '\n' && Model.DecorationArray[i] == currentDecorationByte)
+                    {
+                        stringBuilder.Append(Model[i]);
+                    }
+                    else
+                    {
+                        <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
+                        stringBuilder.Clear();
+                        currentDecorationByte = Model.DecorationArray[i];
+                        stringBuilder.Append(Model[i]);
+
+                        if (Model[i] == '\n')
+                        {
+                            ++i;
+                            break;
+                        }
+                    }
+                }
+
+                @if (stringBuilder.Length > 0)
                 {
                     <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
                     stringBuilder.Clear();
-                    currentDecorationByte = Model.DecorationArray[i];
-                    stringBuilder.Append(Model[i]);
                 }
-            }
-            
-            if (stringBuilder.Length > 0)
-            {
-                <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
-                stringBuilder.Clear();
-            }
+            </div>
         }
-    </div>
+    }
     
     @{
         stringBuilder.Append("left:");
