@@ -122,7 +122,8 @@ window.ideTextEditor = {
             contentElement.addEventListener('keydown', (event) => {
                 dotNetHelper.invokeMethodAsync(
                     "OnKeydown",
-                    event.key);
+                    event.key,
+                    event.shiftKey);
                 clearTimeout(this.keydownStopTimer); // Reset timer on every move
                     this.keydownStopTimer = setTimeout(() => {
                         dotNetHelper.invokeMethodAsync("ReceiveKeyboardDebounce");

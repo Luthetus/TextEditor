@@ -120,12 +120,24 @@ public class TextEditorModel
         return null;
     }
     
-    public virtual void MoveCursor(MoveCursorKind moveCursorKind)
+    public virtual void MoveCursor(MoveCursorKind moveCursorKind, bool shiftKey)
     {
+        var entryPosition = PositionIndex;
+        var entryHasSelection = HasSelection;
+
         switch (moveCursorKind)
         {
             case MoveCursorKind.ArrowLeft:
-                if (ColumnIndex > 0)
+                if (!shiftKey && entryHasSelection)
+                {
+                    if (SelectionAnchor < SelectionEnd)
+                        PositionIndex = SelectionAnchor;
+                    else
+                        PositionIndex = SelectionEnd;
+
+                    (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+                }
+                else if (ColumnIndex > 0)
                 {
                     --ColumnIndex;
                     --PositionIndex;
@@ -158,7 +170,16 @@ public class TextEditorModel
                 }
                 break;
             case MoveCursorKind.ArrowRight:
-                if (ColumnIndex < GetLastValidColumnIndex(LineIndex))
+                if (!shiftKey && entryHasSelection)
+                {
+                    if (SelectionAnchor < SelectionEnd)
+                        PositionIndex = SelectionEnd;
+                    else
+                        PositionIndex = SelectionAnchor;
+
+                    (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+                }
+                else if (ColumnIndex < GetLastValidColumnIndex(LineIndex))
                 {
                     ++ColumnIndex;
                     ++PositionIndex;
@@ -170,6 +191,19 @@ public class TextEditorModel
                     PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
                 }
                 break;
+        }
+
+        if (shiftKey)
+        {
+            if (!entryHasSelection)
+                SelectionAnchor = entryPosition;
+
+            SelectionEnd = PositionIndex;
+        }
+        else
+        {
+            SelectionAnchor = -1;
+            SelectionEnd = -1;
         }
     }
     
