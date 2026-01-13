@@ -47,6 +47,12 @@
     LineIndex: @Model.LineIndex<br />
     ColumnIndex: @Model.ColumnIndex<br />
     PositionIndex: @Model.PositionIndex<br />
+    
+    <hr/>
+
+    SelectionAnchor: @Model.SelectionAnchor<br/>
+    SelectionEnd: @Model.SelectionEnd<br/>
+
 </div>
 
 @if (_tooltipOccurred)
@@ -78,11 +84,49 @@
      tabindex="-1"
      id="te_component-id">
     
-    @* 
-        Less than in an if statement's expression breaks the razor lexer?
-        Okay I'm missing an '@@' before the if...
-        but now I'm seeing that I don't escape the '@@'...
-    *@
+    
+    @if (Model.HasSelection)
+    {
+        var start = Model.SelectionAnchor;
+        var end = Model.SelectionEnd;
+
+        if (end < start)
+        {
+            var temp = start;
+            start = end;
+            end = temp;
+        }
+
+        for (int pos = start; pos < end; pos++)
+        {
+            var (lineIndex, lineStart, lineEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(pos);
+
+            stringBuilder.Append("left:");
+            stringBuilder.Append((Model.Measurements.CharacterWidth * (pos - lineStart)).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            stringBuilder.Append("px;");
+            stringBuilder.Append("top:");
+            stringBuilder.Append((Model.Measurements.LineHeight * lineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            stringBuilder.Append("px;");
+            stringBuilder.Append("width:");
+            var lineSegmentStart = pos;
+            var lineSegmentEnd = lineEnd < end ? lineEnd : end;
+            int widthCount = lineSegmentEnd - lineSegmentStart;
+            if (lineEnd + 1 < end)
+            {
+                ++widthCount;
+            }
+            stringBuilder.Append((Model.Measurements.CharacterWidth * widthCount).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            stringBuilder.Append("px;");
+            var selectStyle = stringBuilder.ToString();
+            stringBuilder.Clear();
+
+            <div class="te_select"
+                 style="@selectStyle">
+            </div>
+
+            pos = lineEnd;
+        }
+    }
 
     @{
         int i = 0;
@@ -96,8 +140,6 @@
                 exclusiveEndDecorationIndex = Model.DecorationArray.Length;
             else
                 exclusiveEndDecorationIndex = Model.Length;
-
-            
         }
 
         while (i < Model.Length)
@@ -157,7 +199,7 @@
                     }
                 }
 
-                @if (i < exclusiveEndDecorationIndex)
+                @if (i < exclusiveEndDecorationIndex || (i > 0 && i == exclusiveEndDecorationIndex))
                 {
                     if (stringBuilder.Length > 0)
                     {

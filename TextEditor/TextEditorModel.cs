@@ -52,6 +52,17 @@ public class TextEditorModel
 
     public int LineCount => LineBreakPositionList.Count + 1;
 
+    public bool HasSelection => SelectionAnchor != -1 && SelectionAnchor != SelectionEnd;
+
+    /// <summary>
+    /// The position index
+    /// </summary>
+    public int SelectionAnchor { get; set; }
+    /// <summary>
+    /// The position index
+    /// </summary>
+    public int SelectionEnd { get; set; }
+
     /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
     /// Otherwise, you need to instantiate the list by invoking "EnableDecorations()" and begin populating the method "Decorate(...)".
@@ -66,6 +77,25 @@ public class TextEditorModel
     public const byte KeywordDecorationByte = 1;
     
     private const int _defaultCapacity = 4;
+
+    public virtual (int lineIndex, int lineStart, int lineEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)
+    {
+        if (LineBreakPositionList.Count == 0)
+            return (0, 0, GetLastValidColumnIndex(0));
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (LineBreakPositionList[i] > positionIndex)
+            {
+                if (i == 0)
+                    return (0, 0, GetLastValidColumnIndex(0));
+                else
+                    return (i - 1, LineBreakPositionList[i - 1] + 1, LineBreakPositionList[i]);
+            }
+        }
+
+        return (LineBreakPositionList.Count, LineBreakPositionList[^1] + 1, Length);
+    }
 
     /// <summary>
     /// If you return 'null', then the tooltip is essentially "cancelled" as if the event never occurred.
