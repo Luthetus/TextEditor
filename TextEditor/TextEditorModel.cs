@@ -53,6 +53,15 @@ public class TextEditorModel
     public int LineCount => LineBreakPositionList.Count + 1;
 
     /// <summary>
+    /// The position index
+    /// </summary>
+    public int SelectionAnchor { get; set; }
+    /// <summary>
+    /// The position index
+    /// </summary>
+    public int SelectionEnd { get; set; }
+
+    /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
     /// Otherwise, you need to instantiate the list by invoking "EnableDecorations()" and begin populating the method "Decorate(...)".
     ///

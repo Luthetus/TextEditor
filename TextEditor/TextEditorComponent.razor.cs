@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Reflection;
 
 namespace TextEditor;
 
@@ -121,6 +122,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
         Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
+        Model.SelectionAnchor = Model.PositionIndex;
+        Model.SelectionEnd = Model.PositionIndex;
         StateHasChanged();
     }
     
@@ -133,6 +136,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
         Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
+        Model.SelectionEnd = Model.PositionIndex;
         StateHasChanged();
     }
     
