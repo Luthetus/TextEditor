@@ -157,7 +157,7 @@
                     }
                 }
 
-                @if (i < exclusiveEndDecorationIndex)
+                @if (i < exclusiveEndDecorationIndex || (i > 0 && i == exclusiveEndDecorationIndex))
                 {
                     if (stringBuilder.Length > 0)
                     {
