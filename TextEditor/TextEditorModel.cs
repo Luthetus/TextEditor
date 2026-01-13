@@ -100,6 +100,12 @@ public class TextEditorModel
                     --ColumnIndex;
                     --PositionIndex;
                 }
+                else if (LineIndex > 0)
+                {
+                    --LineIndex;
+                    ColumnIndex = GetLastValidColumnIndex(LineIndex);
+                    PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
+                }
                 break;
             case MoveCursorKind.ArrowDown:
                 if (LineIndex < LineBreakPositionList.Count)
@@ -126,6 +132,12 @@ public class TextEditorModel
                 {
                     ++ColumnIndex;
                     ++PositionIndex;
+                }
+                else if (LineIndex < LineBreakPositionList.Count)
+                {
+                    ++LineIndex;
+                    ColumnIndex = 0;
+                    PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
                 }
                 break;
         }
@@ -580,7 +592,7 @@ public class TextEditorModel
             }
             else
             {
-                return LineBreakPositionList[lineIndex - 1];
+                return LineBreakPositionList[lineIndex];
             }
         }
         else if (LineBreakPositionList.Count == lineIndex)
