@@ -78,25 +78,6 @@ public class TextEditorModel
     
     private const int _defaultCapacity = 4;
 
-    public virtual (int lineIndex, int lineStart, int lineEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)
-    {
-        if (LineBreakPositionList.Count == 0)
-            return (0, 0, GetLastValidColumnIndex(0));
-
-        for (int i = 0; i < LineBreakPositionList.Count; i++)
-        {
-            if (LineBreakPositionList[i] >= positionIndex)
-            {
-                if (i == 0)
-                    return (0, 0, GetLastValidColumnIndex(0));
-                else
-                    return (i - 1, LineBreakPositionList[i - 1] + 1, LineBreakPositionList[i]);
-            }
-        }
-
-        return (LineBreakPositionList.Count, LineBreakPositionList[^1] + 1, Length);
-    }
-
     /// <summary>
     /// If you return 'null', then the tooltip is essentially "cancelled" as if the event never occurred.
     /// </summary>
@@ -330,6 +311,18 @@ public class TextEditorModel
                 {
                     ColumnIndex = 0;
                     PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
+                }
+                break;
+            case MoveCursorKind.End:
+                if (ctrlKey)
+                {
+                    PositionIndex = Length;
+                    (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+                }
+                else
+                {
+                    (int _ /*lineIndex*/, int _ /*lineStart*/, PositionIndex /*lineEnd*/) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
+                    (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
                 }
                 break;
         }
@@ -704,6 +697,25 @@ public class TextEditorModel
         //(LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
     }
 
+    public virtual (int lineIndex, int lineStart, int lineEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)
+    {
+        if (LineBreakPositionList.Count == 0)
+            return (0, 0, GetLastValidColumnIndex(0));
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (LineBreakPositionList[i] >= positionIndex)
+            {
+                if (i == 0)
+                    return (0, 0, GetLastValidColumnIndex(0));
+                else
+                    return (i - 1, LineBreakPositionList[i - 1] + 1, LineBreakPositionList[i]);
+            }
+        }
+
+        return (LineBreakPositionList.Count, LineBreakPositionList[^1] + 1, Length);
+    }
+
     public (int lineIndex, int columnIndex) GetLineColumnIndices(int positionIndex)
     {
         int lastValidColumnIndex;
@@ -720,7 +732,7 @@ public class TextEditorModel
 
         for (int i = 0; i < LineBreakPositionList.Count; i++)
         {
-            if (LineBreakPositionList[i] > positionIndex)
+            if (LineBreakPositionList[i] >= positionIndex)
             {
                 if (i == 0)
                 {
