@@ -430,19 +430,77 @@ public class TextEditorModel
             {
                 if (i < text.Length - 1 && text[i + 1] == '\r')
                     ++i;
-                _textBuilder.Append('\n');
+                _textBuilder.Insert(positionIndex, '\n');
                 LineBreakPositionList.Add(i);
             }
             else if (character == '\r')
             {
-                _textBuilder.Append('\n');
+                _textBuilder.Insert(positionIndex, '\n');
                 LineBreakPositionList.Add(i);
             }
             else
             {
-                _textBuilder.Append(character);
+                _textBuilder.Insert(positionIndex, character);
+            }
+
+            if (positionIndex < PositionIndex)
+            {
+                ++PositionIndex;
+            }
+            ++positionIndex;
+        }
+
+        (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+    }
+
+    public (int lineIndex, int columnIndex) GetLineColumnIndices(int positionIndex)
+    {
+        int lastValidColumnIndex;
+        int lineIndex;
+        int columnIndex;
+
+        if (LineBreakPositionList.Count == 0)
+        {
+            lastValidColumnIndex = GetLastValidColumnIndex(0);
+            return positionIndex > lastValidColumnIndex
+                ? (0, lastValidColumnIndex)
+                : (0, positionIndex);
+        }
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (LineBreakPositionList[i] > positionIndex)
+            {
+                if (i == 0)
+                {
+                    lastValidColumnIndex = GetLastValidColumnIndex(0);
+                    return positionIndex > lastValidColumnIndex
+                        ? (0, lastValidColumnIndex)
+                        : (0, positionIndex);
+                }
+                else
+                {
+                    lineIndex = i - 1;
+                    columnIndex = LineBreakPositionList[i] - LineBreakPositionList[i - 1] + 1;
+                    lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+                    if (columnIndex < lastValidColumnIndex)
+                        columnIndex = lastValidColumnIndex;
+                    return (lineIndex, columnIndex);
+                }
             }
         }
+
+        // hmm this is blatantly wrong because it doesn't reference positionIndex at all?
+        // isn't it always positionIndex - 0
+        // isn't it always positionIndex - LineBreakPositionList[lineIndex - 1]
+        // isn't it always positionIndex - LineBreakPositionList[lineIndex - 1]
+        // wow I have no idea what I'm doing right now I need some sleep
+        lineIndex = LineBreakPositionList.Count;
+        columnIndex = Length - LineBreakPositionList[^1] + 1;
+        lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+        if (columnIndex < lastValidColumnIndex)
+            columnIndex = lastValidColumnIndex;
+        return (lineIndex, columnIndex);
     }
 
     /// <summary>
