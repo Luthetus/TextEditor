@@ -26,7 +26,8 @@
 .te_select {
     position: absolute;
     height: var(--te_line-height);
-    background-color: blue;
+    background-color: #0071ff;
+    opacity: 0.3;
 }
 
 .te_cursor-class {
