@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 namespace TextEditor;
 
 public sealed partial class TextEditorComponent : ComponentBase, IDisposable
-{// test
+{
     [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
     
@@ -90,7 +90,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         //
         if (key.Length == 1)
         {
-            Model.Content.Append(key);
+            Model.InsertText(key);
         }
     
         switch (key)
@@ -195,8 +195,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (rY < 0) rY = 0;
         
         var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
-        if (characterIndex > Model.Content.Length)
-            characterIndex = Model.Content.Length;
+        if (characterIndex > Model.Length)
+            characterIndex = Model.Length;
         
         return
             (

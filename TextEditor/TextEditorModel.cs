@@ -4,9 +4,30 @@ namespace TextEditor;
 
 public class TextEditorModel
 {
-    public StringBuilder Content = new("test...tset");
-    
+    private readonly StringBuilder _textBuilder = new();
+
+    public char this[int key]
+    {
+        get => _textBuilder[key];
+    }
+
+    public override string ToString()
+    {
+        return _textBuilder.ToString();
+    }
+
+    public int Length => _textBuilder.Length;
+
+    /// <summary>
+    /// You'd only need to store either PositionIndex or both LineIndex and ColumnIndex
+    /// since one can calculate the other.
+    /// 
+    /// But I feel just keeping both representations up to date is best from a usability standpoint.
+    /// Otherwise you'd have to ask for one or the other by accessing mutable state that might change out from under you during the calculation.
+    /// </summary>
     public int PositionIndex { get; set; }
+    public int LineIndex { get; set; }
+    public int ColumnIndex { get; set; }
     
     public TextEditorMeasurements Measurements { get; set; }
     
@@ -20,7 +41,17 @@ public class TextEditorModel
     public List<TextEditorTooltip>? TooltipList { get; set; } = null;
     public const byte CharacterTooltipByteKind = 0;
     public const byte TextTooltipByteKind = 1;
-    
+
+    /// <summary>
+    /// This tracks in particular LineBreaks, thus the count of lines is this list's count + 1.
+    /// 
+    /// always insert '\n' for line endings, and then track separately the desired line end.
+    /// upon saving, create a string that has the '\n' included as the desired line end.
+    /// </summary>
+    public List<int> LineBreakPositionList { get; set; } = new();
+
+    public int LineCount => LineBreakPositionList.Count + 1;
+
     /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
     /// Otherwise, you need to instantiate the list by invoking "EnableDecorations()" and begin populating the method "Decorate(...)".
@@ -35,7 +66,7 @@ public class TextEditorModel
     public const byte KeywordDecorationByte = 1;
     
     private const int _defaultCapacity = 4;
-    
+
     /// <summary>
     /// If you return 'null', then the tooltip is essentially "cancelled" as if the event never occurred.
     /// </summary>
@@ -44,15 +75,15 @@ public class TextEditorModel
         switch (tooltip.ByteKind)
         {
             case CharacterTooltipByteKind:
-                if (Content.Length > tooltip.StartPositionIndex)
+                if (_textBuilder.Length > tooltip.StartPositionIndex)
                 {
-                    return Content[tooltip.StartPositionIndex].ToString();
+                    return _textBuilder[tooltip.StartPositionIndex].ToString();
                 }
                 break;
             case TextTooltipByteKind:
-                if (Content.Length > tooltip.StartPositionIndex && Content.Length > tooltip.EndPositionIndex - 1)
+                if (_textBuilder.Length > tooltip.StartPositionIndex && _textBuilder.Length > tooltip.EndPositionIndex - 1)
                 {
-                    return Content.ToString(tooltip.StartPositionIndex, tooltip.EndPositionIndex - tooltip.StartPositionIndex);
+                    return _textBuilder.ToString(tooltip.StartPositionIndex, tooltip.EndPositionIndex - tooltip.StartPositionIndex);
                 }
                 break;
         }
@@ -78,8 +109,8 @@ public class TextEditorModel
                 break;
         }
         
-        if (PositionIndex > Content.Length)
-            PositionIndex = Content.Length;
+        if (PositionIndex > _textBuilder.Length)
+            PositionIndex = _textBuilder.Length;
     }
     
     /// <summary>
@@ -110,12 +141,12 @@ public class TextEditorModel
     {
         if (TooltipList is not null)
             TooltipList.Clear();
-        Decorate(0, Content.Length, NoneDecorationByte);
+        Decorate(0, _textBuilder.Length, NoneDecorationByte);
         
         int position = 0;
-        while (position < Content.Length)
+        while (position < _textBuilder.Length)
         {
-            switch (Content[position])
+            switch (_textBuilder[position])
             {
                 /* Lowercase Letters */
                 case 'a':
@@ -186,15 +217,15 @@ public class TextEditorModel
         var entryPosition = position;
         int characterIntSum = 0;
     
-        while (position < Content.Length)
+        while (position < _textBuilder.Length)
         {
-            if (!char.IsLetterOrDigit(Content[position]) &&
-                Content[position] != '_')
+            if (!char.IsLetterOrDigit(_textBuilder[position]) &&
+                _textBuilder[position] != '_')
             {
                 break;
             }
 
-            characterIntSum += Content[position];
+            characterIntSum += _textBuilder[position];
             ++position;
         }
         
@@ -211,10 +242,10 @@ public class TextEditorModel
         {
             case 448: // test
                 if (textSpanLength == 4 &&
-                    Content[entryPosition + 0] == 't' &&
-                    Content[entryPosition + 1] == 'e' &&
-                    Content[entryPosition + 2] == 's' &&
-                    Content[entryPosition + 3] == 't')
+                    _textBuilder[entryPosition + 0] == 't' &&
+                    _textBuilder[entryPosition + 1] == 'e' &&
+                    _textBuilder[entryPosition + 2] == 's' &&
+                    _textBuilder[entryPosition + 3] == 't')
                 {
                     if (DecorationArray is not null)
                     {
@@ -256,12 +287,12 @@ public class TextEditorModel
     /// <summary>Various parts of the List.cs source code were pasted/modified in here</summary>
     public void DecorateEnsureCapacityWritable()
     {
-        if (_decorationArrayCapacity < Content.Length) {
-            int newCapacity = Content.Length == 0? _defaultCapacity : _decorationArrayCapacity * 2;
+        if (_decorationArrayCapacity < _textBuilder.Length) {
+            int newCapacity = _textBuilder.Length == 0? _defaultCapacity : _decorationArrayCapacity * 2;
             // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
             // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
             if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-            if (newCapacity < Content.Length) newCapacity = Content.Length;
+            if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
             
             var newArray = new byte[newCapacity];
             Array.Copy(DecorationArray, 0, newArray, 0, _decorationArrayCapacity);
@@ -279,13 +310,13 @@ public class TextEditorModel
     
         int newCapacity;
         
-        if (Content.Length == 0)
+        if (_textBuilder.Length == 0)
         {
             newCapacity = _defaultCapacity;
         }
         else
         {
-            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Content.Length);
+            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)_textBuilder.Length);
             // Why does my IDE code say '< -1'???
             if (newCapacity <= 0)
             {
@@ -294,11 +325,322 @@ public class TextEditorModel
             else
             {
                 if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                if (newCapacity < Content.Length) newCapacity = Content.Length;
+                if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
             }
         }
         
         _decorationArrayCapacity = newCapacity;
         _decorationArray = new byte[_decorationArrayCapacity];
+    }
+
+    public void SetText(string text)
+    {
+        for (int i = 0; i < text.Length; i++)
+        {
+            var character = text[i];
+
+            // always insert '\n' for line endings, and then track separately the desired line end.
+            // upon saving, create a string that has the '\n' included as the desired line end.
+            //
+            // this logic is duplicated in:
+            // - SetText(...)
+            // - InsertTextAtPosition()
+            // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
+            //
+            if (character == '\n')
+            {
+                if (i < text.Length - 1 && text[i + 1] == '\r')
+                    ++i;
+                _textBuilder.Append('\n');
+                LineBreakPositionList.Add(i);
+            }
+            else if (character == '\r')
+            {
+                _textBuilder.Append('\n');
+                LineBreakPositionList.Add(i);
+            }
+            else
+            {
+                _textBuilder.Append(character);
+            }
+        }
+    }
+
+    /// <summary>
+    /// This method uses the user's current position as the insertion point.
+    /// and if the positionIndex is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted
+    /// (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file
+    ///  they are written out as the desired line ending)
+    ///  
+    /// This method internally invokes 'InsertTextAtPosition(text, PositionIndex);'
+    ///  
+    /// <see cref="InsertTextAtPosition(string, int)"/> and <see cref="InsertTextAtLineColumn(string, int, int)"/>
+    /// are alternative methods that one can use to insert at a position that isn't the user's cursor.
+    /// 
+    /// If "\n", "\r", or "\r\n" appear in the text, "\n" will be inserted in place of it because:
+    /// always insert '\n' for line endings, and then track separately the desired line end.
+    /// upon saving, create a string that has the '\n' included as the desired line end.
+    /// </summary>
+    public void InsertText(string text) => InsertTextAtPosition(text, PositionIndex);
+
+    /// <summary>
+    /// This method inserts at the provided lineIndex and columnIndex,
+    /// and if the 'calculated positionIndex' is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted
+    /// (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file
+    ///  they are written out as the desired line ending)
+    ///  
+    /// This method internally invokes 'InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));'
+    /// 
+    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
+    /// if that is the desired insertion point.
+    /// </summary>
+    public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex) =>
+        InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));
+
+    /// <summary>
+    /// This method inserts at the provided positionIndex,
+    /// and if the positionIndex is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted
+    /// (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file
+    ///  they are written out as the desired line ending)
+    /// 
+    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
+    /// if that is the desired insertion point.
+    /// </summary>
+    public void InsertTextAtPosition(string text, int positionIndex)
+    {
+        for (int i = 0; i < text.Length; i++)
+        {
+            var character = text[i];
+
+            // always insert '\n' for line endings, and then track separately the desired line end.
+            // upon saving, create a string that has the '\n' included as the desired line end.
+            //
+            // this logic is duplicated in:
+            // - SetText(...)
+            // - InsertTextAtPosition()
+            // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
+            //
+            if (character == '\n')
+            {
+                if (i < text.Length - 1 && text[i + 1] == '\r')
+                    ++i;
+                _textBuilder.Insert(positionIndex, '\n');
+                LineBreakPositionList.Add(i);
+            }
+            else if (character == '\r')
+            {
+                _textBuilder.Insert(positionIndex, '\n');
+                LineBreakPositionList.Add(i);
+            }
+            else
+            {
+                _textBuilder.Insert(positionIndex, character);
+            }
+
+            if (positionIndex < PositionIndex)
+            {
+                ++PositionIndex;
+            }
+            ++positionIndex;
+        }
+
+        (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+    }
+
+    public (int lineIndex, int columnIndex) GetLineColumnIndices(int positionIndex)
+    {
+        int lastValidColumnIndex;
+        int lineIndex;
+        int columnIndex;
+
+        if (LineBreakPositionList.Count == 0)
+        {
+            lastValidColumnIndex = GetLastValidColumnIndex(0);
+            return positionIndex > lastValidColumnIndex
+                ? (0, lastValidColumnIndex)
+                : (0, positionIndex);
+        }
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (LineBreakPositionList[i] > positionIndex)
+            {
+                if (i == 0)
+                {
+                    lastValidColumnIndex = GetLastValidColumnIndex(0);
+                    return positionIndex > lastValidColumnIndex
+                        ? (0, lastValidColumnIndex)
+                        : (0, positionIndex);
+                }
+                else
+                {
+                    lineIndex = i - 1;
+                    columnIndex = LineBreakPositionList[i] - LineBreakPositionList[i - 1] + 1;
+                    lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+                    if (columnIndex < lastValidColumnIndex)
+                        columnIndex = lastValidColumnIndex;
+                    return (lineIndex, columnIndex);
+                }
+            }
+        }
+
+        // hmm this is blatantly wrong because it doesn't reference positionIndex at all?
+        // isn't it always positionIndex - 0
+        // isn't it always positionIndex - LineBreakPositionList[lineIndex - 1]
+        // isn't it always positionIndex - LineBreakPositionList[lineIndex - 1]
+        // wow I have no idea what I'm doing right now I need some sleep
+        lineIndex = LineBreakPositionList.Count;
+        columnIndex = Length - LineBreakPositionList[^1] + 1;
+        lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+        if (columnIndex < lastValidColumnIndex)
+            columnIndex = lastValidColumnIndex;
+        return (lineIndex, columnIndex);
+    }
+
+    /// <summary>
+    /// If provided an invalid lineIndex or columnIndex this method will re-invoke itself
+    /// with the closest valid lineIndex, and columnIndex.
+    /// 
+    /// The method validates lineIndex first, then checks if the columnIndex provided
+    /// is valid for the validated lineIndex.
+    /// 
+    /// If the provided columnIndex exists on the validated lineIndex then the columnIndex stays the same.
+    /// Otherwise the columnIndex is then changed to the closest valid columnIndex for the given line.
+    /// </summary>
+    public int GetPositionIndex(int lineIndex, int columnIndex)
+    {
+        int lastValidColumnIndex;
+
+        if (lineIndex == 0)
+        {
+            lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+            if (columnIndex > lastValidColumnIndex)
+                columnIndex = lastValidColumnIndex;
+            return columnIndex;
+        }
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (i + 1 == lineIndex)
+            {
+                lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+                if (columnIndex > lastValidColumnIndex)
+                    columnIndex = lastValidColumnIndex;
+                return LineBreakPositionList[i] + 1 + columnIndex;
+            }
+        }
+
+        if (LineBreakPositionList.Count < lineIndex)
+            lineIndex = LineBreakPositionList.Count;
+
+        lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+        if (columnIndex > lastValidColumnIndex)
+            columnIndex = lastValidColumnIndex;
+
+        return GetPositionIndex(lineIndex, columnIndex);
+    }
+
+    /// <summary>
+    /// If there is no valid column index then '-1' is returned.
+    /// 
+    /// This may seem slightly contrary to the <see cref="GetPositionIndex(int, int)"/> and <see cref="TryGetPositionIndex(int, int, out int)"/>
+    /// pattern. But this method checks for a valid column index specifically, so the only option is to return a valid columnIndex or -1.
+    /// </summary>
+    public int GetLastValidColumnIndex(int lineIndex)
+    {
+        if (lineIndex == 0)
+        {
+            if (LineBreakPositionList.Count == 0)
+            {
+                return Length;
+            }
+            else
+            {
+                return LineBreakPositionList[lineIndex - 1];
+            }
+        }
+        else if (LineBreakPositionList.Count == lineIndex)
+        {
+            return Length - (LineBreakPositionList[LineBreakPositionList.Count - 1] + 1);
+        }
+        else if (LineBreakPositionList.Count > lineIndex)
+        {
+            return LineBreakPositionList[lineIndex] - (LineBreakPositionList[lineIndex - 1] + 1);
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /// <summary>
+    /// If provided an invalid lineIndex or columnIndex, this method will return false and set the out int index to -1.
+    /// </summary>
+    public bool TryGetPositionIndex(int lineIndex, int columnIndex, out int index)
+    {
+        if (lineIndex == 0)
+        {
+            index = columnIndex;
+            return true;
+        }
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (i + 1 == lineIndex)
+            {
+                index = LineBreakPositionList[i] + 1 + columnIndex;
+                return true;
+            }
+        }
+
+        index = -1;
+        return false;
+    }
+
+    /// <summary>
+    /// See <see cref="InsertText(string)"/> for explanation, this method is the same but with a char.
+    /// </summary>
+    public void InsertCharacter(char character) => InsertCharacterAtPosition(character, PositionIndex);
+
+    /// <summary>
+    /// See <see cref="InsertTextAtLineColumn(string, int, int)"/> for explanation, this method is the same but with a char.
+    /// </summary>
+    public void InsertCharacterAtLineColumn(char character, int lineIndex, int columnIndex) =>
+        InsertCharacterAtPosition(character, GetPositionIndex(lineIndex, columnIndex));
+
+    /// <summary>
+    /// See <see cref="InsertTextAtPosition(string, int)"/> for explanation, this method is the same but with a char.
+    /// </summary>
+    public void InsertCharacterAtPosition(char character, int positionIndex)
+    {
+        // always insert '\n' for line endings, and then track separately the desired line end.
+        // upon saving, create a string that has the '\n' included as the desired line end.
+        //
+        // this logic is duplicated in:
+        // - SetText(...)
+        // - InsertTextAtPosition()
+        // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
+        //
+        if (character == '\n')
+        {
+            _textBuilder.Insert(positionIndex, '\n');
+        }
+        else if (character == '\r')
+        {
+            _textBuilder.Insert(positionIndex, '\n');
+            LineBreakPositionList.Add(positionIndex);
+        }
+        else
+        {
+            _textBuilder.Append(character);
+        }
+
+        _textBuilder.Insert(positionIndex, character);
     }
 }
