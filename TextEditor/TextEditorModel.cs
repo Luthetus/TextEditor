@@ -450,6 +450,7 @@ public class TextEditorModel
     public void InsertTextAtPosition(string text, int positionIndex)
     {
         var (lineIndex, columnIndex) = GetLineColumnIndices(positionIndex);
+        var entryPositionIndex = positionIndex;
 
         for (int i = 0; i < text.Length; i++)
         {
@@ -489,7 +490,13 @@ public class TextEditorModel
             ++positionIndex;
         }
 
-        (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (LineBreakPositionList[i] >= entryPositionIndex)
+                LineBreakPositionList[i] += PositionIndex - entryPositionIndex;
+        }
+
+        //(LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
     }
 
     public (int lineIndex, int columnIndex) GetLineColumnIndices(int positionIndex)
@@ -522,7 +529,7 @@ public class TextEditorModel
                     lineIndex = i - 1;
                     columnIndex = LineBreakPositionList[i] - LineBreakPositionList[i - 1] + 1;
                     lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
-                    if (columnIndex < lastValidColumnIndex)
+                    if (columnIndex > lastValidColumnIndex)
                         columnIndex = lastValidColumnIndex;
                     return (lineIndex, columnIndex);
                 }
@@ -535,9 +542,9 @@ public class TextEditorModel
         // isn't it always positionIndex - LineBreakPositionList[lineIndex - 1]
         // wow I have no idea what I'm doing right now I need some sleep
         lineIndex = LineBreakPositionList.Count;
-        columnIndex = Length - LineBreakPositionList[^1] + 1;
+        columnIndex = Length - (LineBreakPositionList[^1] + 1);
         lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
-        if (columnIndex < lastValidColumnIndex)
+        if (columnIndex > lastValidColumnIndex)
             columnIndex = lastValidColumnIndex;
         return (lineIndex, columnIndex);
     }
