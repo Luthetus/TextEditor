@@ -339,6 +339,11 @@ public class TextEditorModel
             // always insert '\n' for line endings, and then track separately the desired line end.
             // upon saving, create a string that has the '\n' included as the desired line end.
             //
+            // this logic is duplicated in:
+            // - SetText(...)
+            // - InsertTextAtPosition()
+            // - InsertCharacter() // only partially duplicated here since it is a char insertion
+            //
             if (character == '\n')
             {
                 if (i < text.Length - 1 && text[i + 1] == '\r')
@@ -366,6 +371,8 @@ public class TextEditorModel
     ///  because line endings are always inserted as '\n' then upon saving the file
     ///  they are written out as the desired line ending)
     ///  
+    /// This method internally invokes 'InsertTextAtPosition(text, PositionIndex);'
+    ///  
     /// <see cref="InsertTextAtPosition(string, int)"/> and <see cref="InsertTextAtLineColumn(string, int, int)"/>
     /// are alternative methods that one can use to insert at a position that isn't the user's cursor.
     /// 
@@ -373,7 +380,20 @@ public class TextEditorModel
     /// always insert '\n' for line endings, and then track separately the desired line end.
     /// upon saving, create a string that has the '\n' included as the desired line end.
     /// </summary>
-    public void InsertText(string text)
+    public void InsertText(string text) => InsertTextAtPosition(text, PositionIndex);
+
+    /// <summary>
+    /// This method inserts at the provided positionIndex,
+    /// and if the positionIndex is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted
+    /// (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file
+    ///  they are written out as the desired line ending)
+    /// 
+    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
+    /// if that is the desired insertion point.
+    /// </summary>
+    public void InsertTextAtPosition(string text, int positionIndex)
     {
         for (int i = 0; i < text.Length; i++)
         {
@@ -381,6 +401,11 @@ public class TextEditorModel
 
             // always insert '\n' for line endings, and then track separately the desired line end.
             // upon saving, create a string that has the '\n' included as the desired line end.
+            //
+            // this logic is duplicated in:
+            // - SetText(...)
+            // - InsertTextAtPosition()
+            // - InsertCharacter() // only partially duplicated here since it is a char insertion
             //
             if (character == '\n')
             {
@@ -402,33 +427,24 @@ public class TextEditorModel
     }
 
     /// <summary>
-    /// This method inserts at the provided positionIndex,
-    /// and if the positionIndex is <= the user's position index,
-    /// then the user's position index is increased by the amount of text inserted
-    /// (note that the text ultimately inserted might not be equal to the text parameter
-    ///  because line endings are always inserted as '\n' then upon saving the file
-    ///  they are written out as the desired line ending)
-    /// 
-    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
-    /// if that is the desired insertion point.
-    /// </summary>
-    public void InsertTextAtPosition(string text, int positionIndex)
-    {
-    }
-
-    /// <summary>
     /// This method inserts at the provided lineIndex and columnIndex,
     /// and if the 'calculated positionIndex' is <= the user's position index,
     /// then the user's position index is increased by the amount of text inserted
     /// (note that the text ultimately inserted might not be equal to the text parameter
     ///  because line endings are always inserted as '\n' then upon saving the file
     ///  they are written out as the desired line ending)
+    ///  
+    /// This method internally invokes 'InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));'
     /// 
     /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
     /// if that is the desired insertion point.
     /// </summary>
-    public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex)
+    public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex) =>
+        InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));
+
+    public int GetPositionIndex(int lineIndex, int columnIndex)
     {
+
     }
 
     /// <summary>
@@ -440,6 +456,11 @@ public class TextEditorModel
     {
         // always insert '\n' for line endings, and then track separately the desired line end.
         // upon saving, create a string that has the '\n' included as the desired line end.
+        //
+        // this logic is duplicated in:
+        // - SetText(...)
+        // - InsertTextAtPosition()
+        // - InsertCharacter() // only partially duplicated here since it is a char insertion
         //
         if (character == '\n')
         {
