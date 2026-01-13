@@ -119,8 +119,91 @@ public class TextEditorModel
         }
         return null;
     }
-    
-    public virtual void MoveCursor(MoveCursorKind moveCursorKind, bool shiftKey)
+
+    public virtual CharacterKind GetCharacterKind(char character)
+    {
+        // I considered using ASCII codes but I think the switch is faster and it won't take that long.
+        switch (character)
+        {
+            /* Lowercase Letters */
+            case 'a':
+            case 'b':
+            case 'c':
+            case 'd':
+            case 'e':
+            case 'f':
+            case 'g':
+            case 'h':
+            case 'i':
+            case 'j':
+            case 'k':
+            case 'l':
+            case 'm':
+            case 'n':
+            case 'o':
+            case 'p':
+            case 'q':
+            case 'r':
+            case 's':
+            case 't':
+            case 'u':
+            case 'v':
+            case 'w':
+            case 'x':
+            case 'y':
+            case 'z':
+            /* Uppercase Letters */
+            case 'A':
+            case 'B':
+            case 'C':
+            case 'D':
+            case 'E':
+            case 'F':
+            case 'G':
+            case 'H':
+            case 'I':
+            case 'J':
+            case 'K':
+            case 'L':
+            case 'M':
+            case 'N':
+            case 'O':
+            case 'P':
+            case 'Q':
+            case 'R':
+            case 'S':
+            case 'T':
+            case 'U':
+            case 'V':
+            case 'W':
+            case 'X':
+            case 'Y':
+            case 'Z':
+            /* Underscore */
+            case '_':
+            /* Digits */
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                return CharacterKind.LetterOrDigit;
+            case ' ':
+            case '\t':
+            case '\r':
+            case '\n':
+                return CharacterKind.Whitespace;
+            default:
+                return CharacterKind.Punctuation;
+        }
+    }
+
+    public virtual void MoveCursor(MoveCursorKind moveCursorKind, bool shiftKey, bool ctrlKey)
     {
         var entryPosition = PositionIndex;
         var entryHasSelection = HasSelection;
@@ -141,6 +224,26 @@ public class TextEditorModel
                 {
                     --ColumnIndex;
                     --PositionIndex;
+                    if (ctrlKey)
+                    {
+                        var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex]);
+                        var localPositionIndex = PositionIndex;
+                        var localColumnIndex = ColumnIndex;
+                        while (localColumnIndex - 1 > -1)
+                        {
+                            if (GetCharacterKind(_textBuilder[localPositionIndex - 1]) == originalCharacterKind)
+                            {
+                                --localColumnIndex;
+                                --localPositionIndex;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        PositionIndex = localPositionIndex;
+                        ColumnIndex = localColumnIndex;
+                    }
                 }
                 else if (LineIndex > 0)
                 {
@@ -179,17 +282,42 @@ public class TextEditorModel
 
                     (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
                 }
-                else if (ColumnIndex < GetLastValidColumnIndex(LineIndex))
+                else
                 {
-                    ++ColumnIndex;
-                    ++PositionIndex;
+                    var lastValidColumnIndex = GetLastValidColumnIndex(LineIndex);
+                    if (ColumnIndex < lastValidColumnIndex)
+                    {
+                        ++ColumnIndex;
+                        ++PositionIndex;
+                        if (ctrlKey)
+                        {
+                            var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex - 1]);
+                            var localPositionIndex = PositionIndex;
+                            var localColumnIndex = ColumnIndex;
+                            while (localColumnIndex < lastValidColumnIndex)
+                            {
+                                if (GetCharacterKind(_textBuilder[localPositionIndex]) == originalCharacterKind)
+                                {
+                                    ++localColumnIndex;
+                                    ++localPositionIndex;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            PositionIndex = localPositionIndex;
+                            ColumnIndex = localColumnIndex;
+                        }
+                    }
+                    else if (LineIndex < LineBreakPositionList.Count)
+                    {
+                        ++LineIndex;
+                        ColumnIndex = 0;
+                        PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
+                    }
                 }
-                else if (LineIndex < LineBreakPositionList.Count)
-                {
-                    ++LineIndex;
-                    ColumnIndex = 0;
-                    PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
-                }
+                
                 break;
         }
 

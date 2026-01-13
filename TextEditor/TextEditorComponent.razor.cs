@@ -82,14 +82,14 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     }
     
     [JSInvokable]
-    public void OnKeydown(string key, bool shiftKey)
+    public void OnKeydown(string key, bool shiftKey, bool ctrlKey)
     {
         // TODO: perhaps use code for the software implemented dvorak and etc... people. I'm not sure if all ways of doing other layouts change 'Key'.
         //
         // TODO: another such scenario that I recall was for Linux, I think it was the gnome tweaks settings to make capslock act as an escape key,...
         //       ...I'm not sure the details but something about it needed a special case.
         //
-        if (key.Length == 1)
+        if (key.Length == 1 && !ctrlKey)
         {
             Model.InsertText(key);
         }
@@ -97,16 +97,16 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         switch (key)
         {
             case "ArrowLeft":
-                Model.MoveCursor(MoveCursorKind.ArrowLeft, shiftKey: shiftKey);
+                Model.MoveCursor(MoveCursorKind.ArrowLeft, shiftKey: shiftKey, ctrlKey: ctrlKey);
                 break;
             case "ArrowDown":
-                Model.MoveCursor(MoveCursorKind.ArrowDown, shiftKey: shiftKey);
+                Model.MoveCursor(MoveCursorKind.ArrowDown, shiftKey: shiftKey, ctrlKey: ctrlKey);
                 break;
             case "ArrowUp":
-                Model.MoveCursor(MoveCursorKind.ArrowUp, shiftKey: shiftKey);
+                Model.MoveCursor(MoveCursorKind.ArrowUp, shiftKey: shiftKey, ctrlKey: ctrlKey);
                 break;
             case "ArrowRight":
-                Model.MoveCursor(MoveCursorKind.ArrowRight, shiftKey: shiftKey);
+                Model.MoveCursor(MoveCursorKind.ArrowRight, shiftKey: shiftKey, ctrlKey: ctrlKey);
                 break;
         }
         
