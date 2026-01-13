@@ -3,6 +3,7 @@
 }
 
 .te_component-class {
+    cursor: text;
     border: 2px solid red;
     font-family: monospace;
     overflow: scroll;

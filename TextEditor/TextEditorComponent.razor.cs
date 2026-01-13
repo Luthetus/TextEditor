@@ -1,6 +1,4 @@
-using System.Text;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 namespace TextEditor;
