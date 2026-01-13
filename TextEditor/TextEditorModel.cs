@@ -571,24 +571,18 @@ public class TextEditorModel
         //
         if (character == '\n')
         {
-            _textBuilder.Insert('\n');
+            _textBuilder.Insert(positionIndex, '\n');
         }
         else if (character == '\r')
         {
-            _textBuilder.Append('\n');
-            LineBreakPositionList.Add(i);
+            _textBuilder.Insert(positionIndex, '\n');
+            LineBreakPositionList.Add(positionIndex);
         }
         else
         {
             _textBuilder.Append(character);
         }
 
-        _textBuilder.Insert(character);
-        for (int i = 0; i < text.Length; i++)
-        {
-            var character = text[i];
-
-
-        }
+        _textBuilder.Insert(positionIndex, character);
     }
 }
