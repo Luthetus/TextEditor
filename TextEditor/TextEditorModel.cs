@@ -95,22 +95,40 @@ public class TextEditorModel
         switch (moveCursorKind)
         {
             case MoveCursorKind.ArrowLeft:
-                if (PositionIndex > 0)
+                if (ColumnIndex > 0)
                 {
+                    --ColumnIndex;
                     --PositionIndex;
                 }
                 break;
             case MoveCursorKind.ArrowDown:
+                if (LineIndex < LineBreakPositionList.Count)
+                {
+                    ++LineIndex;
+                    var lastValidColumnIndex = GetLastValidColumnIndex(LineIndex);
+                    if (ColumnIndex > lastValidColumnIndex)
+                        ColumnIndex = lastValidColumnIndex;
+                    PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
+                }
                 break;
             case MoveCursorKind.ArrowUp:
+                if (LineIndex > 0)
+                {
+                    --LineIndex;
+                    var lastValidColumnIndex = GetLastValidColumnIndex(LineIndex);
+                    if (ColumnIndex > lastValidColumnIndex)
+                        ColumnIndex = lastValidColumnIndex;
+                    PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
+                }
                 break;
             case MoveCursorKind.ArrowRight:
-                ++PositionIndex;
+                if (ColumnIndex < GetLastValidColumnIndex(LineIndex))
+                {
+                    ++ColumnIndex;
+                    ++PositionIndex;
+                }
                 break;
         }
-        
-        if (PositionIndex > _textBuilder.Length)
-            PositionIndex = _textBuilder.Length;
     }
     
     /// <summary>

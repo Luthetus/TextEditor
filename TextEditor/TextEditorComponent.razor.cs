@@ -119,8 +119,10 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         double clientY,
         bool shiftKey)
     {
-        var (characterIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
-        Model.PositionIndex = characterIndex;
+        var (columnIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
+        Model.LineIndex = lineIndex;
+        Model.ColumnIndex = columnIndex;
+        Model.PositionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
         StateHasChanged();
     }
     
@@ -131,8 +133,10 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         double clientY,
         bool shiftKey)
     {
-        var (characterIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
-        Model.PositionIndex = characterIndex;
+        var (columnIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
+        Model.LineIndex = lineIndex;
+        Model.ColumnIndex = columnIndex;
+        Model.PositionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
         StateHasChanged();
     }
     
@@ -142,13 +146,14 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (Model.TooltipList is null)
             return;
     
-        var (characterIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
-        
+        var (columnIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
+        var positionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
+
         var tooltipFound = false;
         
         foreach (var tooltip in Model.TooltipList)
         {
-            if (tooltip.StartPositionIndex <= characterIndex && tooltip.EndPositionIndex > characterIndex)
+            if (tooltip.StartPositionIndex <= positionIndex && tooltip.EndPositionIndex > positionIndex)
             {
                 tooltipFound = true;
                 _tooltip = tooltip;
@@ -193,15 +198,20 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         
         if (rX < 0) rX = 0;
         if (rY < 0) rY = 0;
-        
-        var characterIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
-        if (characterIndex > Model.Length)
-            characterIndex = Model.Length;
+
+        var lineIndex = (int)Math.Round(rY / Model.Measurements.LineHeight, MidpointRounding.AwayFromZero);
+        if (lineIndex > Model.LineBreakPositionList.Count)
+            lineIndex = Model.LineBreakPositionList.Count;
+
+        var columnIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
+        var lastValidColumnIndex = Model.GetLastValidColumnIndex(lineIndex);
+        if (columnIndex > lastValidColumnIndex)
+            columnIndex = lastValidColumnIndex;
         
         return
             (
-                characterIndex,
-                (int)rY
+                columnIndex,
+                lineIndex
             );
     }
     
