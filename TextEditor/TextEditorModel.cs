@@ -85,7 +85,7 @@ public class TextEditorModel
 
         for (int i = 0; i < LineBreakPositionList.Count; i++)
         {
-            if (LineBreakPositionList[i] > positionIndex)
+            if (LineBreakPositionList[i] >= positionIndex)
             {
                 if (i == 0)
                     return (0, 0, GetLastValidColumnIndex(0));
