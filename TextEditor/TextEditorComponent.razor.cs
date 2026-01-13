@@ -119,10 +119,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         double clientY,
         bool shiftKey)
     {
-        var (columnIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
-        Model.LineIndex = lineIndex;
-        Model.ColumnIndex = columnIndex;
-        Model.PositionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
+        (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
+        Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
         StateHasChanged();
     }
     
@@ -133,10 +131,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         double clientY,
         bool shiftKey)
     {
-        var (columnIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
-        Model.LineIndex = lineIndex;
-        Model.ColumnIndex = columnIndex;
-        Model.PositionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
+        (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
+        Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
         StateHasChanged();
     }
     
@@ -146,7 +142,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (Model.TooltipList is null)
             return;
     
-        var (columnIndex, lineIndex) = GetRelativeIndices(clientX, clientY);
+        var (lineIndex, columnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
         var positionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
 
         var tooltipFound = false;
@@ -181,12 +177,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     }
     
     /// <summary>
-    /// Careful, this method and <see cref="GetRelativeCoordinates"/> take similar arguments
-    ///
-    /// Furthermore, this method in particular takes the original clientX and clientY.
-    /// Do NOT pass the results of "the other method" to this one.
+    /// Be very careful with this method, the Y axis comes first because it is mirroring "line, column"
     /// </summary>
-    private (int characterIndex, int lineIndex) GetRelativeIndices(double clientX, double clientY)
+    private (int lineIndex, int characterIndex) GetRelativeIndicesYFirst(double clientY, double clientX)
     {
         // rX => relativeX
         // rY => relativeY
@@ -210,31 +203,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         
         return
             (
-                columnIndex,
-                lineIndex
+                lineIndex,
+                columnIndex
             );
-    }
-    
-    /// <summary>
-    /// Careful, this method and <see cref="GetRelativeIndices"/> take similar arguments
-    /// </summary>
-    private (double rX, double rY) GetRelativeCoordinates(double clientX, double clientY)
-    {
-        // I don't understand how method inlining works so
-        // I'm gonna explicitly duplicate this code in GetRelativeIndices(...)
-        
-        // rX => relativeX
-        // rY => relativeY
-        double rX;
-        double rY;
-        
-        rX = clientX - Model.Measurements.EditorLeft;
-        rY = clientY - Model.Measurements.EditorTop;
-        
-        if (rX < 0) rX = 0;
-        if (rY < 0) rY = 0;
-        
-        return (rX, rY);
     }
     
     public void Dispose()
