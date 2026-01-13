@@ -9,3 +9,9 @@ public enum MoveCursorKind
     Home,
     End,
 }
+
+public enum DeleteByCursorKind
+{
+    Delete,
+    Backspace,
+}
