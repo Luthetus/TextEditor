@@ -445,6 +445,16 @@ public class TextEditorModel
         }
     }
 
+    /// <summary>
+    /// If provided an invalid lineIndex or columnIndex this method will re-invoke itself
+    /// with the closest valid lineIndex, and columnIndex.
+    /// 
+    /// The method validates lineIndex first, then checks if the columnIndex provided
+    /// is valid for the validated lineIndex.
+    /// 
+    /// If the provided columnIndex exists on the validated lineIndex then the columnIndex stays the same.
+    /// Otherwise the columnIndex is then changed to the closest valid columnIndex for the given line.
+    /// </summary>
     public int GetPositionIndex(int lineIndex, int columnIndex)
     {
         if (lineIndex == 0)
@@ -456,9 +466,57 @@ public class TextEditorModel
         {
             if (i + 1 == lineIndex)
             {
-                return LineBreakPositionList[i] + columnIndex;
+                return LineBreakPositionList[i] + 1 + columnIndex;
             }
         }
+
+        if (LineBreakPositionList.Count < lineIndex)
+            lineIndex = LineBreakPositionList.Count;
+
+        var lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+        if (columnIndex > lastValidColumnIndex)
+            columnIndex = lastValidColumnIndex;
+
+        return GetPositionIndex(lineIndex, columnIndex);
+    }
+
+    public int GetLastValidColumnIndex(int lineIndex)
+    {
+        if (lineIndex == 0)
+        {
+            if (LineBreakPositionList.Count == 0)
+            {
+                return Length;
+            }
+            else if (LineBreakPositionList.Count == lineIndex)
+            {
+                return Length - (LineBreakPositionList[^1] + 1);
+            }
+        }
+    }
+
+    /// <summary>
+    /// If provided an invalid lineIndex or columnIndex, this method will return false and set the out int index to -1.
+    /// </summary>
+    public bool TryGetPositionIndex(int lineIndex, int columnIndex, out int index)
+    {
+        if (lineIndex == 0)
+        {
+            index = columnIndex;
+            return true;
+        }
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (i + 1 == lineIndex)
+            {
+                index = LineBreakPositionList[i] + 1 + columnIndex;
+                return true;
+            }
+        }
+
+        index = -1;
+        return false;
     }
 
     /// <summary>
