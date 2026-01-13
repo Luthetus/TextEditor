@@ -82,7 +82,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     }
     
     [JSInvokable]
-    public void OnKeydown(string key)
+    public void OnKeydown(string key, bool shiftKey)
     {
         // TODO: perhaps use code for the software implemented dvorak and etc... people. I'm not sure if all ways of doing other layouts change 'Key'.
         //
@@ -97,16 +97,16 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         switch (key)
         {
             case "ArrowLeft":
-                Model.MoveCursor(MoveCursorKind.ArrowLeft);
+                Model.MoveCursor(MoveCursorKind.ArrowLeft, shiftKey: shiftKey);
                 break;
             case "ArrowDown":
-                Model.MoveCursor(MoveCursorKind.ArrowDown);
+                Model.MoveCursor(MoveCursorKind.ArrowDown, shiftKey: shiftKey);
                 break;
             case "ArrowUp":
-                Model.MoveCursor(MoveCursorKind.ArrowUp);
+                Model.MoveCursor(MoveCursorKind.ArrowUp, shiftKey: shiftKey);
                 break;
             case "ArrowRight":
-                Model.MoveCursor(MoveCursorKind.ArrowRight);
+                Model.MoveCursor(MoveCursorKind.ArrowRight, shiftKey: shiftKey);
                 break;
         }
         
