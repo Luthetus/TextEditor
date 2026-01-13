@@ -457,8 +457,13 @@ public class TextEditorModel
     /// </summary>
     public int GetPositionIndex(int lineIndex, int columnIndex)
     {
+        int lastValidColumnIndex;
+
         if (lineIndex == 0)
         {
+            lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+            if (columnIndex > lastValidColumnIndex)
+                columnIndex = lastValidColumnIndex;
             return columnIndex;
         }
 
@@ -466,6 +471,9 @@ public class TextEditorModel
         {
             if (i + 1 == lineIndex)
             {
+                lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+                if (columnIndex > lastValidColumnIndex)
+                    columnIndex = lastValidColumnIndex;
                 return LineBreakPositionList[i] + 1 + columnIndex;
             }
         }
@@ -473,13 +481,19 @@ public class TextEditorModel
         if (LineBreakPositionList.Count < lineIndex)
             lineIndex = LineBreakPositionList.Count;
 
-        var lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
+        lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
         if (columnIndex > lastValidColumnIndex)
             columnIndex = lastValidColumnIndex;
 
         return GetPositionIndex(lineIndex, columnIndex);
     }
 
+    /// <summary>
+    /// If there is no valid column index then '-1' is returned.
+    /// 
+    /// This may seem slightly contrary to the <see cref="GetPositionIndex(int, int)"/> and <see cref="TryGetPositionIndex(int, int, out int)"/>
+    /// pattern. But this method checks for a valid column index specifically, so the only option is to return a valid columnIndex or -1.
+    /// </summary>
     public int GetLastValidColumnIndex(int lineIndex)
     {
         if (lineIndex == 0)
@@ -488,10 +502,22 @@ public class TextEditorModel
             {
                 return Length;
             }
-            else if (LineBreakPositionList.Count == lineIndex)
+            else
             {
-                return Length - (LineBreakPositionList[^1] + 1);
+                return LineBreakPositionList[lineIndex - 1];
             }
+        }
+        else if (LineBreakPositionList.Count == lineIndex)
+        {
+            return Length - (LineBreakPositionList[LineBreakPositionList.Count - 1] + 1);
+        }
+        else if (LineBreakPositionList.Count > lineIndex)
+        {
+            return LineBreakPositionList[lineIndex] - (LineBreakPositionList[lineIndex - 1] + 1);
+        }
+        else
+        {
+            return -1;
         }
     }
 
