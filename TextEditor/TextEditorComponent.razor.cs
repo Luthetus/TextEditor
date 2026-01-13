@@ -192,7 +192,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (rX < 0) rX = 0;
         if (rY < 0) rY = 0;
 
-        var lineIndex = (int)Math.Round(rY / Model.Measurements.LineHeight, MidpointRounding.AwayFromZero);
+        var lineIndex = (int)(rY / Model.Measurements.LineHeight);
         if (lineIndex > Model.LineBreakPositionList.Count)
             lineIndex = Model.LineBreakPositionList.Count;
 
