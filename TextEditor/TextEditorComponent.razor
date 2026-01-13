@@ -83,6 +83,101 @@
         Okay I'm missing an '@@' before the if...
         but now I'm seeing that I don't escape the '@@'...
     *@
+
+    @{
+        int i = 0;
+        var exclusiveEndDecorationIndex = 0;
+
+        byte currentDecorationByte = 0;
+
+        if (Model.DecorationArray is not null)
+        {
+            if (Model.DecorationArray.Length <= Model.Length)
+                exclusiveEndDecorationIndex = Model.DecorationArray.Length;
+            else
+                exclusiveEndDecorationIndex = Model.Length;
+
+            
+        }
+
+        while (i < Model.Length)
+        {
+            if (exclusiveEndDecorationIndex > i)
+                currentDecorationByte = Model.DecorationArray![i];
+            else
+                currentDecorationByte = 0;
+
+            <div>
+                @for (; i < Model.Length; i++)
+                {
+                    if (i < exclusiveEndDecorationIndex)
+                    {
+                        if (Model[i] != '\n' && Model.DecorationArray![i] == currentDecorationByte)
+                        {
+                            stringBuilder.Append(Model[i]);
+                        }
+                        else
+                        {
+                            <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
+                            stringBuilder.Clear();
+                            currentDecorationByte = Model.DecorationArray![i];
+
+                            if (Model[i] == '\n')
+                            {
+                                ++i;
+                                break;
+                            }
+                            else
+                            {
+                                stringBuilder.Append(Model[i]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (Model[i] != '\n')
+                        {
+                            stringBuilder.Append(Model[i]);
+                        }
+                        else
+                        {
+                            <span>@stringBuilder.ToString()</span>
+                            stringBuilder.Clear();
+
+                            if (Model[i] == '\n')
+                            {
+                                ++i;
+                                break;
+                            }
+                            else
+                            {
+                                stringBuilder.Append(Model[i]);
+                            }
+                        }
+                    }
+                }
+
+                @if (i < exclusiveEndDecorationIndex)
+                {
+                    if (stringBuilder.Length > 0)
+                    {
+                        <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
+                        stringBuilder.Clear();
+                    }
+                }
+                else
+                {
+                    if (stringBuilder.Length > 0)
+                    {
+                        <span>@stringBuilder.ToString()</span>
+                        stringBuilder.Clear();
+                    }
+                }
+            </div>
+        }
+    }
+
+    @*
     @if (Model.DecorationArray is null || Model.DecorationArray.Length < Model.Length || Model.DecorationArray.Length == 0)
     {
         // I'm just going to avoid the decorations if things look sketchy.
@@ -93,84 +188,14 @@
         // But that forces you to carry around decorations even if you don't intend on using them...
         int i = 0;
 
-        while (i < Model.Length)
-        {
-            <div>
-                @for (; i < Model.Length; i++)
-                {
-                    if (Model[i] != '\n')
-                    {
-                        stringBuilder.Append(Model[i]);
-                    }
-                    else
-                    {
-                        <span>@stringBuilder.ToString()</span>
-                        stringBuilder.Clear();
-
-                        if (Model[i] == '\n')
-                        {
-                            ++i;
-                            break;
-                        }
-                        else
-                        {
-                            stringBuilder.Append(Model[i]);
-                        }
-                    }
-                }
-                
-                @if (stringBuilder.Length > 0)
-                {
-                    <span>@stringBuilder.ToString()</span>
-                    stringBuilder.Clear();
-                }
-            </div>
-        }
+        
     }
     else
     {
-        int i = 0;
-
-        byte currentDecorationByte;
-
-        while (i < Model.Length)
-        {
-            currentDecorationByte = Model.DecorationArray[i];
-
-            <div>
-                @for (; i < Model.Length; i++)
-                {
-                    if (Model[i] != '\n' && Model.DecorationArray[i] == currentDecorationByte)
-                    {
-                        stringBuilder.Append(Model[i]);
-                    }
-                    else
-                    {
-                        <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
-                        stringBuilder.Clear();
-                        currentDecorationByte = Model.DecorationArray[i];
-
-                        if (Model[i] == '\n')
-                        {
-                            ++i;
-                            break;
-                        }
-                        else
-                        {
-                            stringBuilder.Append(Model[i]);
-                        }
-                    }
-                }
-
-                @if (stringBuilder.Length > 0)
-                {
-                    <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
-                    stringBuilder.Clear();
-                }
-            </div>
-        }
+        
     }
-    
+    *@
+
     @{
         stringBuilder.Append("left:");
         //
