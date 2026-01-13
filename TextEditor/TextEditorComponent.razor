@@ -41,6 +41,12 @@
     <hr/>
 
     LineEndPositionList.Count:@Model.LineBreakPositionList.Count<br />
+
+    <hr/>
+
+    LineIndex: @Model.LineIndex<br />
+    ColumnIndex: @Model.ColumnIndex<br />
+    PositionIndex: @Model.PositionIndex<br />
 </div>
 
 @if (_tooltipOccurred)
@@ -107,6 +113,10 @@
                             ++i;
                             break;
                         }
+                        else
+                        {
+                            stringBuilder.Append(Model[i]);
+                        }
                     }
                 }
                 
@@ -147,6 +157,10 @@
                             ++i;
                             break;
                         }
+                        else
+                        {
+                            stringBuilder.Append(Model[i]);
+                        }
                     }
                 }
 
@@ -167,8 +181,13 @@
         // Avoid ',' in css when user's culture would default to using that in place of '.'
         // with System.Globalization.CultureInfo.InvariantCulture
         //
-        stringBuilder.Append((Model.Measurements.CharacterWidth * Model.PositionIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append((Model.Measurements.CharacterWidth * Model.ColumnIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
+
+        stringBuilder.Append("top:");
+        stringBuilder.Append((Model.Measurements.LineHeight * Model.LineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+
         var cursorStyle = stringBuilder.ToString();
         stringBuilder.Clear();
     }
