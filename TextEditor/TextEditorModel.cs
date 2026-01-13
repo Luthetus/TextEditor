@@ -222,17 +222,28 @@ public class TextEditorModel
                 }
                 else if (ColumnIndex > 0)
                 {
-                    var characterKind = GetCharacterKind(_textBuilder[PositionIndex]);
-                    while (ColumnIndex > 0)
-                    {
-
-                        if (_textBuilder[PositionIndex])
-                        {
-
-                        }
-                    }
                     --ColumnIndex;
                     --PositionIndex;
+                    if (ctrlKey)
+                    {
+                        var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex]);
+                        var localPositionIndex = PositionIndex;
+                        var localColumnIndex = ColumnIndex;
+                        while (localColumnIndex - 1 > -1)
+                        {
+                            if (GetCharacterKind(_textBuilder[localPositionIndex - 1]) == originalCharacterKind)
+                            {
+                                --localColumnIndex;
+                                --localPositionIndex;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        PositionIndex = localPositionIndex;
+                        ColumnIndex = localColumnIndex;
+                    }
                 }
                 else if (LineIndex > 0)
                 {
