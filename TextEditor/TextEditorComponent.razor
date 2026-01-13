@@ -111,7 +111,7 @@
             var lineSegmentStart = pos;
             var lineSegmentEnd = lineEnd < end ? lineEnd : end;
             int widthCount = lineSegmentEnd - lineSegmentStart;
-            if (lineEnd + 1 < end)
+            if (lineEnd < end)
             {
                 ++widthCount;
             }
