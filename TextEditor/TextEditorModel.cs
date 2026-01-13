@@ -1,36 +1,24 @@
-using System.Collections.Generic;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TextEditor;
 
 public class TextEditorModel
 {
-    private void SetContent(string content)
+    private readonly StringBuilder _textBuilder = new();
+
+    public int this[int key]
     {
-        for (int i = 0; i < content.Length; i++)
-        {
-            var character = content[i];
-
-            // always insert '\n' for line endings, and then track separately the desired line end.
-            // upon saving, create a string that has the '\n' included as the desired line end.
-            //
-            if (character == '\n')
-            {
-                if (i < content.Length - 1 && content[i + 1] == '\r')
-                    ++character;
-                _content.Append('\n');
-            }
-            else if (character == '\r')
-            {
-                _content.Append('\n');
-            }
-
-            _content.Append(character);
-        }
+        get => _textBuilder[key];
     }
 
-    private StringBuilder _content = new();
-    
+    public override string ToString()
+    {
+        return _textBuilder.ToString();
+    }
+
+    public int Length => _textBuilder.Length;
+
     /// <summary>
     /// You'd only need to store either PositionIndex or both LineIndex and ColumnIndex
     /// since one can calculate the other.
@@ -55,7 +43,11 @@ public class TextEditorModel
     public const byte CharacterTooltipByteKind = 0;
     public const byte TextTooltipByteKind = 1;
 
-    public List<int> LineEndList { get; set; } = new();
+    /// <summary>
+    /// always insert '\n' for line endings, and then track separately the desired line end.
+    /// upon saving, create a string that has the '\n' included as the desired line end.
+    /// </summary>
+    public List<int> LineEndPositionList { get; set; } = new();
 
     /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
@@ -80,15 +72,15 @@ public class TextEditorModel
         switch (tooltip.ByteKind)
         {
             case CharacterTooltipByteKind:
-                if (_content.Length > tooltip.StartPositionIndex)
+                if (_textBuilder.Length > tooltip.StartPositionIndex)
                 {
-                    return _content[tooltip.StartPositionIndex].ToString();
+                    return _textBuilder[tooltip.StartPositionIndex].ToString();
                 }
                 break;
             case TextTooltipByteKind:
-                if (_content.Length > tooltip.StartPositionIndex && _content.Length > tooltip.EndPositionIndex - 1)
+                if (_textBuilder.Length > tooltip.StartPositionIndex && _textBuilder.Length > tooltip.EndPositionIndex - 1)
                 {
-                    return _content.ToString(tooltip.StartPositionIndex, tooltip.EndPositionIndex - tooltip.StartPositionIndex);
+                    return _textBuilder.ToString(tooltip.StartPositionIndex, tooltip.EndPositionIndex - tooltip.StartPositionIndex);
                 }
                 break;
         }
@@ -114,8 +106,8 @@ public class TextEditorModel
                 break;
         }
         
-        if (PositionIndex > _content.Length)
-            PositionIndex = _content.Length;
+        if (PositionIndex > _textBuilder.Length)
+            PositionIndex = _textBuilder.Length;
     }
     
     /// <summary>
@@ -146,12 +138,12 @@ public class TextEditorModel
     {
         if (TooltipList is not null)
             TooltipList.Clear();
-        Decorate(0, _content.Length, NoneDecorationByte);
+        Decorate(0, _textBuilder.Length, NoneDecorationByte);
         
         int position = 0;
-        while (position < _content.Length)
+        while (position < _textBuilder.Length)
         {
-            switch (_content[position])
+            switch (_textBuilder[position])
             {
                 /* Lowercase Letters */
                 case 'a':
@@ -222,15 +214,15 @@ public class TextEditorModel
         var entryPosition = position;
         int characterIntSum = 0;
     
-        while (position < _content.Length)
+        while (position < _textBuilder.Length)
         {
-            if (!char.IsLetterOrDigit(_content[position]) &&
-                _content[position] != '_')
+            if (!char.IsLetterOrDigit(_textBuilder[position]) &&
+                _textBuilder[position] != '_')
             {
                 break;
             }
 
-            characterIntSum += _content[position];
+            characterIntSum += _textBuilder[position];
             ++position;
         }
         
@@ -247,10 +239,10 @@ public class TextEditorModel
         {
             case 448: // test
                 if (textSpanLength == 4 &&
-                    _content[entryPosition + 0] == 't' &&
-                    _content[entryPosition + 1] == 'e' &&
-                    _content[entryPosition + 2] == 's' &&
-                    _content[entryPosition + 3] == 't')
+                    _textBuilder[entryPosition + 0] == 't' &&
+                    _textBuilder[entryPosition + 1] == 'e' &&
+                    _textBuilder[entryPosition + 2] == 's' &&
+                    _textBuilder[entryPosition + 3] == 't')
                 {
                     if (DecorationArray is not null)
                     {
@@ -292,12 +284,12 @@ public class TextEditorModel
     /// <summary>Various parts of the List.cs source code were pasted/modified in here</summary>
     public void DecorateEnsureCapacityWritable()
     {
-        if (_decorationArrayCapacity < _content.Length) {
-            int newCapacity = _content.Length == 0? _defaultCapacity : _decorationArrayCapacity * 2;
+        if (_decorationArrayCapacity < _textBuilder.Length) {
+            int newCapacity = _textBuilder.Length == 0? _defaultCapacity : _decorationArrayCapacity * 2;
             // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
             // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
             if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-            if (newCapacity < _content.Length) newCapacity = _content.Length;
+            if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
             
             var newArray = new byte[newCapacity];
             Array.Copy(DecorationArray, 0, newArray, 0, _decorationArrayCapacity);
@@ -315,13 +307,13 @@ public class TextEditorModel
     
         int newCapacity;
         
-        if (_content.Length == 0)
+        if (_textBuilder.Length == 0)
         {
             newCapacity = _defaultCapacity;
         }
         else
         {
-            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)_content.Length);
+            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)_textBuilder.Length);
             // Why does my IDE code say '< -1'???
             if (newCapacity <= 0)
             {
@@ -330,11 +322,147 @@ public class TextEditorModel
             else
             {
                 if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                if (newCapacity < _content.Length) newCapacity = _content.Length;
+                if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
             }
         }
         
         _decorationArrayCapacity = newCapacity;
         _decorationArray = new byte[_decorationArrayCapacity];
+    }
+
+    public void SetText(string text)
+    {
+        for (int i = 0; i < text.Length; i++)
+        {
+            var character = text[i];
+
+            // always insert '\n' for line endings, and then track separately the desired line end.
+            // upon saving, create a string that has the '\n' included as the desired line end.
+            //
+            if (character == '\n')
+            {
+                if (i < text.Length - 1 && text[i + 1] == '\r')
+                    ++i;
+                _textBuilder.Append('\n');
+                LineEndPositionList.Add(i);
+            }
+            else if (character == '\r')
+            {
+                _textBuilder.Append('\n');
+                LineEndPositionList.Add(i);
+            }
+            else
+            {
+                _textBuilder.Append(character);
+            }
+        }
+    }
+
+    /// <summary>
+    /// This method uses the user's current position as the insertion point.
+    /// and if the positionIndex is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted
+    /// (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file
+    ///  they are written out as the desired line ending)
+    ///  
+    /// <see cref="InsertTextAtPosition(string, int)"/> and <see cref="InsertTextAtLineColumn(string, int, int)"/>
+    /// are alternative methods that one can use to insert at a position that isn't the user's cursor.
+    /// 
+    /// If "\n", "\r", or "\r\n" appear in the text, "\n" will be inserted in place of it because:
+    /// always insert '\n' for line endings, and then track separately the desired line end.
+    /// upon saving, create a string that has the '\n' included as the desired line end.
+    /// </summary>
+    public void InsertText(string text)
+    {
+        for (int i = 0; i < text.Length; i++)
+        {
+            var character = text[i];
+
+            // always insert '\n' for line endings, and then track separately the desired line end.
+            // upon saving, create a string that has the '\n' included as the desired line end.
+            //
+            if (character == '\n')
+            {
+                if (i < text.Length - 1 && text[i + 1] == '\r')
+                    ++i;
+                _textBuilder.Append('\n');
+                LineEndPositionList.Add(i);
+            }
+            else if (character == '\r')
+            {
+                _textBuilder.Append('\n');
+                LineEndPositionList.Add(i);
+            }
+            else
+            {
+                _textBuilder.Append(character);
+            }
+        }
+    }
+
+    /// <summary>
+    /// This method inserts at the provided positionIndex,
+    /// and if the positionIndex is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted
+    /// (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file
+    ///  they are written out as the desired line ending)
+    /// 
+    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
+    /// if that is the desired insertion point.
+    /// </summary>
+    public void InsertTextAtPosition(string text, int positionIndex)
+    {
+    }
+
+    /// <summary>
+    /// This method inserts at the provided lineIndex and columnIndex,
+    /// and if the 'calculated positionIndex' is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted
+    /// (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file
+    ///  they are written out as the desired line ending)
+    /// 
+    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
+    /// if that is the desired insertion point.
+    /// </summary>
+    public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex)
+    {
+    }
+
+    /// <summary>
+    /// If either '\n' or '\r' is provided, '\n' will be inserted because:
+    /// always insert '\n' for line endings, and then track separately the desired line end.
+    /// upon saving, create a string that has the '\n' included as the desired line end.
+    /// </summary>
+    public void InsertCharacter(char character)
+    {
+        // always insert '\n' for line endings, and then track separately the desired line end.
+        // upon saving, create a string that has the '\n' included as the desired line end.
+        //
+        if (character == '\n')
+        {
+            if (i < text.Length - 1 && text[i + 1] == '\r')
+                ++character;
+            _textBuilder.Insert('\n');
+        }
+        else if (character == '\r')
+        {
+            _textBuilder.Append('\n');
+            LineEndPositionList.Add(i);
+        }
+        else
+        {
+            _textBuilder.Append(character);
+        }
+
+        _textBuilder.Insert(character);
+        for (int i = 0; i < text.Length; i++)
+        {
+            var character = text[i];
+
+            
+        }
     }
 }

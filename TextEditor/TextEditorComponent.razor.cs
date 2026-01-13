@@ -90,7 +90,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         //
         if (key.Length == 1)
         {
-            Model.Content.Append(key);
+            Model.InsertText(key);
         }
     
         switch (key)
