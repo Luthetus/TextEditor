@@ -7,7 +7,26 @@
     </div>
 }
 
-@{ var stringBuilder = new StringBuilder(capacity: 16); }
+@{
+    // This is a bit awkward because I don't believe I can stack alloc in the markup / (I think I
+    // also have seen in the past that I can't stackalloc Blazor WASM maybe it was related to unsafe code?).
+    //
+    // I'm going to throw an initial capacity based on feeling alone.
+    // If this is 64, it hopefully will often miss a reallocation.
+    // I'm not sure on the details of what me making this initial capacity larger
+    // would have on the collection of this StringBuilder so... 64 is the number for now I guess.
+    //
+    // UPDATE: originally I had 2 string builders, one for the attribute values,
+    // and one for the text on screen.
+    //
+    // I realize they aren't used at the same time, so I can just allocate one StringBuilder for both uses.
+    //
+    // As a result I'll go up to 128 with the singular one. Because I'm thinking of a comment
+    // (for example this very comment I'm typing now) I see that I hit around 100 characters on each line.
+    // So I need to fit 100 characters in the StringBuilder to get them all in the same span with the same CSS class.
+    //
+    var stringBuilder = new StringBuilder(capacity: 128);
+}
 
 <div>
     CharacterWidth:@Model.Measurements.CharacterWidth<br/>

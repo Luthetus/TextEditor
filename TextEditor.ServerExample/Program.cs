@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using TextEditor.ServerExample.Data;
 
 var builder = WebApplication.CreateBuilder(args);
