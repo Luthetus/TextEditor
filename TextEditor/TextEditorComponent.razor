@@ -84,11 +84,24 @@
      tabindex="-1"
      id="te_component-id">
     
-    @* 
-        Less than in an if statement's expression breaks the razor lexer?
-        Okay I'm missing an '@@' before the if...
-        but now I'm seeing that I don't escape the '@@'...
-    *@
+    
+    @if (Model.HasSelection)
+    {
+        var start = Model.SelectionAnchor;
+        var end = Model.SelectionEnd;
+
+        if (end < start)
+        {
+            var temp = start;
+            start = end;
+            end = temp;
+        }
+
+        for (int pos = start; pos < end; pos++)
+        {
+            var (lineStart, lineEnd) = Model.GetLineBoundsExcludingLineEndingCharacterByPositionIndex(pos);
+        }
+    }
 
     @{
         int i = 0;
@@ -102,8 +115,6 @@
                 exclusiveEndDecorationIndex = Model.DecorationArray.Length;
             else
                 exclusiveEndDecorationIndex = Model.Length;
-
-            
         }
 
         while (i < Model.Length)

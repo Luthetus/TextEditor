@@ -52,6 +52,8 @@ public class TextEditorModel
 
     public int LineCount => LineBreakPositionList.Count + 1;
 
+    public bool HasSelection => SelectionAnchor != -1 && SelectionAnchor != SelectionEnd;
+
     /// <summary>
     /// The position index
     /// </summary>
@@ -75,6 +77,25 @@ public class TextEditorModel
     public const byte KeywordDecorationByte = 1;
     
     private const int _defaultCapacity = 4;
+
+    public virtual (int lineStart, int lineEnd) GetLineBoundsExcludingLineEndingCharacterByPositionIndex(int positionIndex)
+    {
+        if (LineBreakPositionList.Count == 0)
+            return (0, GetLastValidColumnIndex(0));
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (LineBreakPositionList[i] > positionIndex)
+            {
+                if (i == 0)
+                    return (0, GetLastValidColumnIndex(0));
+                else
+                    return (LineBreakPositionList[i - 1] + 1, LineBreakPositionList[i]);
+            }
+        }
+
+        return (Length, LineBreakPositionList[^1] + 1);
+    }
 
     /// <summary>
     /// If you return 'null', then the tooltip is essentially "cancelled" as if the event never occurred.
