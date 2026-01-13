@@ -6,7 +6,16 @@ public class TextEditorModel
 {
     public StringBuilder Content = new("test...tset");
     
+    /// <summary>
+    /// You'd only need to store either PositionIndex or both LineIndex and ColumnIndex
+    /// since one can calculate the other.
+    /// 
+    /// But I feel just keeping both representations up to date is best from a usability standpoint.
+    /// Otherwise you'd have to ask for one or the other by accessing mutable state that might change out from under you during the calculation.
+    /// </summary>
     public int PositionIndex { get; set; }
+    public int LineIndex { get; set; }
+    public int ColumnIndex { get; set; }
     
     public TextEditorMeasurements Measurements { get; set; }
     
