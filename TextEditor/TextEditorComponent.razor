@@ -99,7 +99,32 @@
 
         for (int pos = start; pos < end; pos++)
         {
-            var (lineStart, lineEnd) = Model.GetLineBoundsExcludingLineEndingCharacterByPositionIndex(pos);
+            var (lineIndex, lineStart, lineEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(pos);
+
+            stringBuilder.Append("left:");
+            stringBuilder.Append((Model.Measurements.CharacterWidth * (pos - lineStart)).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            stringBuilder.Append("px;");
+            stringBuilder.Append("top:");
+            stringBuilder.Append((Model.Measurements.LineHeight * lineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            stringBuilder.Append("px;");
+            stringBuilder.Append("width:");
+            var lineSegmentStart = pos;
+            var lineSegmentEnd = lineEnd < end ? lineEnd : end;
+            int widthCount = lineSegmentEnd - lineSegmentStart;
+            if (lineEnd + 1 < end)
+            {
+                ++widthCount;
+            }
+            stringBuilder.Append((Model.Measurements.CharacterWidth * widthCount).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            stringBuilder.Append("px;");
+            var selectStyle = stringBuilder.ToString();
+            stringBuilder.Clear();
+
+            <div class="te_select"
+                 style="@selectStyle">
+            </div>
+
+            pos = lineEnd;
         }
     }
 

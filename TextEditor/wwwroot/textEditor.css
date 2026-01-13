@@ -22,6 +22,13 @@
     border: 2px solid purple;
 }
 
+
+.te_select {
+    position: absolute;
+    height: var(--te_line-height);
+    background-color: blue;
+}
+
 .te_cursor-class {
     width: 2.5px;
     height: var(--te_line-height);

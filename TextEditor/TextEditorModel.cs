@@ -78,23 +78,23 @@ public class TextEditorModel
     
     private const int _defaultCapacity = 4;
 
-    public virtual (int lineStart, int lineEnd) GetLineBoundsExcludingLineEndingCharacterByPositionIndex(int positionIndex)
+    public virtual (int lineIndex, int lineStart, int lineEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)
     {
         if (LineBreakPositionList.Count == 0)
-            return (0, GetLastValidColumnIndex(0));
+            return (0, 0, GetLastValidColumnIndex(0));
 
         for (int i = 0; i < LineBreakPositionList.Count; i++)
         {
             if (LineBreakPositionList[i] > positionIndex)
             {
                 if (i == 0)
-                    return (0, GetLastValidColumnIndex(0));
+                    return (0, 0, GetLastValidColumnIndex(0));
                 else
-                    return (LineBreakPositionList[i - 1] + 1, LineBreakPositionList[i]);
+                    return (i - 1, LineBreakPositionList[i - 1] + 1, LineBreakPositionList[i]);
             }
         }
 
-        return (Length, LineBreakPositionList[^1] + 1);
+        return (LineBreakPositionList.Count, LineBreakPositionList[^1] + 1, Length);
     }
 
     /// <summary>
