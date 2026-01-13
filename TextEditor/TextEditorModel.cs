@@ -1,10 +1,35 @@
+using System.Collections.Generic;
 using System.Text;
 
 namespace TextEditor;
 
 public class TextEditorModel
 {
-    public StringBuilder Content = new("test...tset");
+    private void SetContent(string content)
+    {
+        for (int i = 0; i < content.Length; i++)
+        {
+            var character = content[i];
+
+            // always insert '\n' for line endings, and then track separately the desired line end.
+            // upon saving, create a string that has the '\n' included as the desired line end.
+            //
+            if (character == '\n')
+            {
+                if (i < content.Length - 1 && content[i + 1] == '\r')
+                    ++character;
+                _content.Append('\n');
+            }
+            else if (character == '\r')
+            {
+                _content.Append('\n');
+            }
+
+            _content.Append(character);
+        }
+    }
+
+    private StringBuilder _content = new();
     
     /// <summary>
     /// You'd only need to store either PositionIndex or both LineIndex and ColumnIndex
@@ -29,7 +54,9 @@ public class TextEditorModel
     public List<TextEditorTooltip>? TooltipList { get; set; } = null;
     public const byte CharacterTooltipByteKind = 0;
     public const byte TextTooltipByteKind = 1;
-    
+
+    public List<int> LineEndList { get; set; } = new();
+
     /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
     /// Otherwise, you need to instantiate the list by invoking "EnableDecorations()" and begin populating the method "Decorate(...)".
@@ -44,7 +71,7 @@ public class TextEditorModel
     public const byte KeywordDecorationByte = 1;
     
     private const int _defaultCapacity = 4;
-    
+
     /// <summary>
     /// If you return 'null', then the tooltip is essentially "cancelled" as if the event never occurred.
     /// </summary>
@@ -53,15 +80,15 @@ public class TextEditorModel
         switch (tooltip.ByteKind)
         {
             case CharacterTooltipByteKind:
-                if (Content.Length > tooltip.StartPositionIndex)
+                if (_content.Length > tooltip.StartPositionIndex)
                 {
-                    return Content[tooltip.StartPositionIndex].ToString();
+                    return _content[tooltip.StartPositionIndex].ToString();
                 }
                 break;
             case TextTooltipByteKind:
-                if (Content.Length > tooltip.StartPositionIndex && Content.Length > tooltip.EndPositionIndex - 1)
+                if (_content.Length > tooltip.StartPositionIndex && _content.Length > tooltip.EndPositionIndex - 1)
                 {
-                    return Content.ToString(tooltip.StartPositionIndex, tooltip.EndPositionIndex - tooltip.StartPositionIndex);
+                    return _content.ToString(tooltip.StartPositionIndex, tooltip.EndPositionIndex - tooltip.StartPositionIndex);
                 }
                 break;
         }
@@ -87,8 +114,8 @@ public class TextEditorModel
                 break;
         }
         
-        if (PositionIndex > Content.Length)
-            PositionIndex = Content.Length;
+        if (PositionIndex > _content.Length)
+            PositionIndex = _content.Length;
     }
     
     /// <summary>
@@ -119,12 +146,12 @@ public class TextEditorModel
     {
         if (TooltipList is not null)
             TooltipList.Clear();
-        Decorate(0, Content.Length, NoneDecorationByte);
+        Decorate(0, _content.Length, NoneDecorationByte);
         
         int position = 0;
-        while (position < Content.Length)
+        while (position < _content.Length)
         {
-            switch (Content[position])
+            switch (_content[position])
             {
                 /* Lowercase Letters */
                 case 'a':
@@ -195,15 +222,15 @@ public class TextEditorModel
         var entryPosition = position;
         int characterIntSum = 0;
     
-        while (position < Content.Length)
+        while (position < _content.Length)
         {
-            if (!char.IsLetterOrDigit(Content[position]) &&
-                Content[position] != '_')
+            if (!char.IsLetterOrDigit(_content[position]) &&
+                _content[position] != '_')
             {
                 break;
             }
 
-            characterIntSum += Content[position];
+            characterIntSum += _content[position];
             ++position;
         }
         
@@ -220,10 +247,10 @@ public class TextEditorModel
         {
             case 448: // test
                 if (textSpanLength == 4 &&
-                    Content[entryPosition + 0] == 't' &&
-                    Content[entryPosition + 1] == 'e' &&
-                    Content[entryPosition + 2] == 's' &&
-                    Content[entryPosition + 3] == 't')
+                    _content[entryPosition + 0] == 't' &&
+                    _content[entryPosition + 1] == 'e' &&
+                    _content[entryPosition + 2] == 's' &&
+                    _content[entryPosition + 3] == 't')
                 {
                     if (DecorationArray is not null)
                     {
@@ -265,12 +292,12 @@ public class TextEditorModel
     /// <summary>Various parts of the List.cs source code were pasted/modified in here</summary>
     public void DecorateEnsureCapacityWritable()
     {
-        if (_decorationArrayCapacity < Content.Length) {
-            int newCapacity = Content.Length == 0? _defaultCapacity : _decorationArrayCapacity * 2;
+        if (_decorationArrayCapacity < _content.Length) {
+            int newCapacity = _content.Length == 0? _defaultCapacity : _decorationArrayCapacity * 2;
             // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
             // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
             if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-            if (newCapacity < Content.Length) newCapacity = Content.Length;
+            if (newCapacity < _content.Length) newCapacity = _content.Length;
             
             var newArray = new byte[newCapacity];
             Array.Copy(DecorationArray, 0, newArray, 0, _decorationArrayCapacity);
@@ -288,13 +315,13 @@ public class TextEditorModel
     
         int newCapacity;
         
-        if (Content.Length == 0)
+        if (_content.Length == 0)
         {
             newCapacity = _defaultCapacity;
         }
         else
         {
-            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Content.Length);
+            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)_content.Length);
             // Why does my IDE code say '< -1'???
             if (newCapacity <= 0)
             {
@@ -303,7 +330,7 @@ public class TextEditorModel
             else
             {
                 if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                if (newCapacity < Content.Length) newCapacity = Content.Length;
+                if (newCapacity < _content.Length) newCapacity = _content.Length;
             }
         }
         

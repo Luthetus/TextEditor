@@ -92,14 +92,14 @@
             {
                 if (Model.DecorationArray[i] == currentDecorationByte)
                 {
-                    stringBuilder.Append(Model.Content[i]);
+                    stringBuilder.Append(Model._content[i]);
                 }
                 else
                 {
                     <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@stringBuilder.ToString()</span>
                     stringBuilder.Clear();
                     currentDecorationByte = Model.DecorationArray[i];
-                    stringBuilder.Append(Model.Content[i]);
+                    stringBuilder.Append(Model._content[i]);
                 }
             }
             
