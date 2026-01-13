@@ -6,4 +6,5 @@ public enum MoveCursorKind
     ArrowDown,
     ArrowUp,
     ArrowRight,
+    Home,
 }

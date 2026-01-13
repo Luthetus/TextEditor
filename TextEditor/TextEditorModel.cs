@@ -319,6 +319,19 @@ public class TextEditorModel
                 }
                 
                 break;
+            case MoveCursorKind.Home:
+                if (ctrlKey)
+                {
+                    PositionIndex = 0;
+                    LineIndex = 0;
+                    ColumnIndex = 0;
+                }
+                else
+                {
+                    ColumnIndex = 0;
+                    PositionIndex = GetPositionIndex(LineIndex, ColumnIndex);
+                }
+                break;
         }
 
         if (shiftKey)

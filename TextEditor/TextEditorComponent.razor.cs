@@ -108,6 +108,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             case "ArrowRight":
                 Model.MoveCursor(MoveCursorKind.ArrowRight, shiftKey: shiftKey, ctrlKey: ctrlKey);
                 break;
+            case "Home":
+                Model.MoveCursor(MoveCursorKind.Home, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                break;
         }
         
         StateHasChanged();
