@@ -168,6 +168,7 @@ window.ideTextEditor = {
         let boundingClientRect = textEditorElement.getBoundingClientRect();
         
         let measureTextElement = document.createElement("div");
+        measureTextElement.className = "te_measure";
         textEditorElement.appendChild(measureTextElement);
         let elevenTimesAlphabetAndDigits = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
         measureTextElement.innerText = elevenTimesAlphabetAndDigits;
