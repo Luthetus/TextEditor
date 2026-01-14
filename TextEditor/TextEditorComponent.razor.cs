@@ -135,7 +135,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         var count = 2;
         var originalCharacterKind = leftCharacterKind;
 
-        if (localColumnIndex - count > -1)
+        if (localColumnIndex - count > -1) // TODO: this if isn't necessary? I'm gonna collapse rn
         {
             while (localColumnIndex - count > -1)
             {
