@@ -48,6 +48,15 @@
     }
 }
 
+.te_measure {
+    top: 0;
+    left: 0;
+    visibility: hidden;
+    overflow: hidden;
+    white-space: nowrap;
+    position: absolute;
+}
+
 .te_cursor-class {
     width: 2.5px;
     height: var(--te_line-height);
