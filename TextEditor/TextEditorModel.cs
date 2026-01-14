@@ -417,7 +417,24 @@ public class TextEditorModel
         {
             if (ctrlKey)
             {
-
+                var count = 1;
+                if (ctrlKey)
+                {
+                    var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex]);
+                    var (_, _, lineEnd) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
+                    while (PositionIndex + count < lineEnd)
+                    {
+                        if (GetCharacterKind(_textBuilder[PositionIndex + count]) == originalCharacterKind)
+                        {
+                            ++count;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                DeleteTextAtPositionByRandomAccess(PositionIndex, count);
             }
             else
             {
