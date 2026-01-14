@@ -144,6 +144,20 @@ window.ideTextEditor = {
 
             contentElement.addEventListener('keydown', (event) => {
                 if (this.cursorIsBlinking) this.stopCursorBlinking(cursorElement);
+                switch (event.Key) {
+                    case "ArrowLeft":
+                        event.preventDefault();
+                        break;
+                    case "ArrowDown":
+                        event.preventDefault();
+                        break;
+                    case "ArrowUp":
+                        event.preventDefault();
+                        break;
+                    case "ArrowRight":
+                        event.preventDefault();
+                        break;
+                }
                 dotNetHelper.invokeMethodAsync(
                     "OnKeydown",
                     event.key,
