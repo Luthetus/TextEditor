@@ -697,6 +697,44 @@ public class TextEditorModel
         //(LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
     }
 
+    /// <summary>
+    /// This method will respect the selection if it exists
+    /// </summary>
+    public virtual void DeleteTextAtPositionByCursor(DeleteByCursorKind deleteByCursorKind, bool ctrlKey)
+    {
+        if (HasSelection)
+        {
+            var start = SelectionAnchor;
+            var end = SelectionEnd;
+            if (SelectionEnd < SelectionAnchor)
+            {
+                start = SelectionEnd;
+                end = SelectionAnchor;
+            }
+            SelectionAnchor = -1;
+            SelectionEnd = -1;
+            DeleteTextAtPositionByRandomAccess(start, end - start);
+            PositionIndex = start;
+            (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+            return;
+        }
+
+        
+    }
+
+    /// <summary>
+    /// This method ignores the selection
+    /// </summary>
+    public virtual void DeleteTextAtPositionByRandomAccess(int positionIndex, int count)
+    {
+        if (positionIndex < 0)
+            return;
+        if (positionIndex >= Length)
+            return;
+
+        _textBuilder.Remove(positionIndex, count);
+    }
+
     public virtual (int lineIndex, int lineStart, int lineEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)
     {
         if (LineBreakPositionList.Count == 0)
@@ -866,6 +904,7 @@ public class TextEditorModel
         return false;
     }
 
+    /*
     /// <summary>
     /// See <see cref="InsertText(string)"/> for explanation, this method is the same but with a char.
     /// </summary>
@@ -906,4 +945,5 @@ public class TextEditorModel
 
         _textBuilder.Insert(positionIndex, character);
     }
+    */
 }
