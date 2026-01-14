@@ -700,12 +700,26 @@ public class TextEditorModel
     /// <summary>
     /// This method will respect the selection if it exists
     /// </summary>
-    public virtual void DeleteTextAtPositionByCursor(DeleteByCursorKind deleteByCursorKind, int positionIndex, bool ctrlKey)
+    public virtual void DeleteTextAtPositionByCursor(DeleteByCursorKind deleteByCursorKind, bool ctrlKey)
     {
         if (HasSelection)
         {
-
+            var start = SelectionAnchor;
+            var end = SelectionEnd;
+            if (SelectionEnd < SelectionAnchor)
+            {
+                start = SelectionEnd;
+                end = SelectionAnchor;
+            }
+            SelectionAnchor = -1;
+            SelectionEnd = -1;
+            DeleteTextAtPositionByRandomAccess(start, end - start);
+            PositionIndex = start;
+            (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+            return;
         }
+
+        
     }
 
     /// <summary>
@@ -717,6 +731,8 @@ public class TextEditorModel
             return;
         if (positionIndex >= Length)
             return;
+
+        _textBuilder.Remove(positionIndex, count);
     }
 
     public virtual (int lineIndex, int lineStart, int lineEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)

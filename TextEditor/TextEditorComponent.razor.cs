@@ -114,6 +114,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             case "End":
                 Model.MoveCursor(MoveCursorKind.End, shiftKey: shiftKey, ctrlKey: ctrlKey);
                 break;
+            case "Delete":
+                Model.DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, ctrlKey: ctrlKey);
+                break;
+            case "Backspace":
+                Model.DeleteTextAtPositionByCursor(DeleteByCursorKind.Backspace, ctrlKey: ctrlKey);
+                break;
         }
         
         StateHasChanged();
