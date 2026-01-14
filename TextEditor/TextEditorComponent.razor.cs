@@ -72,7 +72,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.takeMeasurements");
         Model.Measurements = _measurements;
     }
-    
+
     [JSInvokable]
     public void ReceiveKeyboardDebounce()
     {
@@ -123,6 +123,30 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         
         StateHasChanged();
     }
+
+    private void ExpandSelectionRight(CharacterKind rightCharacterKind, int lastValidColumnIndex)
+    {
+        ++Model.ColumnIndex;
+        ++Model.PositionIndex;
+        var originalCharacterKind = rightCharacterKind;
+        var localPositionIndex = Model.PositionIndex;
+        var localColumnIndex = Model.ColumnIndex;
+        while (localColumnIndex < lastValidColumnIndex)
+        {
+            if (Model.GetCharacterKind(Model[localPositionIndex]) == originalCharacterKind)
+            {
+                ++localColumnIndex;
+                ++localPositionIndex;
+            }
+            else
+            {
+                break;
+            }
+        }
+        Model.PositionIndex = localPositionIndex;
+        Model.ColumnIndex = localColumnIndex;
+        Model.SelectionEnd = Model.PositionIndex;
+    }
     
     [JSInvokable]
     public void OnMouseDown(
@@ -169,12 +193,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             }
             else if (rightCharacterKind > leftCharacterKind)
             {
-                Model.SelectionEnd = Model.PositionIndex + 1;
+                ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
             }
             else if (leftCharacterKind != CharacterKind.None && rightCharacterKind != CharacterKind.None)
             {
                 Model.SelectionAnchor = Model.PositionIndex - 1;
-                Model.SelectionEnd = Model.PositionIndex + 1;
+                ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
             }
 
             StateHasChanged();
