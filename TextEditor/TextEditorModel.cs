@@ -238,7 +238,7 @@ public class TextEditorModel
                 }
                 else
                 {
-                    (int _ /*lineIndex*/, int _ /*lineStart*/, PositionIndex /*lineEnd*/) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
+                    (int _ /*lineIndex*/, int _ /*linePosStart*/, PositionIndex /*linePosEnd*/) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
                     (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
                 }
                 break;
@@ -421,8 +421,8 @@ public class TextEditorModel
                 if (ctrlKey)
                 {
                     var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex]);
-                    var (_, _, lineEnd) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
-                    while (PositionIndex + count < lineEnd)
+                    var (_, _, linePosEnd) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
+                    while (PositionIndex + count < linePosEnd)
                     {
                         if (GetCharacterKind(_textBuilder[PositionIndex + count]) == originalCharacterKind)
                         {
@@ -447,11 +447,11 @@ public class TextEditorModel
             if (ctrlKey && ColumnIndex > 0)
             {
                 var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex - count]);
-                var (_, lineStart, _) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
-                if (PositionIndex - count > lineStart)
+                var (_, linePosStart, _) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
+                if (PositionIndex - count > linePosStart)
                 {
                     ++count;
-                    while (PositionIndex - count >= lineStart)
+                    while (PositionIndex - count >= linePosStart)
                     {
                         if (GetCharacterKind(_textBuilder[PositionIndex - count]) != originalCharacterKind)
                         {
@@ -463,7 +463,7 @@ public class TextEditorModel
                             ++count;
                         }
                     }
-                    if (PositionIndex - count < lineStart)
+                    if (PositionIndex - count < linePosStart)
                     {
                         --count;
                     }
@@ -475,10 +475,12 @@ public class TextEditorModel
                 DeleteTextAtPositionByRandomAccess(PositionIndex - 1, 1);
             }
         }
+#if DEBUG
         else
         {
             throw new NotImplementedException();
         }
+#endif
     }
 
     /// <summary>
@@ -519,7 +521,7 @@ public class TextEditorModel
         }
     }
 
-    public virtual (int lineIndex, int lineStart, int lineEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)
+    public virtual (int lineIndex, int linePosStart, int linePosEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)
     {
         if (LineBreakPositionList.Count == 0)
             return (0, 0, GetLastValidColumnIndex(0));

@@ -129,13 +129,66 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         long buttons,
         double clientX,
         double clientY,
-        bool shiftKey)
+        bool shiftKey,
+        int detailRank)
     {
-        (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
-        Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
-        Model.SelectionAnchor = Model.PositionIndex;
-        Model.SelectionEnd = Model.PositionIndex;
-        StateHasChanged();
+        if (detailRank == 1)
+        {
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
+            Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
+            Model.SelectionAnchor = Model.PositionIndex;
+            Model.SelectionEnd = Model.PositionIndex;
+            StateHasChanged();
+        }
+        else if (detailRank == 2)
+        {
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
+            Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
+            Model.SelectionAnchor = Model.PositionIndex;
+            Model.SelectionEnd = Model.PositionIndex;
+
+            var leftCharacterKind = CharacterKind.None;
+            var rightCharacterKind = CharacterKind.None;
+
+            var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
+
+            if (Model.ColumnIndex > 0)
+            {
+                leftCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex - 1]);
+            }
+
+            var lastValidColumnIndex = Model.GetLastValidColumnIndex(lineIndex);
+            if (Model.ColumnIndex < lastValidColumnIndex)
+            {
+                rightCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex]);
+            }
+
+            if (leftCharacterKind > rightCharacterKind)
+            {
+                Model.SelectionAnchor = Model.PositionIndex - 1;
+            }
+            else if (rightCharacterKind > leftCharacterKind)
+            {
+                Model.SelectionEnd = Model.PositionIndex + 1;
+            }
+            else if (leftCharacterKind != CharacterKind.None && rightCharacterKind != CharacterKind.None)
+            {
+                Model.SelectionAnchor = Model.PositionIndex - 1;
+                Model.SelectionEnd = Model.PositionIndex + 1;
+            }
+
+            StateHasChanged();
+        }
+        else if (detailRank == 3)
+        {
+
+        }
+#if DEBUG
+        else
+        {
+            throw new NotImplementedException();
+        }
+#endif
     }
     
     [JSInvokable]
