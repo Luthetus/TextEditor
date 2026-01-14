@@ -596,8 +596,8 @@ public class TextEditorModel
                 }
                 else
                 {
-                    lineIndex = i - 1;
-                    columnIndex = LineBreakPositionList[i] - LineBreakPositionList[i - 1] + 1;
+                    lineIndex = i;
+                    columnIndex = positionIndex - (LineBreakPositionList[i - 1] + 1);
                     lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
                     if (columnIndex > lastValidColumnIndex)
                         columnIndex = lastValidColumnIndex;
@@ -681,13 +681,13 @@ public class TextEditorModel
                 return LineBreakPositionList[lineIndex];
             }
         }
-        else if (LineBreakPositionList.Count == lineIndex)
-        {
-            return Length - (LineBreakPositionList[LineBreakPositionList.Count - 1] + 1);
-        }
         else if (LineBreakPositionList.Count > lineIndex)
         {
             return LineBreakPositionList[lineIndex] - (LineBreakPositionList[lineIndex - 1] + 1);
+        }
+        else if (LineBreakPositionList.Count == lineIndex)
+        {
+            return Length - (LineBreakPositionList[LineBreakPositionList.Count - 1] + 1);
         }
         else
         {
