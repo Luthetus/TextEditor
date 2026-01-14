@@ -55,7 +55,7 @@
     
     <hr/>
 
-    <button @onclick="TakeMeasurements">R</button>
+    <button @onclick="TakeMeasurements">Remeasure</button>
 
 </div>
 
@@ -152,7 +152,7 @@
             else
                 currentDecorationByte = 0;
 
-            <div>
+            <div class="te_row">
                 @for (; i < Model.Length; i++)
                 {
                     if (i < exclusiveEndDecorationIndex)

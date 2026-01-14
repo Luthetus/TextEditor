@@ -330,6 +330,23 @@ public class TextEditorModel
     public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex) =>
         InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));
 
+    private void InsertTextAtPosition_InsertLineBreak(ref int lineBreakInsertedIndex, ref int lineBreakInsertedCount, int entryPositionIndex, int positionIndex)
+    {
+        if (lineBreakInsertedIndex == -1)
+        {
+            for (int lineBreakIndex = 0; lineBreakIndex < LineBreakPositionList.Count; lineBreakIndex++)
+            {
+                if (LineBreakPositionList[lineBreakIndex] >= entryPositionIndex)
+                {
+                    lineBreakInsertedIndex = lineBreakIndex;
+                    break;
+                }
+            }
+        }
+
+        LineBreakPositionList.Insert(lineBreakInsertedIndex + lineBreakInsertedCount++, positionIndex);
+    }
+
     /// <summary>
     /// This method inserts at the provided positionIndex,
     /// and if the positionIndex is <= the user's position index,
@@ -345,6 +362,8 @@ public class TextEditorModel
     {
         var (lineIndex, columnIndex) = GetLineColumnIndices(positionIndex);
         var entryPositionIndex = positionIndex;
+        var lineBreakInsertedIndex = -1;
+        var lineBreakInsertedCount = 0;
 
         for (int i = 0; i < text.Length; i++)
         {
@@ -363,31 +382,39 @@ public class TextEditorModel
                 if (i < text.Length - 1 && text[i + 1] == '\r')
                     ++i;
                 _textBuilder.Insert(positionIndex, '\n');
-                LineBreakPositionList.Add(positionIndex);
+                InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
             else if (character == '\r')
             {
                 _textBuilder.Insert(positionIndex, '\n');
-                LineBreakPositionList.Add(positionIndex);
+                InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
             else
             {
                 _textBuilder.Insert(positionIndex, character);
             }
 
-            if (lineIndex == LineIndex && columnIndex <= ColumnIndex)
+            if (lineIndex == LineIndex)
             {
-                ++columnIndex;
-                ++ColumnIndex;
-                ++PositionIndex;
+                if (character == '\n' || character == '\r')
+                {
+                    ++LineIndex;
+                    ColumnIndex = 0;
+                }
+                else if (columnIndex <= ColumnIndex)
+                {
+                    ++columnIndex;
+                    ++ColumnIndex;
+                    ++PositionIndex;
+                }
             }
             ++positionIndex;
         }
 
-        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        for (int i = lineBreakInsertedIndex + lineBreakInsertedCount; i < LineBreakPositionList.Count; i++)
         {
             if (LineBreakPositionList[i] >= entryPositionIndex)
-                LineBreakPositionList[i] += PositionIndex - entryPositionIndex;
+                LineBreakPositionList[i] += positionIndex - entryPositionIndex;
         }
 
         //(LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
