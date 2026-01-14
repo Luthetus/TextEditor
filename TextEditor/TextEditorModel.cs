@@ -475,10 +475,12 @@ public class TextEditorModel
                 DeleteTextAtPositionByRandomAccess(PositionIndex - 1, 1);
             }
         }
+#if DEBUG
         else
         {
             throw new NotImplementedException();
         }
+#endif
     }
 
     /// <summary>

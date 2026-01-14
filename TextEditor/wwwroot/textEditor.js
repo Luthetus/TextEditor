@@ -52,14 +52,14 @@ window.ideTextEditor = {
             contentElement.addEventListener('mousedown', (event) => {
                 if ((event.buttons & 1) === 1) {
                     this.thinksLeftMouseButtonIsDown = true;
-                    if (event.details % 3 == 0) {
-                        this.mouseDownDetailsRank = 3;
+                    if (event.detail % 3 == 0) {
+                        this.mouseDownDetailRank = 3;
                     }
-                    else if (event.details % 2 == 0) {
-                        this.mouseDownDetailsRank = 2;
+                    else if (event.detail % 2 == 0) {
+                        this.mouseDownDetailRank = 2;
                     }
                     else {
-                        this.mouseDownDetailsRank = 1;
+                        this.mouseDownDetailRank = 1;
                     }
                 }
 
@@ -72,7 +72,8 @@ window.ideTextEditor = {
                     event.buttons,
                     event.clientX,
                     event.clientY,
-                    event.shiftKey);
+                    event.shiftKey,
+                    this.mouseDownDetailRank);
             });
             
             contentElement.addEventListener('mousemove', (event) => {
