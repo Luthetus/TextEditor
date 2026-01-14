@@ -617,7 +617,7 @@ public class TextEditorModel
         // isn't it always positionIndex - LineBreakPositionList[lineIndex - 1]
         // wow I have no idea what I'm doing right now I need some sleep
         lineIndex = LineBreakPositionList.Count;
-        columnIndex = Length - (LineBreakPositionList[^1] + 1);
+        columnIndex = positionIndex - (LineBreakPositionList[^1] + 1);
         lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
         if (columnIndex > lastValidColumnIndex)
             columnIndex = lastValidColumnIndex;
