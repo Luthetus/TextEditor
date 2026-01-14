@@ -6,9 +6,10 @@ window.ideTextEditor = {
     //mouseMoveSkippedCount: 0,
     //mouseMoveDidCount: 0,
     thinksLeftMouseButtonIsDown: false,
+    mouseDownDetailsRank: 1,
     mouseStopTimer: null,
     mouseStopDelay: 300,
-    keydownStopTimer: 3000,
+    keydownStopTimer: null,
     keydownStopDelay: 3000,
     setFocus: function () {
         let textEditorElement = document.getElementById("te_component-id");
@@ -51,6 +52,15 @@ window.ideTextEditor = {
             contentElement.addEventListener('mousedown', (event) => {
                 if ((event.buttons & 1) === 1) {
                     this.thinksLeftMouseButtonIsDown = true;
+                    if (event.detail % 3 == 0) {
+                        this.mouseDownDetailRank = 3;
+                    }
+                    else if (event.detail % 2 == 0) {
+                        this.mouseDownDetailRank = 2;
+                    }
+                    else {
+                        this.mouseDownDetailRank = 1;
+                    }
                 }
 
                 if (this.cursorIsBlinking) {
@@ -62,7 +72,8 @@ window.ideTextEditor = {
                     event.buttons,
                     event.clientX,
                     event.clientY,
-                    event.shiftKey);
+                    event.shiftKey,
+                    this.mouseDownDetailRank);
             });
             
             contentElement.addEventListener('mousemove', (event) => {
@@ -118,7 +129,11 @@ window.ideTextEditor = {
                     }, this.mouseStopDelay);
                 }
             });
-            
+
+            contentElement.addEventListener('mouseout', (event) => {
+                clearTimeout(this.mouseStopTimer);
+            });
+
             contentElement.addEventListener('keydown', (event) => {
                 dotNetHelper.invokeMethodAsync(
                     "OnKeydown",
