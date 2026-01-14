@@ -135,19 +135,16 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         var count = 2;
         var originalCharacterKind = leftCharacterKind;
 
-        if (localColumnIndex - count > -1)
+        while (localColumnIndex - count > -1)
         {
-            while (localColumnIndex - count > -1)
+            if (Model.GetCharacterKind(Model[localPositionIndex - count]) == originalCharacterKind)
             {
-                if (Model.GetCharacterKind(Model[localPositionIndex - count]) == originalCharacterKind)
-                {
-                    ++count;
-                }
-                else
-                {
-                    --count;
-                    break;
-                }
+                ++count;
+            }
+            else
+            {
+                --count;
+                break;
             }
         }
 
