@@ -413,7 +413,32 @@ public class TextEditorModel
             return;
         }
 
-        
+        if (deleteByCursorKind == DeleteByCursorKind.Delete)
+        {
+            if (ctrlKey)
+            {
+
+            }
+            else
+            {
+                DeleteTextAtPositionByRandomAccess(PositionIndex, 1);
+            }
+        }
+        else if (deleteByCursorKind == DeleteByCursorKind.Backspace)
+        {
+            if (ctrlKey)
+            {
+
+            }
+            else
+            {
+                DeleteTextAtPositionByRandomAccess(PositionIndex - 1, 1);
+            }
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>
@@ -441,13 +466,9 @@ public class TextEditorModel
             for (var i = LineBreakPositionList.Count - 1; i >= 0; i--)
             {
                 if (LineBreakPositionList[i] > end)
-                {
                     LineBreakPositionList[i] -= count;
-                }
                 else if (LineBreakPositionList[i] > start)
-                {
                     LineBreakPositionList.RemoveAt(i);
-                }
             }
         }
 
