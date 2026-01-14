@@ -334,12 +334,23 @@ public class TextEditorModel
     {
         if (lineBreakInsertedIndex == -1)
         {
-            for (int lineBreakIndex = 0; lineBreakIndex < LineBreakPositionList.Count; lineBreakIndex++)
+            if (LineBreakPositionList.Count == 0)
             {
-                if (LineBreakPositionList[lineBreakIndex] >= entryPositionIndex)
+                lineBreakInsertedIndex = 0;
+            }
+            else
+            {
+                for (int lineBreakIndex = 0; lineBreakIndex < LineBreakPositionList.Count; lineBreakIndex++)
                 {
-                    lineBreakInsertedIndex = lineBreakIndex;
-                    break;
+                    if (LineBreakPositionList[lineBreakIndex] >= entryPositionIndex)
+                    {
+                        lineBreakInsertedIndex = lineBreakIndex;
+                        break;
+                    }
+                }
+                if (lineBreakInsertedIndex == -1)
+                {
+                    lineBreakInsertedIndex = LineBreakPositionList.Count;
                 }
             }
         }
@@ -522,25 +533,19 @@ public class TextEditorModel
         if (positionIndex >= Length)
             return;
 
-        var (entryLineIndex, entryColumnIndex) = GetLineColumnIndices(PositionIndex);
-        var entryPosition = positionIndex;
+        var start = positionIndex;
+        var end = positionIndex + count;
 
         _textBuilder.Remove(positionIndex, count);
 
         var lineBreakOriginalCount = LineBreakPositionList.Count;
 
-        var start = positionIndex;
-        var end = positionIndex + count;
-
-        if (LineBreakPositionList.Count > 0)
+        for (var i = LineBreakPositionList.Count - 1; i >= 0; i--)
         {
-            for (var i = LineBreakPositionList.Count - 1; i >= 0; i--)
-            {
-                if (LineBreakPositionList[i] > end)
-                    LineBreakPositionList[i] -= count;
-                else if (LineBreakPositionList[i] > start)
-                    LineBreakPositionList.RemoveAt(i);
-            }
+            if (LineBreakPositionList[i] >= end)
+                LineBreakPositionList[i] -= count;
+            else if (LineBreakPositionList[i] >= start)
+                LineBreakPositionList.RemoveAt(i);
         }
 
         if (PositionIndex > start)
