@@ -6,9 +6,10 @@ window.ideTextEditor = {
     //mouseMoveSkippedCount: 0,
     //mouseMoveDidCount: 0,
     thinksLeftMouseButtonIsDown: false,
+    mouseDownDetailsRank: 1,
     mouseStopTimer: null,
     mouseStopDelay: 300,
-    keydownStopTimer: 3000,
+    keydownStopTimer: null,
     keydownStopDelay: 3000,
     setFocus: function () {
         let textEditorElement = document.getElementById("te_component-id");
@@ -51,6 +52,15 @@ window.ideTextEditor = {
             contentElement.addEventListener('mousedown', (event) => {
                 if ((event.buttons & 1) === 1) {
                     this.thinksLeftMouseButtonIsDown = true;
+                    if (event.details % 3 == 0) {
+                        this.mouseDownDetailsRank = 3;
+                    }
+                    else if (event.details % 2 == 0) {
+                        this.mouseDownDetailsRank = 2;
+                    }
+                    else {
+                        this.mouseDownDetailsRank = 1;
+                    }
                 }
 
                 if (this.cursorIsBlinking) {
