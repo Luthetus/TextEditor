@@ -142,7 +142,40 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         else if (detailRank == 2)
         {
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
+            Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
+            Model.SelectionAnchor = Model.PositionIndex;
+            Model.SelectionEnd = Model.PositionIndex;
 
+            var leftCharacterKind = CharacterKind.None;
+            var rightCharacterKind = CharacterKind.None;
+
+            var (lineIndex, lineStart, lineEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
+
+            if (Model.ColumnIndex > 0)
+            {
+                leftCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex - 1]);
+            }
+            if (Model.ColumnIndex < lineEnd)
+            {
+                rightCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex]);
+            }
+
+            if (leftCharacterKind > rightCharacterKind)
+            {
+                Model.SelectionAnchor = Model.PositionIndex - 1;
+            }
+            else if (rightCharacterKind > leftCharacterKind)
+            {
+                Model.SelectionEnd = Model.PositionIndex + 1;
+            }
+            else if (leftCharacterKind != CharacterKind.None && rightCharacterKind != CharacterKind.None)
+            {
+                Model.SelectionAnchor = Model.PositionIndex - 1;
+                Model.SelectionEnd = Model.PositionIndex + 1;
+            }
+
+            StateHasChanged();
         }
         else if (detailRank == 3)
         {
