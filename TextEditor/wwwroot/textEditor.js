@@ -11,6 +11,9 @@ window.ideTextEditor = {
     mouseStopDelay: 300,
     keydownStopTimer: null,
     keydownStopDelay: 3000,
+    cursorBlinkingStopTimer: null,
+    cursorBlinkingStopDelay: 1000,
+    cursorIsBlinking: true,
     setFocus: function () {
         let textEditorElement = document.getElementById("te_component-id");
         if (textEditorElement) {
@@ -40,6 +43,13 @@ window.ideTextEditor = {
                (measurements.ScrollbarLiteralHeight && measurements.ScrollbarLiteralHeight == 0);
     },
     initializeAndTakeMeasurements: function (dotNetHelper) {
+
+        let cursorElement = document.getElementById("te_cursor-id");
+        if (cursorElement) {
+            cursorElement.className = "te_cursor-class ide_te_blink";
+            this.cursorIsBlinking = true;
+        }
+
         let contentElement = document.getElementById("te_component-id");
         if (!contentElement) {
             return this.constructDefaultMeasurements();
@@ -63,9 +73,7 @@ window.ideTextEditor = {
                     }
                 }
 
-                if (this.cursorIsBlinking) {
-                    this.stopCursorBlinking();
-                }
+                if (this.cursorIsBlinking) this.stopCursorBlinking(cursorElement);
 
                 dotNetHelper.invokeMethodAsync(
                     "OnMouseDown",
@@ -82,7 +90,7 @@ window.ideTextEditor = {
                 }
                 if (this.thinksLeftMouseButtonIsDown) {
         
-                    //if (this.cursorIsBlinking) this.stopCursorBlinking();
+                    if (this.cursorIsBlinking) this.stopCursorBlinking(cursorElement);
         
                     const now = new Date().getTime();
                     // Check if enough time has passed since the last execution
@@ -135,6 +143,7 @@ window.ideTextEditor = {
             });
 
             contentElement.addEventListener('keydown', (event) => {
+                if (this.cursorIsBlinking) this.stopCursorBlinking(cursorElement);
                 dotNetHelper.invokeMethodAsync(
                     "OnKeydown",
                     event.key,
@@ -190,17 +199,17 @@ window.ideTextEditor = {
 			ScrollbarLiteralHeight: scrollbarLiteralHeight,
         }
     },
-    /*stopCursorBlinking: function () {
-        if (this.cursorIsBlinking) {
-            cursorElement.className = "ide_te_text-editor-cursor ide_te_cursor-beam";
+    stopCursorBlinking: function (cursorElement) {
+        if (cursorElement && this.cursorIsBlinking) {
+            cursorElement.className = "te_cursor-class";
             this.cursorIsBlinking = false;
             clearTimeout(this.cursorBlinkingStopTimer); // Reset timer on every move
             this.cursorBlinkingStopTimer = setTimeout(() => {
                 if (!this.cursorIsBlinking) {
-                    cursorElement.className = "ide_te_text-editor-cursor ide_te_blink ide_te_cursor-beam";
+                    cursorElement.className = "te_cursor-class ide_te_blink";
                     this.cursorIsBlinking = true;
                 }
             }, this.cursorBlinkingStopDelay);
         }
-    },*/
+    },
 }
