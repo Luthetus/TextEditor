@@ -118,7 +118,11 @@ window.ideTextEditor = {
                     }, this.mouseStopDelay);
                 }
             });
-            
+
+            contentElement.addEventListener('mouseout', (event) => {
+                clearTimeout(this.mouseStopTimer);
+            });
+
             contentElement.addEventListener('keydown', (event) => {
                 dotNetHelper.invokeMethodAsync(
                     "OnKeydown",
