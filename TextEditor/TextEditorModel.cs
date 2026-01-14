@@ -101,89 +101,6 @@ public class TextEditorModel
         return null;
     }
 
-    public virtual CharacterKind GetCharacterKind(char character)
-    {
-        // I considered using ASCII codes but I think the switch is faster and it won't take that long.
-        switch (character)
-        {
-            /* Lowercase Letters */
-            case 'a':
-            case 'b':
-            case 'c':
-            case 'd':
-            case 'e':
-            case 'f':
-            case 'g':
-            case 'h':
-            case 'i':
-            case 'j':
-            case 'k':
-            case 'l':
-            case 'm':
-            case 'n':
-            case 'o':
-            case 'p':
-            case 'q':
-            case 'r':
-            case 's':
-            case 't':
-            case 'u':
-            case 'v':
-            case 'w':
-            case 'x':
-            case 'y':
-            case 'z':
-            /* Uppercase Letters */
-            case 'A':
-            case 'B':
-            case 'C':
-            case 'D':
-            case 'E':
-            case 'F':
-            case 'G':
-            case 'H':
-            case 'I':
-            case 'J':
-            case 'K':
-            case 'L':
-            case 'M':
-            case 'N':
-            case 'O':
-            case 'P':
-            case 'Q':
-            case 'R':
-            case 'S':
-            case 'T':
-            case 'U':
-            case 'V':
-            case 'W':
-            case 'X':
-            case 'Y':
-            case 'Z':
-            /* Underscore */
-            case '_':
-            /* Digits */
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                return CharacterKind.LetterOrDigit;
-            case ' ':
-            case '\t':
-            case '\r':
-            case '\n':
-                return CharacterKind.Whitespace;
-            default:
-                return CharacterKind.Punctuation;
-        }
-    }
-
     public virtual void MoveCursor(MoveCursorKind moveCursorKind, bool shiftKey, bool ctrlKey)
     {
         var entryPosition = PositionIndex;
@@ -340,227 +257,6 @@ public class TextEditorModel
             SelectionEnd = -1;
         }
     }
-    
-    /// <summary>
-    /// Maybe this is more a remark...
-    /// but something to keep in mind when wanting plain text MIGHT be:
-    ///
-    /// Returning 'null' avoids the HTML attribute name 'class' from being written.
-    /// Whereas 'string.Empty' will still write the HTML attribute name 'class'.
-    ///
-    ///
-    /// But, if you ever wanted to change the color of plain text you'd be in trouble
-    /// without a CSS class to target.
-    /// </summary>
-    public virtual string? DecorationMapToCssClass(byte decorationByte)
-    {
-        switch (decorationByte)
-        {
-            case NoneDecorationByte:
-                return null;
-            case KeywordDecorationByte:
-                return "te_k";
-            default:
-                return null;
-        }
-    }
-    
-    public virtual void ReceiveKeyboardDebounce()
-    {
-        if (TooltipList is not null)
-            TooltipList.Clear();
-        Decorate(0, _textBuilder.Length, NoneDecorationByte);
-        
-        int position = 0;
-        while (position < _textBuilder.Length)
-        {
-            switch (_textBuilder[position])
-            {
-                /* Lowercase Letters */
-                case 'a':
-                case 'b':
-                case 'c':
-                case 'd':
-                case 'e':
-                case 'f':
-                case 'g':
-                case 'h':
-                case 'i':
-                case 'j':
-                case 'k':
-                case 'l':
-                case 'm':
-                case 'n':
-                case 'o':
-                case 'p':
-                case 'q':
-                case 'r':
-                case 's':
-                case 't':
-                case 'u':
-                case 'v':
-                case 'w':
-                case 'x':
-                case 'y':
-                case 'z':
-                /* Uppercase Letters */
-                case 'A':
-                case 'B':
-                case 'C':
-                case 'D':
-                case 'E':
-                case 'F':
-                case 'G':
-                case 'H':
-                case 'I':
-                case 'J':
-                case 'K':
-                case 'L':
-                case 'M':
-                case 'N':
-                case 'O':
-                case 'P':
-                case 'Q':
-                case 'R':
-                case 'S':
-                case 'T':
-                case 'U':
-                case 'V':
-                case 'W':
-                case 'X':
-                case 'Y':
-                case 'Z':
-                /* Underscore */
-                case '_':
-                    LexIdentifierOrKeywordOrKeywordContextual(ref position);
-                    break;
-            }
-            
-            ++position;
-        }
-    }
-    
-    private void LexIdentifierOrKeywordOrKeywordContextual(ref int position)
-    {
-        var entryPosition = position;
-        int characterIntSum = 0;
-    
-        while (position < _textBuilder.Length)
-        {
-            if (!char.IsLetterOrDigit(_textBuilder[position]) &&
-                _textBuilder[position] != '_')
-            {
-                break;
-            }
-
-            characterIntSum += _textBuilder[position];
-            ++position;
-        }
-        
-        var textSpanLength = position - entryPosition;
-        
-        // t 116
-        // e 101
-        // s 115
-        // t 116
-        // =====
-        //   448
-        
-        switch (characterIntSum)
-        {
-            case 448: // test
-                if (textSpanLength == 4 &&
-                    _textBuilder[entryPosition + 0] == 't' &&
-                    _textBuilder[entryPosition + 1] == 'e' &&
-                    _textBuilder[entryPosition + 2] == 's' &&
-                    _textBuilder[entryPosition + 3] == 't')
-                {
-                    if (DecorationArray is not null)
-                    {
-                        Decorate(entryPosition, position, KeywordDecorationByte);
-                    }
-                    
-                    if (TooltipList is not null)
-                    {
-                        TooltipList.Add(new TextEditorTooltip(
-                            entryPosition,
-                            position,
-                            foreignKey: 0,
-                            byteKind: TextTooltipByteKind));
-                    }
-                }
-                break;
-        }
-    }
-    
-    /// <summary>
-    /// 'startPosition' is inclusive
-    /// 'endPosition' is exclusive
-    /// </summary>
-    public void Decorate(int startPosition, int endPosition, byte decorationByte)
-    {
-        if (DecorationArray is null)
-            return;
-        
-        DecorateEnsureCapacityWritable();
-        
-        // trim excess when removing large amounts of text?
-        
-        for (int i = startPosition; i < endPosition; i++)
-        {
-            DecorationArray[i] = decorationByte;
-        }
-    }
-    
-    /// <summary>Various parts of the List.cs source code were pasted/modified in here</summary>
-    public void DecorateEnsureCapacityWritable()
-    {
-        if (_decorationArrayCapacity < _textBuilder.Length)
-        {
-            int newCapacity = _textBuilder.Length == 0? _defaultCapacity : _decorationArrayCapacity * 2;
-            // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
-            // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-            if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-            if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
-            
-            var newArray = new byte[newCapacity];
-            Array.Copy(DecorationArray, 0, newArray, 0, _decorationArrayCapacity);
-            
-            _decorationArrayCapacity = newCapacity;
-            _decorationArray = newArray;
-        }
-    }
-    
-    /// <summary>Various parts of the List.cs source code were pasted/modified in here</summary>
-    public void EnableDecorations()
-    {
-        if (DecorationArray is not null)
-            return;
-    
-        int newCapacity;
-        
-        if (_textBuilder.Length == 0)
-        {
-            newCapacity = _defaultCapacity;
-        }
-        else
-        {
-            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)_textBuilder.Length);
-            // Why does my IDE code say '< -1'???
-            if (newCapacity <= 0)
-            {
-                newCapacity = _defaultCapacity;
-            }
-            else
-            {
-                if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
-            }
-        }
-        
-        _decorationArrayCapacity = newCapacity;
-        _decorationArray = new byte[_decorationArrayCapacity];
-    }
 
     public void SetText(string text)
     {
@@ -714,8 +410,6 @@ public class TextEditorModel
             SelectionAnchor = -1;
             SelectionEnd = -1;
             DeleteTextAtPositionByRandomAccess(start, end - start);
-            PositionIndex = start;
-            (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
             return;
         }
 
@@ -732,7 +426,36 @@ public class TextEditorModel
         if (positionIndex >= Length)
             return;
 
+        var (entryLineIndex, entryColumnIndex) = GetLineColumnIndices(PositionIndex);
+        var entryPosition = positionIndex;
+
         _textBuilder.Remove(positionIndex, count);
+
+        var lineBreakOriginalCount = LineBreakPositionList.Count;
+
+        var start = positionIndex;
+        var end = positionIndex + count;
+
+        if (LineBreakPositionList.Count > 0)
+        {
+            for (var i = LineBreakPositionList.Count - 1; i >= 0; i--)
+            {
+                if (LineBreakPositionList[i] > end)
+                {
+                    LineBreakPositionList[i] -= count;
+                }
+                else if (LineBreakPositionList[i] > start)
+                {
+                    LineBreakPositionList.RemoveAt(i);
+                }
+            }
+        }
+
+        if (PositionIndex > start)
+        {
+            PositionIndex -= count;
+            (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+        }
     }
 
     public virtual (int lineIndex, int lineStart, int lineEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)
@@ -902,6 +625,310 @@ public class TextEditorModel
 
         index = -1;
         return false;
+    }
+
+    public virtual CharacterKind GetCharacterKind(char character)
+    {
+        // I considered using ASCII codes but I think the switch is faster and it won't take that long.
+        switch (character)
+        {
+            /* Lowercase Letters */
+            case 'a':
+            case 'b':
+            case 'c':
+            case 'd':
+            case 'e':
+            case 'f':
+            case 'g':
+            case 'h':
+            case 'i':
+            case 'j':
+            case 'k':
+            case 'l':
+            case 'm':
+            case 'n':
+            case 'o':
+            case 'p':
+            case 'q':
+            case 'r':
+            case 's':
+            case 't':
+            case 'u':
+            case 'v':
+            case 'w':
+            case 'x':
+            case 'y':
+            case 'z':
+            /* Uppercase Letters */
+            case 'A':
+            case 'B':
+            case 'C':
+            case 'D':
+            case 'E':
+            case 'F':
+            case 'G':
+            case 'H':
+            case 'I':
+            case 'J':
+            case 'K':
+            case 'L':
+            case 'M':
+            case 'N':
+            case 'O':
+            case 'P':
+            case 'Q':
+            case 'R':
+            case 'S':
+            case 'T':
+            case 'U':
+            case 'V':
+            case 'W':
+            case 'X':
+            case 'Y':
+            case 'Z':
+            /* Underscore */
+            case '_':
+            /* Digits */
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                return CharacterKind.LetterOrDigit;
+            case ' ':
+            case '\t':
+            case '\r':
+            case '\n':
+                return CharacterKind.Whitespace;
+            default:
+                return CharacterKind.Punctuation;
+        }
+    }
+
+    /// <summary>
+    /// Maybe this is more a remark...
+    /// but something to keep in mind when wanting plain text MIGHT be:
+    ///
+    /// Returning 'null' avoids the HTML attribute name 'class' from being written.
+    /// Whereas 'string.Empty' will still write the HTML attribute name 'class'.
+    ///
+    ///
+    /// But, if you ever wanted to change the color of plain text you'd be in trouble
+    /// without a CSS class to target.
+    /// </summary>
+    public virtual string? DecorationMapToCssClass(byte decorationByte)
+    {
+        switch (decorationByte)
+        {
+            case NoneDecorationByte:
+                return null;
+            case KeywordDecorationByte:
+                return "te_k";
+            default:
+                return null;
+        }
+    }
+
+    public virtual void ReceiveKeyboardDebounce()
+    {
+        if (TooltipList is not null)
+            TooltipList.Clear();
+        Decorate(0, _textBuilder.Length, NoneDecorationByte);
+
+        int position = 0;
+        while (position < _textBuilder.Length)
+        {
+            switch (_textBuilder[position])
+            {
+                /* Lowercase Letters */
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                case 'g':
+                case 'h':
+                case 'i':
+                case 'j':
+                case 'k':
+                case 'l':
+                case 'm':
+                case 'n':
+                case 'o':
+                case 'p':
+                case 'q':
+                case 'r':
+                case 's':
+                case 't':
+                case 'u':
+                case 'v':
+                case 'w':
+                case 'x':
+                case 'y':
+                case 'z':
+                /* Uppercase Letters */
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'D':
+                case 'E':
+                case 'F':
+                case 'G':
+                case 'H':
+                case 'I':
+                case 'J':
+                case 'K':
+                case 'L':
+                case 'M':
+                case 'N':
+                case 'O':
+                case 'P':
+                case 'Q':
+                case 'R':
+                case 'S':
+                case 'T':
+                case 'U':
+                case 'V':
+                case 'W':
+                case 'X':
+                case 'Y':
+                case 'Z':
+                /* Underscore */
+                case '_':
+                    LexIdentifierOrKeywordOrKeywordContextual(ref position);
+                    break;
+            }
+
+            ++position;
+        }
+    }
+
+    private void LexIdentifierOrKeywordOrKeywordContextual(ref int position)
+    {
+        var entryPosition = position;
+        int characterIntSum = 0;
+
+        while (position < _textBuilder.Length)
+        {
+            if (!char.IsLetterOrDigit(_textBuilder[position]) &&
+                _textBuilder[position] != '_')
+            {
+                break;
+            }
+
+            characterIntSum += _textBuilder[position];
+            ++position;
+        }
+
+        var textSpanLength = position - entryPosition;
+
+        // t 116
+        // e 101
+        // s 115
+        // t 116
+        // =====
+        //   448
+
+        switch (characterIntSum)
+        {
+            case 448: // test
+                if (textSpanLength == 4 &&
+                    _textBuilder[entryPosition + 0] == 't' &&
+                    _textBuilder[entryPosition + 1] == 'e' &&
+                    _textBuilder[entryPosition + 2] == 's' &&
+                    _textBuilder[entryPosition + 3] == 't')
+                {
+                    if (DecorationArray is not null)
+                    {
+                        Decorate(entryPosition, position, KeywordDecorationByte);
+                    }
+
+                    if (TooltipList is not null)
+                    {
+                        TooltipList.Add(new TextEditorTooltip(
+                            entryPosition,
+                            position,
+                            foreignKey: 0,
+                            byteKind: TextTooltipByteKind));
+                    }
+                }
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 'startPosition' is inclusive
+    /// 'endPosition' is exclusive
+    /// </summary>
+    public void Decorate(int startPosition, int endPosition, byte decorationByte)
+    {
+        if (DecorationArray is null)
+            return;
+
+        DecorateEnsureCapacityWritable();
+
+        // trim excess when removing large amounts of text?
+
+        for (int i = startPosition; i < endPosition; i++)
+        {
+            DecorationArray[i] = decorationByte;
+        }
+    }
+
+    /// <summary>Various parts of the List.cs source code were pasted/modified in here</summary>
+    public void DecorateEnsureCapacityWritable()
+    {
+        if (_decorationArrayCapacity < _textBuilder.Length)
+        {
+            int newCapacity = _textBuilder.Length == 0 ? _defaultCapacity : _decorationArrayCapacity * 2;
+            // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
+            // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
+            if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
+            if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
+
+            var newArray = new byte[newCapacity];
+            Array.Copy(DecorationArray, 0, newArray, 0, _decorationArrayCapacity);
+
+            _decorationArrayCapacity = newCapacity;
+            _decorationArray = newArray;
+        }
+    }
+
+    /// <summary>Various parts of the List.cs source code were pasted/modified in here</summary>
+    public void EnableDecorations()
+    {
+        if (DecorationArray is not null)
+            return;
+
+        int newCapacity;
+
+        if (_textBuilder.Length == 0)
+        {
+            newCapacity = _defaultCapacity;
+        }
+        else
+        {
+            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)_textBuilder.Length);
+            // Why does my IDE code say '< -1'???
+            if (newCapacity <= 0)
+            {
+                newCapacity = _defaultCapacity;
+            }
+            else
+            {
+                if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
+                if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
+            }
+        }
+
+        _decorationArrayCapacity = newCapacity;
+        _decorationArray = new byte[_decorationArrayCapacity];
     }
 
     /*
