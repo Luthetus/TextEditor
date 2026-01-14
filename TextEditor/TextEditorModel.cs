@@ -417,7 +417,24 @@ public class TextEditorModel
         {
             if (ctrlKey)
             {
-
+                var count = 1;
+                if (ctrlKey)
+                {
+                    var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex]);
+                    var (_, _, lineEnd) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
+                    while (PositionIndex + count < lineEnd)
+                    {
+                        if (GetCharacterKind(_textBuilder[PositionIndex + count]) == originalCharacterKind)
+                        {
+                            ++count;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                DeleteTextAtPositionByRandomAccess(PositionIndex, count);
             }
             else
             {
@@ -426,9 +443,32 @@ public class TextEditorModel
         }
         else if (deleteByCursorKind == DeleteByCursorKind.Backspace)
         {
-            if (ctrlKey)
+            var count = 1;
+            if (ctrlKey && ColumnIndex > 0)
             {
-
+                var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex - count]);
+                var (_, lineStart, _) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
+                if (PositionIndex - count > lineStart)
+                {
+                    ++count;
+                    while (PositionIndex - count >= lineStart)
+                    {
+                        if (GetCharacterKind(_textBuilder[PositionIndex - count]) != originalCharacterKind)
+                        {
+                            --count;
+                            break;
+                        }
+                        else
+                        {
+                            ++count;
+                        }
+                    }
+                    if (PositionIndex - count < lineStart)
+                    {
+                        --count;
+                    }
+                }
+                DeleteTextAtPositionByRandomAccess(PositionIndex - count, count);
             }
             else
             {
