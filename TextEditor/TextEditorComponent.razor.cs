@@ -95,6 +95,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     
         switch (key)
         {
+            case "Enter":
+                Model.InsertText("\n");
+                break;
+            case "Tab":
+                Model.InsertText("\t");
+                break;
             case "ArrowLeft":
                 Model.MoveCursor(MoveCursorKind.ArrowLeft, shiftKey: shiftKey, ctrlKey: ctrlKey);
                 break;
