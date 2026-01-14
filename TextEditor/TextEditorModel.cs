@@ -360,10 +360,11 @@ public class TextEditorModel
     /// </summary>
     public void InsertTextAtPosition(string text, int positionIndex)
     {
-        var (lineIndex, columnIndex) = GetLineColumnIndices(positionIndex);
         var entryPositionIndex = positionIndex;
         var lineBreakInsertedIndex = -1;
         var lineBreakInsertedCount = 0;
+
+        var shouldMoveCursor = positionIndex <= PositionIndex;
 
         for (int i = 0; i < text.Length; i++)
         {
@@ -394,27 +395,28 @@ public class TextEditorModel
                 _textBuilder.Insert(positionIndex, character);
             }
 
-            if (lineIndex == LineIndex)
-            {
-                if (character == '\n' || character == '\r')
-                {
-                    ++LineIndex;
-                    ColumnIndex = 0;
-                }
-                else if (columnIndex <= ColumnIndex)
-                {
-                    ++columnIndex;
-                    ++ColumnIndex;
-                    ++PositionIndex;
-                }
-            }
             ++positionIndex;
         }
 
-        for (int i = lineBreakInsertedIndex + lineBreakInsertedCount; i < LineBreakPositionList.Count; i++)
+        int lineBreakStartIndex;
+        if (lineBreakInsertedIndex == -1)
+        {
+            lineBreakStartIndex = 0;
+        }
+        else
+        {
+            lineBreakStartIndex = lineBreakInsertedIndex + lineBreakInsertedCount;
+        }
+        for (int i = lineBreakStartIndex; i < LineBreakPositionList.Count; i++)
         {
             if (LineBreakPositionList[i] >= entryPositionIndex)
                 LineBreakPositionList[i] += positionIndex - entryPositionIndex;
+        }
+
+        if (shouldMoveCursor)
+        {
+            PositionIndex += positionIndex - entryPositionIndex;
+            (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
         }
 
         //(LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
