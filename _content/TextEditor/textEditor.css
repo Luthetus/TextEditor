@@ -30,6 +30,24 @@
     opacity: 0.3;
 }
 
+.ide_te_blink {
+    animation: ide_te_blink-animation 1s infinite;
+}
+
+@keyframes ide_te_blink-animation {
+    0% {
+        opacity: 0
+    }
+
+    49% {
+        opacity: 0
+    }
+
+    50% {
+        opacity: 1
+    }
+}
+
 .te_cursor-class {
     width: 2.5px;
     height: var(--te_line-height);
