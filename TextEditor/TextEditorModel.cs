@@ -394,11 +394,19 @@ public class TextEditorModel
                 _textBuilder.Insert(positionIndex, character);
             }
 
-            if (lineIndex == LineIndex && columnIndex <= ColumnIndex)
+            if (lineIndex == LineIndex)
             {
-                ++columnIndex;
-                ++ColumnIndex;
-                ++PositionIndex;
+                if (character == '\n' || character == '\r')
+                {
+                    ++LineIndex;
+                    ColumnIndex = 0;
+                }
+                else if (columnIndex <= ColumnIndex)
+                {
+                    ++columnIndex;
+                    ++ColumnIndex;
+                    ++PositionIndex;
+                }
             }
             ++positionIndex;
         }

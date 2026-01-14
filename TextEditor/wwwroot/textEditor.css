@@ -57,6 +57,10 @@
     top: 0;
 }
 
+.te_row {
+    height: var(--te_line-height);
+}
+
 .te_tooltip {
     position: fixed;
     background-color: orange;
