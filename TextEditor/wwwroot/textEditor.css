@@ -9,6 +9,7 @@
     overflow: scroll;
     position: relative;
     min-height: 50px;
+    white-space: pre;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
