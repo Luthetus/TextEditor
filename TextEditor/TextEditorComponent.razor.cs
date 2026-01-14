@@ -124,6 +124,44 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         StateHasChanged();
     }
 
+    /// <summary>
+    /// ExpandSelectionLeft must be invoked prior to ExpandSelectionRight in the case that both are necessary.
+    /// </summary>
+    private void ExpandSelectionLeft(CharacterKind leftCharacterKind, int lastValidColumnIndex)
+    {
+        
+        var localPositionIndex = Model.PositionIndex;
+        var localColumnIndex = Model.ColumnIndex;
+        var count = 2;
+        var originalCharacterKind = leftCharacterKind;
+
+        if (localColumnIndex - count > -1)
+        {
+            while (localColumnIndex - count > -1)
+            {
+                if (Model.GetCharacterKind(Model[localPositionIndex - count]) == originalCharacterKind)
+                {
+                    ++count;
+                }
+                else
+                {
+                    --count;
+                    break;
+                }
+            }
+        }
+
+        if (localColumnIndex - count <= -1)
+        {
+            --count;
+        }
+
+        Model.SelectionAnchor = Model.PositionIndex - count;
+    }
+
+    /// <summary>
+    /// ExpandSelectionLeft must be invoked prior to ExpandSelectionRight in the case that both are necessary.
+    /// </summary>
     private void ExpandSelectionRight(CharacterKind rightCharacterKind, int lastValidColumnIndex)
     {
         ++Model.ColumnIndex;
@@ -189,7 +227,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 
             if (leftCharacterKind > rightCharacterKind)
             {
-                Model.SelectionAnchor = Model.PositionIndex - 1;
+                ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
             }
             else if (rightCharacterKind > leftCharacterKind)
             {
@@ -197,7 +235,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             }
             else if (leftCharacterKind != CharacterKind.None && rightCharacterKind != CharacterKind.None)
             {
-                Model.SelectionAnchor = Model.PositionIndex - 1;
+                ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
                 ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
             }
 
