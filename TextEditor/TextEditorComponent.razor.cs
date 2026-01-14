@@ -150,13 +150,15 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             var leftCharacterKind = CharacterKind.None;
             var rightCharacterKind = CharacterKind.None;
 
-            var (lineIndex, lineStart, lineEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
+            var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
 
             if (Model.ColumnIndex > 0)
             {
                 leftCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex - 1]);
             }
-            if (Model.ColumnIndex < lineEnd)
+
+            var lastValidColumnIndex = Model.GetLastValidColumnIndex(lineIndex);
+            if (Model.ColumnIndex < lastValidColumnIndex)
             {
                 rightCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex]);
             }

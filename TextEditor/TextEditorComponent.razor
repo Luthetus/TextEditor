@@ -98,19 +98,19 @@
 
         for (int pos = start; pos < end; pos++)
         {
-            var (lineIndex, lineStart, lineEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(pos);
+            var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(pos);
 
             stringBuilder.Append("left:");
-            stringBuilder.Append((Model.Measurements.CharacterWidth * (pos - lineStart)).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            stringBuilder.Append((Model.Measurements.CharacterWidth * (pos - linePosStart)).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
             stringBuilder.Append("px;");
             stringBuilder.Append("top:");
             stringBuilder.Append((Model.Measurements.LineHeight * lineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
             stringBuilder.Append("px;");
             stringBuilder.Append("width:");
             var lineSegmentStart = pos;
-            var lineSegmentEnd = lineEnd < end ? lineEnd : end;
+            var lineSegmentEnd = linePosEnd < end ? linePosEnd : end;
             int widthCount = lineSegmentEnd - lineSegmentStart;
-            if (lineEnd < end)
+            if (linePosEnd < end)
             {
                 ++widthCount;
             }
@@ -123,7 +123,7 @@
                  style="@selectStyle">
             </div>
 
-            pos = lineEnd;
+            pos = linePosEnd;
         }
     }
 
