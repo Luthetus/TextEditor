@@ -533,7 +533,7 @@ public class TextEditorModel
                 if (i == 0)
                     return (0, 0, GetLastValidColumnIndex(0));
                 else
-                    return (i - 1, LineBreakPositionList[i - 1] + 1, LineBreakPositionList[i]);
+                    return (i, LineBreakPositionList[i - 1] + 1, LineBreakPositionList[i]);
             }
         }
 
