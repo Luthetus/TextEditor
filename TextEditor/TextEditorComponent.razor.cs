@@ -79,15 +79,34 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         Model.ReceiveKeyboardDebounce();
         StateHasChanged();
     }
-    
+
+    /// <summary>
+    /// This avoids the keydown event being async.
+    /// </summary>
     [JSInvokable]
-    public async Task OnCopy()
+    public async Task ArbitraryCtrlKeybindAsync(string key)
     {
-        var selectedText = Model.GetSelection();
-        if (selectedText is not null)
-            await JsRuntime.InvokeVoidAsync("textEditor.setClipboard", selectedText);
+        switch (key)
+        {
+            case "a":
+                Model.SelectAll();
+                StateHasChanged();
+                break;
+            case "c":
+                {
+                    var selectedText = Model.GetSelection();
+                    if (selectedText is not null)
+                        await JsRuntime.InvokeVoidAsync("textEditor.setClipboard", selectedText);
+                    break;
+                }
+        }
     }
-    
+
+    /// <summary>
+    /// Paste might commonly be "held down" and repeated very frequently, and thus a synchronous method exists for it,
+    /// rather than grouping it in an async method.
+    /// </summary>
+    /// <param name="text"></param>
     [JSInvokable]
     public void OnPaste(string text)
     {
@@ -270,7 +289,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
 #endif
     }
-    
+
     [JSInvokable]
     public void OnMouseMove(
         long buttons,

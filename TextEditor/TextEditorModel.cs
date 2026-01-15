@@ -315,6 +315,12 @@ public class TextEditorModel
         }
     }
 
+    public void SelectAll()
+    {
+        SelectionAnchor = 0;
+        SelectionEnd = Length;
+    }
+
     /// <summary>
     /// This method uses the user's current position as the insertion point.
     /// and if the positionIndex is <= the user's position index,
@@ -332,7 +338,13 @@ public class TextEditorModel
     /// always insert '\n' for line endings, and then track separately the desired line end.
     /// upon saving, create a string that has the '\n' included as the desired line end.
     /// </summary>
-    public void InsertText(string text) => InsertTextAtPosition(text, PositionIndex);
+    public void InsertText(string text)
+    {
+        if (HasSelection)
+            DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, ctrlKey: false);
+
+        InsertTextAtPosition(text, PositionIndex);
+    }
 
     /// <summary>
     /// This method inserts at the provided lineIndex and columnIndex,
