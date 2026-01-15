@@ -336,6 +336,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 (Model.LineIndex, Model.ColumnIndex) = (lineIndex, columnIndex);
             }
 
+            OnMouseMove_DetailRank2_ExpansionStep(anchorIsLessThanEnd);
+
             StateHasChanged();
         }
         else if (detailRank == 3)
@@ -348,6 +350,34 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             throw new NotImplementedException();
         }
 #endif
+    }
+
+    private void OnMouseMove_DetailRank2_ExpansionStep(bool anchorIsLessThanEnd)
+    {
+        var leftCharacterKind = CharacterKind.None;
+        var rightCharacterKind = CharacterKind.None;
+
+        var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
+
+        if (Model.ColumnIndex > 0)
+        {
+            leftCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex - 1]);
+        }
+
+        var lastValidColumnIndex = Model.GetLastValidColumnIndex(lineIndex);
+        if (Model.ColumnIndex < lastValidColumnIndex)
+        {
+            rightCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex]);
+        }
+
+        if (anchorIsLessThanEnd && rightCharacterKind != CharacterKind.None)
+        {
+            ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
+        }
+        else if (!anchorIsLessThanEnd && leftCharacterKind != CharacterKind.None)
+        {
+            //ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex, anchorIsLessThanEnd);
+        }
     }
 
     [JSInvokable]
