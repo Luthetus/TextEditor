@@ -315,6 +315,12 @@ public class TextEditorModel
         }
     }
 
+    public void SelectAll()
+    {
+        SelectionAnchor = 0;
+        SelectionEnd = Length;
+    }
+
     /// <summary>
     /// This method uses the user's current position as the insertion point.
     /// and if the positionIndex is <= the user's position index,
