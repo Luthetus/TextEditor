@@ -317,39 +317,24 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 ? true
                 : false;
 
-            //var takeEvent = false;
-
-            /*if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd)
+            if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd)
             {
-                Model.SelectionAnchor = Model.SelectionEnd;
-                //anchorIsLessThanEnd = !anchorIsLessThanEnd;
-                //if (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large)
-                //    takeEvent = true;
+                Model.SelectionAnchor = OnMouseDown_DetailRank2_Bounds.Small;
+                anchorIsLessThanEnd = !anchorIsLessThanEnd;
             }
             else if (positionIndex < Model.SelectionAnchor && anchorIsLessThanEnd)
             {
-                Model.SelectionAnchor = Model.SelectionEnd;
-                //anchorIsLessThanEnd = !anchorIsLessThanEnd;
-                //if (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small)
-                //    takeEvent = true;
-                
-            }*/
+                Model.SelectionAnchor = OnMouseDown_DetailRank2_Bounds.Large;
+                anchorIsLessThanEnd = !anchorIsLessThanEnd;
+            }
 
-            if (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large// ||
-                /*(!anchorIsLessThanEnd && (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small))*/)
+            if ((anchorIsLessThanEnd && (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large)) ||
+                (!anchorIsLessThanEnd && (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small)))
             {
                 Model.SelectionEnd = positionIndex;
                 Model.PositionIndex = positionIndex;
                 (Model.LineIndex, Model.ColumnIndex) = (lineIndex, columnIndex);
             }
-
-            /*if ((anchorIsLessThanEnd && (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large))// ||
-                /*(!anchorIsLessThanEnd && (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small))*//*)
-            {
-                Model.SelectionEnd = positionIndex;
-                Model.PositionIndex = positionIndex;
-                (Model.LineIndex, Model.ColumnIndex) = (lineIndex, columnIndex);
-            }*/
 
             StateHasChanged();
         }
