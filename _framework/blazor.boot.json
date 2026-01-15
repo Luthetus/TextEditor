@@ -1,9 +1,9 @@
 {
   "mainAssemblyName": "TextEditor.WasmExample",
   "resources": {
-    "hash": "sha256-QPSddEtdXF1tmAs5xP7UmtNdEGbRn5jrF0f6Kqx+/+Q=",
+    "hash": "sha256-tvRXONmOFTxSOqKCJvV8eNBilgy0KiyOxo+Z0Urt+ew=",
     "fingerprinting": {
-      "Microsoft.AspNetCore.Components.glpai5h65b.wasm": "Microsoft.AspNetCore.Components.wasm",
+      "Microsoft.AspNetCore.Components.3mtstv1qh8.wasm": "Microsoft.AspNetCore.Components.wasm",
       "Microsoft.AspNetCore.Components.Web.akqz85au1m.wasm": "Microsoft.AspNetCore.Components.Web.wasm",
       "Microsoft.AspNetCore.Components.WebAssembly.89gzge6dxr.wasm": "Microsoft.AspNetCore.Components.WebAssembly.wasm",
       "Microsoft.Extensions.Configuration.2myvfdg1e7.wasm": "Microsoft.Extensions.Configuration.wasm",
@@ -36,8 +36,8 @@
       "System.Text.Json.bhdyf15wek.wasm": "System.Text.Json.wasm",
       "System.Text.RegularExpressions.vbr1gezq3a.wasm": "System.Text.RegularExpressions.wasm",
       "System.Private.CoreLib.3ftsfoiq21.wasm": "System.Private.CoreLib.wasm",
-      "TextEditor.6bcudzr8w8.wasm": "TextEditor.wasm",
-      "TextEditor.WasmExample.pk01y9e902.wasm": "TextEditor.WasmExample.wasm",
+      "TextEditor.f3ezbauo3p.wasm": "TextEditor.wasm",
+      "TextEditor.WasmExample.f19limv87o.wasm": "TextEditor.WasmExample.wasm",
       "dotnet.native.emhx7j4reu.js": "dotnet.native.js",
       "dotnet.native.lp09yutuey.wasm": "dotnet.native.wasm",
       "dotnet.js": "dotnet.js",
@@ -65,7 +65,7 @@
       "System.Private.CoreLib.3ftsfoiq21.wasm": "sha256-EQ3kBBLWpUnlsRKFg8FUDOM9YS98FO18w7xxj4lsc4w="
     },
     "assembly": {
-      "Microsoft.AspNetCore.Components.glpai5h65b.wasm": "sha256-FLZAPgm5G7AgxjTZDmYjiwHyH3/A1QpKvP9wXhM5K8A=",
+      "Microsoft.AspNetCore.Components.3mtstv1qh8.wasm": "sha256-FdJnwgl71FPtwl7MO2fxcgHmZsWhgJt0fdgZkwKGuR0=",
       "Microsoft.AspNetCore.Components.Web.akqz85au1m.wasm": "sha256-xjKpK93Teajcx0lkMLcqLGflmS6ZEM0kJ2IgG8r1zoY=",
       "Microsoft.AspNetCore.Components.WebAssembly.89gzge6dxr.wasm": "sha256-9BpnoYTccEmeGlKSetMgFnAD0r5kXABzYStPWvc/SMY=",
       "Microsoft.Extensions.Configuration.2myvfdg1e7.wasm": "sha256-Bjx1+qelDpa0ZwgfuNzBPRFUId1YrUV4ewnF9w/Uthg=",
@@ -96,8 +96,8 @@
       "System.Text.Encodings.Web.qyidcnqnsa.wasm": "sha256-QkmFquk4BHgFDVkCakoTzmLIV9UuzTDf4Fw62XFkzsA=",
       "System.Text.Json.bhdyf15wek.wasm": "sha256-QSTrpz9xSaSOhB3iYl/H+pzKyYmQ/a3JxLXtCfWKcuM=",
       "System.Text.RegularExpressions.vbr1gezq3a.wasm": "sha256-ZQejR0x7+S2JJA2Z1IkLWqWXukLRjL/c/zguib2fpHo=",
-      "TextEditor.6bcudzr8w8.wasm": "sha256-0uLvLpkLp5dOm98pJN5Z7P28qL/6/fhOe0vNd6aC9bQ=",
-      "TextEditor.WasmExample.pk01y9e902.wasm": "sha256-Kf8SADhL3UwDBOm2bxk4KEdKCWgPy05brj6Ef7k6Z5s="
+      "TextEditor.f3ezbauo3p.wasm": "sha256-G2Xeknjmny4UOu1MrSkFUBP2r40axG9v1yWoYMizH90=",
+      "TextEditor.WasmExample.f19limv87o.wasm": "sha256-/YQtATtL3vj33iNfJA856WYdfGv4ul+pO9K2wzpHP1w="
     }
   },
   "cacheBootResources": true,
