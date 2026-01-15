@@ -26,6 +26,24 @@
     // So I need to fit 100 characters in the StringBuilder to get them all in the same span with the same CSS class.
     //
     var stringBuilder = new StringBuilder(capacity: 128);
+
+
+
+
+    int startIndex;
+    if (_measurements.LineHeight != 0)
+        startIndex = ((int)(_scrollTop / _measurements.LineHeight) - 1);
+    else
+        startIndex = 0;
+    if (startIndex < 0) startIndex = 0;
+
+    int endIndex = startIndex + ((int)(_textEditorHeight / _measurements.LineHeight) + 1);
+    if (endIndex > Model.LineBreakPositionList.Count + 1) endIndex = Model.LineBreakPositionList.Count + 1;
+
+
+
+
+
 }
 
 
@@ -59,6 +77,8 @@
     _scrollCount: @_scrollCount
     _scrollTop: @_scrollTop
     _textEditorHeight: @_textEditorHeight
+    startIndex: @startIndex
+    endIndex: @endIndex
 </div>
 
 <div class="te_component-class"
