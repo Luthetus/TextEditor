@@ -85,6 +85,17 @@
      tabindex="-1"
      id="te_component-id">
     
+     @{
+        stringBuilder.Append("height:");
+        stringBuilder.Append(((Model.LineBreakPositionList.Count + 1) * _measurements.LineHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var totalHeightStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+     }
+    <div class="te_total-height"
+         style="@totalHeightStyle">
+    </div>
+
     @if (Model.HasSelection)
     {
         var start = Model.SelectionAnchor;
