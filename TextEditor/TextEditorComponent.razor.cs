@@ -11,7 +11,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [Parameter, EditorRequired]
     public TextEditorModel Model { get; set; } = null!;
 
-    private (int Small, int Large) OnMouseDown_DetailRank2_Bounds;
+    private (int Small, int Large) OnMouseDown_Detail_Bounds;
+    private int OnMouseDown_DetailRank3_OriginalLineIndex;
 
     private DotNetObjectReference<TextEditorComponent>? _dotNetHelper;
     /// <summary>
@@ -278,12 +279,26 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
                 ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
             }
-            OnMouseDown_DetailRank2_Bounds = (Model.SelectionAnchor, Model.SelectionEnd);
+            OnMouseDown_Detail_Bounds = (Model.SelectionAnchor, Model.SelectionEnd);
             StateHasChanged();
         }
         else if (detailRank == 3)
         {
+            var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
 
+            var oneBeyondLinePosEnd = linePosEnd + 1;
+            if (oneBeyondLinePosEnd >= Model.Length)
+                oneBeyondLinePosEnd -= 1;
+
+            OnMouseDown_Detail_Bounds = (linePosStart, oneBeyondLinePosEnd);
+            OnMouseDown_DetailRank3_OriginalLineIndex = lineIndex;
+
+            Model.SelectionAnchor = oneBeyondLinePosEnd;
+            Model.SelectionEnd = linePosStart;
+            Model.PositionIndex = Model.SelectionEnd;
+            (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+
+            StateHasChanged();
         }
 #if DEBUG
         else
@@ -318,17 +333,17 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 
             if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd)
             {
-                Model.SelectionAnchor = OnMouseDown_DetailRank2_Bounds.Small;
+                Model.SelectionAnchor = OnMouseDown_Detail_Bounds.Small;
                 anchorIsLessThanEnd = !anchorIsLessThanEnd;
             }
             else if (positionIndex < Model.SelectionAnchor && anchorIsLessThanEnd)
             {
-                Model.SelectionAnchor = OnMouseDown_DetailRank2_Bounds.Large;
+                Model.SelectionAnchor = OnMouseDown_Detail_Bounds.Large;
                 anchorIsLessThanEnd = !anchorIsLessThanEnd;
             }
 
-            if ((anchorIsLessThanEnd && (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large)) ||
-                (!anchorIsLessThanEnd && (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small)))
+            if ((anchorIsLessThanEnd && (positionIndex >= OnMouseDown_Detail_Bounds.Large)) ||
+                (!anchorIsLessThanEnd && (positionIndex <= OnMouseDown_Detail_Bounds.Small)))
             {
                 Model.SelectionEnd = positionIndex;
                 Model.PositionIndex = positionIndex;
@@ -341,7 +356,30 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         else if (detailRank == 3)
         {
+            var (_lineIndex, columnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
+            var positionIndex = Model.GetPositionIndex(_lineIndex, columnIndex);
 
+            var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(positionIndex);
+            
+            var oneBeyondLinePosEnd = linePosEnd + 1;
+            if (oneBeyondLinePosEnd >= Model.Length)
+                oneBeyondLinePosEnd -= 1;
+
+            if (lineIndex <= OnMouseDown_DetailRank3_OriginalLineIndex)
+            {
+                Model.SelectionAnchor = OnMouseDown_Detail_Bounds.Large;
+                Model.SelectionEnd = linePosStart;
+            }
+            else
+            {
+                Model.SelectionAnchor = OnMouseDown_Detail_Bounds.Small;
+                Model.SelectionEnd = oneBeyondLinePosEnd;
+            }
+
+            Model.PositionIndex = Model.SelectionEnd;
+            (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+
+            StateHasChanged();
         }
 #if DEBUG
         else
