@@ -170,6 +170,9 @@ window.textEditor = {
                         case "c":
                             dotNetHelper.invokeMethodAsync("ArbitraryCtrlKeybindAsync", event.key);
                             break;
+                        case "x":
+                            dotNetHelper.invokeMethodAsync("ArbitraryCtrlKeybindAsync", event.key);
+                            break;
                         case "a":
                             event.preventDefault();
                             dotNetHelper.invokeMethodAsync("ArbitraryCtrlKeybindAsync", event.key);

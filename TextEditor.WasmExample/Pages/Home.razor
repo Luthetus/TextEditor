@@ -22,7 +22,7 @@ Welcome to your new app.
     protected override void OnInitialized()
     {
         _model.TooltipList = new();
-        _model.SetText("test.abc\ndfg.test\naaaaaaaaaaaaaaaaaaaaaaa\nbbbbbbbbbbbbbbbbbbbbbb\ncccccccccccccccccccccccc\nddddddddddddddddd\neeeeeeeeeeeeeeeeee");
+        _model.SetText("test.abc\r\ndfg.test\r\naaaaaaaaaaaaaaaaaaaaaaa\r\nbbbbbbbbbbbbbbbbbbbbbb\r\ncccccccccccccccccccccccc\r\nddddddddddddddddd\r\neeeeeeeeeeeeeeeeee");
         _model.TooltipList.Add(new TextEditorTooltip(
             startPositionIndex: 0,
             endPositionIndex: 1,
