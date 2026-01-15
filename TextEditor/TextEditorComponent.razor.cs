@@ -225,7 +225,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     
     [JSInvokable]
     public void OnMouseDown(
-        long buttons,
         double relativeX,
         double relativeY,
         bool shiftKey,
@@ -294,17 +293,34 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 
     [JSInvokable]
     public void OnMouseMove(
-        long buttons,
         double scrolledClientX,
         double scrolledClientY,
-        bool shiftKey)
+        bool shiftKey,
+        int detailRank)
     {
-        (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
-        Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
-        Model.SelectionEnd = Model.PositionIndex;
-        StateHasChanged();
+        if (detailRank == 1)
+        {
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
+            Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
+            Model.SelectionEnd = Model.PositionIndex;
+            StateHasChanged();
+        }
+        else if (detailRank == 2)
+        {
+
+        }
+        else if (detailRank == 3)
+        {
+
+        }
+#if DEBUG
+        else
+        {
+            throw new NotImplementedException();
+        }
+#endif
     }
-    
+
     [JSInvokable]
     public void ReceiveTooltip(double clientX, double clientY, double scrolledClientX, double scrolledClientY)
     {
