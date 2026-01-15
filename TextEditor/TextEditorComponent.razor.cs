@@ -223,6 +223,45 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         Model.ColumnIndex = localColumnIndex;
         Model.SelectionEnd = Model.PositionIndex;
     }
+
+    private void OnMouseDown_DetailRank2(double relativeX, double relativeY, bool shiftKey)
+    {
+        (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
+        Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
+        if (!shiftKey)
+            Model.SelectionAnchor = Model.PositionIndex;
+        Model.SelectionEnd = Model.PositionIndex;
+
+        var leftCharacterKind = CharacterKind.None;
+        var rightCharacterKind = CharacterKind.None;
+
+        var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
+
+        if (Model.ColumnIndex > 0)
+        {
+            leftCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex - 1]);
+        }
+
+        var lastValidColumnIndex = Model.GetLastValidColumnIndex(lineIndex);
+        if (Model.ColumnIndex < lastValidColumnIndex)
+        {
+            rightCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex]);
+        }
+
+        if (leftCharacterKind > rightCharacterKind)
+        {
+            ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
+        }
+        else if (rightCharacterKind > leftCharacterKind)
+        {
+            ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
+        }
+        else if (leftCharacterKind != CharacterKind.None && rightCharacterKind != CharacterKind.None)
+        {
+            ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
+            ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
+        }
+    }
     
     [JSInvokable]
     public void OnMouseDown(
@@ -242,42 +281,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         else if (detailRank == 2)
         {
-            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
-            Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
-            if (!shiftKey)
-                Model.SelectionAnchor = Model.PositionIndex;
-            Model.SelectionEnd = Model.PositionIndex;
-
-            var leftCharacterKind = CharacterKind.None;
-            var rightCharacterKind = CharacterKind.None;
-
-            var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
-
-            if (Model.ColumnIndex > 0)
-            {
-                leftCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex - 1]);
-            }
-
-            var lastValidColumnIndex = Model.GetLastValidColumnIndex(lineIndex);
-            if (Model.ColumnIndex < lastValidColumnIndex)
-            {
-                rightCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex]);
-            }
-
-            if (leftCharacterKind > rightCharacterKind)
-            {
-                ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
-            }
-            else if (rightCharacterKind > leftCharacterKind)
-            {
-                ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
-            }
-            else if (leftCharacterKind != CharacterKind.None && rightCharacterKind != CharacterKind.None)
-            {
-                ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
-                ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
-            }
-
+            OnMouseDown_DetailRank2(relativeX, relativeY, shiftKey);
             StateHasChanged();
         }
         else if (detailRank == 3)
@@ -294,21 +298,21 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 
     [JSInvokable]
     public void OnMouseMove(
-        double scrolledClientX,
-        double scrolledClientY,
+        double relativeX,
+        double relativeY,
         bool shiftKey,
         int detailRank)
     {
         if (detailRank == 1)
         {
-            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
             Model.SelectionEnd = Model.PositionIndex;
             StateHasChanged();
         }
         else if (detailRank == 2)
         {
-            var (lineIndex, columnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
+            var (lineIndex, columnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
             var positionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
             
             bool anchorIsLessThanEnd = Model.SelectionAnchor < Model.SelectionEnd
@@ -326,8 +330,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);*/
             }
 
-            Model.PositionIndex = positionIndex;
-            (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            //OnMouseDown_DetailRank2(relativeX, relativeY, shiftKey);
+
+            OnMouseDown_DetailRank2(relativeX, relativeY, shiftKey: true);
+
+            //Model.PositionIndex = positionIndex;
+            //(Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             //Model.SelectionEnd = Model.PositionIndex;
             StateHasChanged();
         }
