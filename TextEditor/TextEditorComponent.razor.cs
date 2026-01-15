@@ -362,20 +362,24 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             {
                 Model.SelectionAnchor = OnMouseDown_Detail_Bounds.Large;
                 Model.SelectionEnd = linePosStart;
-                Model.PositionIndex = Model.SelectionEnd;
-                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+                //Model.PositionIndex = Model.SelectionEnd;
+                //(Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else
             {
                 Model.SelectionAnchor = OnMouseDown_Detail_Bounds.Small;
-                
+                Model.SelectionEnd = linePosEnd + 1;
             }
-                OnMouseDown_Detail_Bounds = (linePosStart, linePosEnd + 1);
-                OnMouseDown_DetailRank3_OriginalLineIndex = lineIndex;
 
-                Model.SelectionAnchor = linePosEnd + 1;
-                Model.SelectionEnd = linePosStart;
-            
+            Model.PositionIndex = Model.SelectionEnd;
+            (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+
+            //OnMouseDown_Detail_Bounds = (linePosStart, linePosEnd + 1);
+            //OnMouseDown_DetailRank3_OriginalLineIndex = lineIndex;
+
+            //Model.SelectionAnchor = linePosEnd + 1;
+            //Model.SelectionEnd = linePosStart;
+
 
             StateHasChanged();
         }
