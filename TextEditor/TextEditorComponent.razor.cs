@@ -351,7 +351,33 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         else if (detailRank == 3)
         {
+            var (_lineIndex, columnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
+            var positionIndex = Model.GetPositionIndex(_lineIndex, columnIndex);
 
+            // EOF EOF EOF EOF
+
+            var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(positionIndex);
+
+            if (lineIndex <= OnMouseDown_DetailRank3_OriginalLineIndex)
+            {
+                Model.SelectionAnchor = OnMouseDown_Detail_Bounds.Large;
+                Model.SelectionEnd = linePosStart;
+                Model.PositionIndex = Model.SelectionEnd;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
+            else
+            {
+                Model.SelectionAnchor = OnMouseDown_Detail_Bounds.Small;
+                
+            }
+                OnMouseDown_Detail_Bounds = (linePosStart, linePosEnd + 1);
+                OnMouseDown_DetailRank3_OriginalLineIndex = lineIndex;
+
+                Model.SelectionAnchor = linePosEnd + 1;
+                Model.SelectionEnd = linePosStart;
+            
+
+            StateHasChanged();
         }
 #if DEBUG
         else
