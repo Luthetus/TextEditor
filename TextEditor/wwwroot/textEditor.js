@@ -68,9 +68,11 @@ window.textEditor = {
                     setTimeout(() => {
                         let local_scroll_lastKnownScrollPosition = this.scroll_lastKnownScrollPosition;
                         this.scroll_ticking = false;
+                        // TODO: Use client height since it will account for the scrollbar?
                         dotNetHelper.invokeMethodAsync(
                             "OnScroll",
-                            local_scroll_lastKnownScrollPosition);
+                            local_scroll_lastKnownScrollPosition,
+                            contentElement.offsetHeight);
                     }, 200);
 
                     this.scroll_ticking = true;
