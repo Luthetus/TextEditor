@@ -144,7 +144,7 @@ window.ideTextEditor = {
 
             contentElement.addEventListener('keydown', (event) => {
                 if (this.cursorIsBlinking) this.stopCursorBlinking(cursorElement);
-                switch (event.Key) {
+                switch (event.key) {
                     case "ArrowLeft":
                         event.preventDefault();
                         break;
@@ -155,6 +155,9 @@ window.ideTextEditor = {
                         event.preventDefault();
                         break;
                     case "ArrowRight":
+                        event.preventDefault();
+                        break;
+                    case "Tab":
                         event.preventDefault();
                         break;
                 }
