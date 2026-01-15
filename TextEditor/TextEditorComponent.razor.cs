@@ -195,11 +195,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             --count;
         }
 
-        var value = Model.PositionIndex - count;
-        if (Model.SelectionAnchor < Model.SelectionEnd)
-            Model.SelectionAnchor = value;
-        else
-            Model.SelectionEnd = value;
+        Model.SelectionAnchor = Model.PositionIndex - count;
     }
 
     /// <summary>
@@ -227,11 +223,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         Model.PositionIndex = localPositionIndex;
         Model.ColumnIndex = localColumnIndex;
 
-        var value = Model.PositionIndex;
-        if (Model.SelectionAnchor > Model.SelectionEnd)
-            Model.SelectionAnchor = value;
-        else
-            Model.SelectionEnd = value;
+        Model.SelectionEnd = Model.PositionIndex;
     }
     
     [JSInvokable]
@@ -325,27 +317,39 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 ? true
                 : false;
 
-            var takeEvent = false;
+            //var takeEvent = false;
 
-            if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd)
+            /*if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd)
             {
                 Model.SelectionAnchor = Model.SelectionEnd;
-                if (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small)
-                    takeEvent = true;
+                //anchorIsLessThanEnd = !anchorIsLessThanEnd;
+                //if (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large)
+                //    takeEvent = true;
             }
             else if (positionIndex < Model.SelectionAnchor && anchorIsLessThanEnd)
             {
                 Model.SelectionAnchor = Model.SelectionEnd;
-                if (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large)
-                    takeEvent = true;
-            }
+                //anchorIsLessThanEnd = !anchorIsLessThanEnd;
+                //if (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small)
+                //    takeEvent = true;
+                
+            }*/
 
-            if (takeEvent)
+            if (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large// ||
+                /*(!anchorIsLessThanEnd && (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small))*/)
             {
                 Model.SelectionEnd = positionIndex;
                 Model.PositionIndex = positionIndex;
                 (Model.LineIndex, Model.ColumnIndex) = (lineIndex, columnIndex);
             }
+
+            /*if ((anchorIsLessThanEnd && (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large))// ||
+                /*(!anchorIsLessThanEnd && (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small))*//*)
+            {
+                Model.SelectionEnd = positionIndex;
+                Model.PositionIndex = positionIndex;
+                (Model.LineIndex, Model.ColumnIndex) = (lineIndex, columnIndex);
+            }*/
 
             StateHasChanged();
         }
