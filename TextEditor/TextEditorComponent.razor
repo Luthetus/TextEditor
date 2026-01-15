@@ -30,15 +30,15 @@
 
 
 
-    int startIndex;
+    int startLineIndex;
     if (_measurements.LineHeight != 0)
-        startIndex = ((int)(_scrollTop / _measurements.LineHeight) - 1);
+        startLineIndex = ((int)(_scrollTop / _measurements.LineHeight) - 1);
     else
-        startIndex = 0;
-    if (startIndex < 0) startIndex = 0;
+        startLineIndex = 0;
+    if (startLineIndex < 0) startLineIndex = 0;
 
-    int endIndex = startIndex + ((int)(_textEditorHeight / _measurements.LineHeight) + 1);
-    if (endIndex > Model.LineBreakPositionList.Count + 1) endIndex = Model.LineBreakPositionList.Count + 1;
+    int endLineIndex = startLineIndex + ((int)(_textEditorHeight / _measurements.LineHeight) + 1);
+    if (endLineIndex > Model.LineBreakPositionList.Count + 1) endLineIndex = Model.LineBreakPositionList.Count + 1;
 
 
 
@@ -77,8 +77,8 @@
     _scrollCount: @_scrollCount
     _scrollTop: @_scrollTop
     _textEditorHeight: @_textEditorHeight
-    startIndex: @startIndex
-    endIndex: @endIndex
+    startIndex: @startLineIndex
+    endIndex: @endLineIndex
 </div>
 
 <div class="te_component-class"
@@ -165,7 +165,45 @@
                 exclusiveEndDecorationIndex = Model.Length;
         }
 
-        while (i < Model.Length)
+        int startPosition;
+        if (startLineIndex == 0)
+        {
+            startPosition = 0;
+        }
+        else if (startLineIndex - 1 < Model.LineBreakPositionList.Count)
+        {
+            // You get the line ending of the previous line and then + 1 because all line endings
+            // are stored as '\n' until saving the file in which they are swapped out for the desired line endings.
+            //
+            startPosition = Model.LineBreakPositionList[startLineIndex - 1] + 1;
+        }
+        else
+        {
+            // I need this so the value is initialized but I
+            // TODO: need to look into this case further
+            startLineIndex = 0;
+        }
+
+        int endPosition;
+        if (endLineIndex == 0 || endLineIndex >= Model.LineBreakPositionList.Count)
+        {
+            endPosition = Model.Length;
+        }
+        else if (endLineIndex < Model.LineBreakPositionList.Count)
+        {
+            // This might be wrong. I think it takes an extra line (even beyond the "extra line so the virtualization looks smoother").
+            endPosition = Model.LineBreakPositionList[endLineIndex];
+        }
+        else
+        {
+            // I need this so the value is initialized but I
+            // TODO: need to look into this case further
+            endPosition = 0;
+        }
+
+        i = startLineIndex; 
+
+        while (i < endPosition)
         {
             if (exclusiveEndDecorationIndex > i)
                 currentDecorationByte = Model.DecorationArray![i];
@@ -173,7 +211,7 @@
                 currentDecorationByte = 0;
 
             <div class="te_row">
-                @for (; i < Model.Length; i++)
+                @for (; i < endPosition; i++)
                 {
                     if (i < exclusiveEndDecorationIndex)
                     {
@@ -287,7 +325,7 @@
     }
 
     @*
-    @if (Model.DecorationArray is null || Model.DecorationArray.Length < Model.Length || Model.DecorationArray.Length == 0)
+    @if (Model.DecorationArray is null || Model.DecorationArray.Length < endPosition || Model.DecorationArray.Length == 0)
     {
         // I'm just going to avoid the decorations if things look sketchy.
         // I need to figure out how to do this with good precision.
