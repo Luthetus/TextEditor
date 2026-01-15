@@ -39,8 +39,6 @@ window.textEditor = {
                (measurements.LineHeight && measurements.LineHeight == 0) &&
                (measurements.EditorWidth && measurements.EditorWidth == 0) &&
                (measurements.EditorHeight && measurements.EditorHeight == 0) &&
-               //(measurements.EditorLeft && measurements.EditorLeft == 0) &&
-               //(measurements.EditorTop && measurements.EditorTop == 0) &&
                (measurements.ScrollbarLiteralWidth && measurements.ScrollbarLiteralWidth == 0) &&
                (measurements.ScrollbarLiteralHeight && measurements.ScrollbarLiteralHeight == 0);
     },
@@ -157,11 +155,31 @@ window.textEditor = {
                         event.preventDefault();
                         break;
                 }
-                dotNetHelper.invokeMethodAsync(
-                    "OnKeydown",
-                    event.key,
-                    event.shiftKey,
-                    event.ctrlKey);
+                if (event.ctrlKey) {
+                    switch (event.key) {
+                        case "v":
+                            this.readClipboard().then((text) => {
+                                dotNetHelper.invokeMethodAsync(
+                                    "OnPaste",
+                                    text);
+                                clearTimeout(this.keydownStopTimer); // Reset timer on every move
+                                this.keydownStopTimer = setTimeout(() => {
+                                    dotNetHelper.invokeMethodAsync("ReceiveKeyboardDebounce");
+                                }, this.keydownStopDelay);
+                            });
+                            break;
+                        case "c":
+                            dotNetHelper.invokeMethodAsync("OnCopy");
+                            break;
+                    }
+                }
+                else {
+                    dotNetHelper.invokeMethodAsync(
+                        "OnKeydown",
+                        event.key,
+                        event.shiftKey,
+                        event.ctrlKey);
+                }
                 clearTimeout(this.keydownStopTimer); // Reset timer on every move
                     this.keydownStopTimer = setTimeout(() => {
                         dotNetHelper.invokeMethodAsync("ReceiveKeyboardDebounce");
@@ -212,8 +230,6 @@ window.textEditor = {
             LineHeight: lineHeight,
             EditorWidth: textEditorElement.offsetWidth,
             EditorHeight: textEditorElement.offsetHeight,
-            //EditorLeft: boundingClientRect.left,
-			//EditorTop: boundingClientRect.top,
 			ScrollbarLiteralWidth: scrollbarLiteralWidth,
 			ScrollbarLiteralHeight: scrollbarLiteralHeight,
         }
@@ -229,6 +245,82 @@ window.textEditor = {
                     this.cursorIsBlinking = true;
                 }
             }, this.cursorBlinkingStopDelay);
+        }
+    },
+    readClipboard: async function () {
+        // domexception-on-calling-navigator-clipboard-readtext
+        // https://stackoverflow.com/q/56306153/14847452
+        // ----------------------------------------------------
+        // First, ask the Permissions API if we have some kind of access to
+        // the "clipboard-read" feature.
+        try {
+            return await navigator.permissions.query({ name: "clipboard-read" }).then(async (result) => {
+                // If permission to read the clipboard is granted or if the user will
+                // be prompted to allow it, we proceed.
+
+                if (result.state === "granted" || result.state === "prompt") {
+                    return await navigator.clipboard.readText().then((data) => {
+                        return data;
+                    });
+                } else {
+                    return "";
+                }
+            });
+        } catch (e) {
+            // Debugging Linux-Ubuntu (2024-04-28)
+            // -----------------------------------
+            // Reading clipboard is not working.
+            //
+            // Fixed with the following inner-try/catch block.
+            //
+            // This fix upsets me. Seemingly the permission
+            // "clipboard-read" doesn't exist for some user-agents
+            // But so long as you don't check for permission it lets you read
+            // the clipboard?
+            try {
+                return navigator.clipboard
+                    .readText()
+                    .then((clipText) => {
+                        return clipText;
+                    });
+            } catch (innerException) {
+                return "";
+            }
+        }
+    },
+    setClipboard: function (value) {
+        // how-do-i-copy-to-the-clipboard-in-javascript:
+        // https://stackoverflow.com/a/33928558/14847452
+        // ---------------------------------------------
+        // Copies a string to the clipboard. Must be called from within an
+        // event handler such as click. May return false if it failed, but
+        // this is not always possible. Browser support for Chrome 43+,
+        // Firefox 42+, Safari 10+, Edge and Internet Explorer 10+.
+        // Internet Explorer: The clipboard feature may be disabled by
+        // an administrator. By default a prompt is shown the first
+        // time the clipboard is used (per session).
+        if (window.clipboardData && window.clipboardData.setData) {
+            // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
+            return window.clipboardData.setData("Text", text);
+
+        } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+            var textarea = document.createElement("textarea");
+            textarea.textContent = value;
+            textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+            } catch (ex) {
+                console.warn("Copy to clipboard failed.", ex);
+                return false;
+            } finally {
+                document.body.removeChild(textarea);
+                let textEditorElement = document.getElementById("te_component-id");
+                if (textEditorElement) {
+                    textEditorElement.focus();
+                }
+            }
         }
     },
 }
