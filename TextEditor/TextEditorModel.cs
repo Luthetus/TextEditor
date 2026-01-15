@@ -882,6 +882,30 @@ public class TextEditorModel
         }
     }
 
+    public virtual string? GetSelection()
+    {
+        if (!HasSelection)
+            return null;
+
+        var start = SelectionAnchor;
+        var end = SelectionEnd;
+
+        if (SelectionEnd < SelectionAnchor)
+        {
+            var temp = start;
+            start = end;
+            end = temp;
+        }
+
+        var selectionBuilder = new StringBuilder(capacity: end - start);
+        for (int i = start; i < end; i++)
+        {
+            selectionBuilder.Append(_textBuilder[i]);
+        }
+
+        return selectionBuilder.ToString();
+    }
+
     public virtual void ReceiveKeyboardDebounce()
     {
         if (TooltipList is not null)

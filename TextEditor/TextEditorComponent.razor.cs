@@ -69,7 +69,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     
     public async Task TakeMeasurements()
     {
-        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.takeMeasurements");
+        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("textEditor.takeMeasurements");
         Model.Measurements = _measurements;
     }
 
@@ -80,6 +80,21 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         StateHasChanged();
     }
     
+    [JSInvokable]
+    public async Task OnCopy()
+    {
+        var selectedText = Model.GetSelection();
+        if (selectedText is not null)
+            await JsRuntime.InvokeVoidAsync("textEditor.setClipboard", selectedText);
+    }
+    
+    [JSInvokable]
+    public void OnPaste(string text)
+    {
+        Model.InsertText(text);
+        StateHasChanged();
+    }
+
     [JSInvokable]
     public void OnKeydown(string key, bool shiftKey, bool ctrlKey)
     {
