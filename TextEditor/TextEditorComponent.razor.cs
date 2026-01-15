@@ -275,7 +275,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (Model.TooltipList is null)
             return;
     
-        var (lineIndex, columnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
+        var (lineIndex, columnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
         var positionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
 
         var tooltipFound = false;
