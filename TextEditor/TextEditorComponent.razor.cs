@@ -171,7 +171,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     /// </summary>
     private void ExpandSelectionLeft(CharacterKind leftCharacterKind, int lastValidColumnIndex)
     {
-        
         var localPositionIndex = Model.PositionIndex;
         var localColumnIndex = Model.ColumnIndex;
         var count = 2;
@@ -376,7 +375,32 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         else if (!anchorIsLessThanEnd && leftCharacterKind != CharacterKind.None)
         {
-            //ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex, anchorIsLessThanEnd);
+            var localPositionIndex = Model.PositionIndex;
+            var localColumnIndex = Model.ColumnIndex;
+            var count = 2;
+            var originalCharacterKind = leftCharacterKind;
+
+            while (localColumnIndex - count > -1)
+            {
+                if (Model.GetCharacterKind(Model[localPositionIndex - count]) == originalCharacterKind)
+                {
+                    ++count;
+                }
+                else
+                {
+                    --count;
+                    break;
+                }
+            }
+
+            if (localColumnIndex - count <= -1)
+            {
+                --count;
+            }
+
+            Model.SelectionEnd = Model.PositionIndex - count;
+            Model.PositionIndex = Model.SelectionEnd;
+            (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
         }
     }
 
