@@ -691,11 +691,6 @@ public class TextEditorModel
             }
         }
 
-        // hmm this is blatantly wrong because it doesn't reference positionIndex at all?
-        // isn't it always positionIndex - 0
-        // isn't it always positionIndex - LineBreakPositionList[lineIndex - 1]
-        // isn't it always positionIndex - LineBreakPositionList[lineIndex - 1]
-        // wow I have no idea what I'm doing right now I need some sleep
         lineIndex = LineBreakPositionList.Count;
         columnIndex = positionIndex - (LineBreakPositionList[^1] + 1);
         lastValidColumnIndex = GetLastValidColumnIndex(lineIndex);
@@ -778,30 +773,6 @@ public class TextEditorModel
         {
             return -1;
         }
-    }
-
-    /// <summary>
-    /// If provided an invalid lineIndex or columnIndex, this method will return false and set the out int index to -1.
-    /// </summary>
-    public bool TryGetPositionIndex(int lineIndex, int columnIndex, out int index)
-    {
-        if (lineIndex == 0)
-        {
-            index = columnIndex;
-            return true;
-        }
-
-        for (int i = 0; i < LineBreakPositionList.Count; i++)
-        {
-            if (i + 1 == lineIndex)
-            {
-                index = LineBreakPositionList[i] + 1 + columnIndex;
-                return true;
-            }
-        }
-
-        index = -1;
-        return false;
     }
 
     public virtual CharacterKind GetCharacterKind(char character)
@@ -1107,6 +1078,32 @@ public class TextEditorModel
         _decorationArrayCapacity = newCapacity;
         _decorationArray = new byte[_decorationArrayCapacity];
     }
+
+    /*
+     /// <summary>
+    /// If provided an invalid lineIndex or columnIndex, this method will return false and set the out int index to -1.
+    /// </summary>
+    public bool TryGetPositionIndex(int lineIndex, int columnIndex, out int index)
+    {
+        if (lineIndex == 0)
+        {
+            index = columnIndex;
+            return true;
+        }
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (i + 1 == lineIndex)
+            {
+                index = LineBreakPositionList[i] + 1 + columnIndex;
+                return true;
+            }
+        }
+
+        index = -1;
+        return false;
+    }
+     */
 
     /*
     /// <summary>
