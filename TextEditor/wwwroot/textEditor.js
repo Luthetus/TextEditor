@@ -3,8 +3,8 @@
 
 window.textEditor = {
     mouseMoveLastCall: 0,
-    mouseMoveSkippedCount: 0,
-    mouseMoveDidCount: 0,
+    //mouseMoveSkippedCount: 0,
+    //mouseMoveDidCount: 0,
     thinksLeftMouseButtonIsDown: false,
     mouseDownDetailsRank: 1,
     mouseStopTimer: null,
@@ -99,7 +99,7 @@ window.textEditor = {
                     const now = new Date().getTime();
                     // 95 did, 1000 skipped, at 25ms throttle
                     if (now - textEditor.mouseMoveLastCall >= 25) {
-                        this.mouseMoveDidCount++;
+                        //this.mouseMoveDidCount++;
                         textEditor.mouseMoveLastCall = now;
                         dotNetHelper.invokeMethodAsync(
                             "OnMouseMove",
@@ -108,14 +108,14 @@ window.textEditor = {
                             event.clientY + contentElement.scrollTop - this.editorTop,
                             event.shiftKey);
                     }
-                    else {
+                    /*else {
                         this.mouseMoveSkippedCount++;
         				
                         if (this.mouseMoveSkippedCount % 1000 == 0) {
         				    // Breakpoint here in the user agent debugger
                             this.mouseMoveSkippedCount = this.mouseMoveSkippedCount;
         				}
-                    }
+                    }*/
                 }
                 else {
                     clearTimeout(this.mouseStopTimer); // Reset timer on every move
