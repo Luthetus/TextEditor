@@ -7,18 +7,33 @@
 
 Welcome to your new app.
 
-@{
-    var model = new TextEditorModel();
+<TextEditorComponent Model="_model" />
 
-    model.TooltipList = new();
-    model.SetText("test.abc\ndfg.test\naaaaaaaaaaaaaaaaaaaaaaa\nbbbbbbbbbbbbbbbbbbbbbb\ncccccccccccccccccccccccc\nddddddddddddddddd\neeeeeeeeeeeeeeeeee");
-    model.TooltipList.Add(new TextEditorTooltip(
-        startPositionIndex: 0,
-        endPositionIndex: 1,
-        foreignKey: 0,
-        byteKind: TextEditorModel.CharacterTooltipByteKind));
-    model.EnableDecorations();
-    model.ReceiveKeyboardDebounce();
+<button class="btn btn-primary" @onclick="GetTextOnClick">
+    Get text
+</button>
+
+@code {
+    [Inject]
+    private IJSRuntime JsRuntime { get; set; } = null!;
+
+    private TextEditorModel _model = new();
+
+    protected override void OnInitialized()
+    {
+        _model.TooltipList = new();
+        _model.SetText("test.abc\ndfg.test\naaaaaaaaaaaaaaaaaaaaaaa\nbbbbbbbbbbbbbbbbbbbbbb\ncccccccccccccccccccccccc\nddddddddddddddddd\neeeeeeeeeeeeeeeeee");
+        _model.TooltipList.Add(new TextEditorTooltip(
+            startPositionIndex: 0,
+            endPositionIndex: 1,
+            foreignKey: 0,
+            byteKind: TextEditorModel.CharacterTooltipByteKind));
+        _model.EnableDecorations();
+        _model.ReceiveKeyboardDebounce();
+    }
+
+    private void GetTextOnClick()
+    {
+        JsRuntime.InvokeVoidAsync("alert", _model.ToString());
+    }
 }
-
-<TextEditorComponent Model="model" />
