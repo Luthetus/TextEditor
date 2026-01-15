@@ -76,6 +76,15 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         Model.Measurements = _measurements;
     }
 
+    private int _scrollCount = 0;
+
+    [JSInvokable]
+    public void OnScroll()
+    {
+        ++_scrollCount;
+        StateHasChanged();
+    }
+
     [JSInvokable]
     public void ReceiveKeyboardDebounce()
     {

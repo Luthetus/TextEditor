@@ -16,6 +16,8 @@ window.textEditor = {
     cursorIsBlinking: true,
     editorLeft: 0,
     editorTop: 0,
+    scroll_lastKnownScrollPosition: 0,
+    scroll_ticking: false,
     setFocus: function () {
         let textEditorElement = document.getElementById("te_component-id");
         if (textEditorElement) {
@@ -58,7 +60,23 @@ window.textEditor = {
         let measurements = this.takeMeasurements();
         if (!this.isDefaultMeasurements(measurements)) {
             // only add the listeners if the measurements were non-default
-            
+
+            contentElement.addEventListener('scroll', (event) => {
+                this.scroll_lastKnownScrollPosition = contentElement.scrollTop; // Get current vertical scroll position
+
+                if (!this.scroll_ticking) {
+                    setTimeout(() => {
+                        let local_scroll_lastKnownScrollPosition = this.scroll_lastKnownScrollPosition;
+                        this.scroll_ticking = false;
+                        dotNetHelper.invokeMethodAsync(
+                            "OnScroll",
+                            local_scroll_lastKnownScrollPosition);
+                    }, 200);
+
+                    this.scroll_ticking = true;
+                }
+            });
+
             contentElement.addEventListener('mousedown', (event) => {
                 if ((event.buttons & 1) === 1) {
                     this.thinksLeftMouseButtonIsDown = true;
