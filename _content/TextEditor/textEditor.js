@@ -78,8 +78,8 @@ window.ideTextEditor = {
                 dotNetHelper.invokeMethodAsync(
                     "OnMouseDown",
                     event.buttons,
-                    event.clientX,
-                    event.clientY,
+                    event.clientX + contentElement.scrollLeft,
+                    event.clientY + contentElement.scrollTop,
                     event.shiftKey,
                     this.mouseDownDetailRank);
             });
@@ -112,8 +112,8 @@ window.ideTextEditor = {
                         dotNetHelper.invokeMethodAsync(
                             "OnMouseMove",
                             event.buttons,
-                            event.clientX,
-                            event.clientY,
+                            event.clientX + contentElement.scrollLeft,
+                            event.clientY + contentElement.scrollTop,
                             event.shiftKey);
                     }
                     /*else {
@@ -132,7 +132,9 @@ window.ideTextEditor = {
                             dotNetHelper.invokeMethodAsync(
                                 "ReceiveTooltip",
                                 event.clientX,
-                                event.clientY);
+                                event.clientY,
+                                event.clientX + contentElement.scrollLeft,
+                                event.clientY + contentElement.scrollTop);
                         }
                     }, this.mouseStopDelay);
                 }
