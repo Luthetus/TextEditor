@@ -10,7 +10,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     
     [Parameter, EditorRequired]
     public TextEditorModel Model { get; set; } = null!;
-    
+
+    private (int Small, int Large) OnMouseDown_DetailRank2_Bounds;
+
     private DotNetObjectReference<TextEditorComponent>? _dotNetHelper;
     /// <summary>
     /// No persistence of TextEditorModel comes with the library.
@@ -220,12 +222,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         Model.PositionIndex = localPositionIndex;
         Model.ColumnIndex = localColumnIndex;
+
         Model.SelectionEnd = Model.PositionIndex;
     }
     
     [JSInvokable]
     public void OnMouseDown(
-        long buttons,
         double relativeX,
         double relativeY,
         bool shiftKey,
@@ -235,7 +237,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         {
             (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
-            Model.SelectionAnchor = Model.PositionIndex;
+            if (!shiftKey)
+                Model.SelectionAnchor = Model.PositionIndex;
             Model.SelectionEnd = Model.PositionIndex;
             StateHasChanged();
         }
@@ -243,7 +246,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         {
             (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
-            Model.SelectionAnchor = Model.PositionIndex;
+            if (!shiftKey)
+                Model.SelectionAnchor = Model.PositionIndex;
             Model.SelectionEnd = Model.PositionIndex;
 
             var leftCharacterKind = CharacterKind.None;
@@ -275,7 +279,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
                 ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
             }
-
+            OnMouseDown_DetailRank2_Bounds = (Model.SelectionAnchor, Model.SelectionEnd);
             StateHasChanged();
         }
         else if (detailRank == 3)
@@ -292,17 +296,60 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 
     [JSInvokable]
     public void OnMouseMove(
-        long buttons,
-        double scrolledClientX,
-        double scrolledClientY,
-        bool shiftKey)
+        double relativeX,
+        double relativeY,
+        bool shiftKey,
+        int detailRank)
     {
-        (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
-        Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
-        Model.SelectionEnd = Model.PositionIndex;
-        StateHasChanged();
+        if (detailRank == 1)
+        {
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
+            Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
+            Model.SelectionEnd = Model.PositionIndex;
+            StateHasChanged();
+        }
+        else if (detailRank == 2)
+        {
+            var (lineIndex, columnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
+            var positionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
+            
+            bool anchorIsLessThanEnd = Model.SelectionAnchor < Model.SelectionEnd
+                ? true
+                : false;
+
+            if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd)
+            {
+                Model.SelectionAnchor = OnMouseDown_DetailRank2_Bounds.Small;
+                anchorIsLessThanEnd = !anchorIsLessThanEnd;
+            }
+            else if (positionIndex < Model.SelectionAnchor && anchorIsLessThanEnd)
+            {
+                Model.SelectionAnchor = OnMouseDown_DetailRank2_Bounds.Large;
+                anchorIsLessThanEnd = !anchorIsLessThanEnd;
+            }
+
+            if ((anchorIsLessThanEnd && (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large)) ||
+                (!anchorIsLessThanEnd && (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small)))
+            {
+                Model.SelectionEnd = positionIndex;
+                Model.PositionIndex = positionIndex;
+                (Model.LineIndex, Model.ColumnIndex) = (lineIndex, columnIndex);
+            }
+
+            StateHasChanged();
+        }
+        else if (detailRank == 3)
+        {
+
+        }
+#if DEBUG
+        else
+        {
+            throw new NotImplementedException();
+        }
+#endif
     }
-    
+
     [JSInvokable]
     public void ReceiveTooltip(double clientX, double clientY, double scrolledClientX, double scrolledClientY)
     {

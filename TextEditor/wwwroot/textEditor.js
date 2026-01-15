@@ -81,7 +81,6 @@ window.textEditor = {
 
                 dotNetHelper.invokeMethodAsync(
                     "OnMouseDown",
-                    event.buttons,
                     event.clientX + contentElement.scrollLeft - this.editorLeft,
                     event.clientY + contentElement.scrollTop - this.editorTop,
                     event.shiftKey,
@@ -103,10 +102,10 @@ window.textEditor = {
                         textEditor.mouseMoveLastCall = now;
                         dotNetHelper.invokeMethodAsync(
                             "OnMouseMove",
-                            event.buttons,
                             event.clientX + contentElement.scrollLeft - this.editorLeft,
                             event.clientY + contentElement.scrollTop - this.editorTop,
-                            event.shiftKey);
+                            event.shiftKey,
+                            this.mouseDownDetailRank);
                     }
                     /*else {
                         this.mouseMoveSkippedCount++;
