@@ -295,14 +295,14 @@ public class TextEditorModel
             //
             if (character == '\n')
             {
-                if (indexText < text.Length - 1 && text[indexText + 1] == '\r')
-                    ++indexText;
                 _textBuilder.Append('\n');
                 LineBreakPositionList.Add(indexBuilder);
                 ++indexBuilder;
             }
             else if (character == '\r')
             {
+                if (indexText < text.Length - 1 && text[indexText + 1] == '\n')
+                    ++indexText;
                 _textBuilder.Append('\n');
                 LineBreakPositionList.Add(indexBuilder);
                 ++indexBuilder;
@@ -455,13 +455,13 @@ public class TextEditorModel
             //
             if (character == '\n')
             {
-                if (i < text.Length - 1 && text[i + 1] == '\r')
-                    ++i;
                 _textBuilder.Insert(positionIndex, '\n');
                 InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
             else if (character == '\r')
             {
+                if (i < text.Length - 1 && text[i + 1] == '\n')
+                    ++i;
                 _textBuilder.Insert(positionIndex, '\n');
                 InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
@@ -480,13 +480,9 @@ public class TextEditorModel
 
         int lineBreakStartIndex;
         if (lineBreakInsertedIndex == -1)
-        {
             lineBreakStartIndex = 0;
-        }
         else
-        {
             lineBreakStartIndex = lineBreakInsertedIndex + lineBreakInsertedCount;
-        }
         for (int i = lineBreakStartIndex; i < LineBreakPositionList.Count; i++)
         {
             if (LineBreakPositionList[i] >= entryPositionIndex)
@@ -495,13 +491,9 @@ public class TextEditorModel
 
         int tabStartIndex;
         if (tabInsertedIndex == -1)
-        {
             tabStartIndex = 0;
-        }
         else
-        {
             tabStartIndex = tabInsertedIndex + tabInsertedCount;
-        }
         for (int i = tabStartIndex; i < TabPositionList.Count; i++)
         {
             if (TabPositionList[i] >= entryPositionIndex)
@@ -513,8 +505,6 @@ public class TextEditorModel
             PositionIndex += positionIndex - entryPositionIndex;
             (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
         }
-
-        //(LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
     }
 
     /// <summary>
