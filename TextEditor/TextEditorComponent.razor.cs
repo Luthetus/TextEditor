@@ -194,7 +194,11 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             --count;
         }
 
-        Model.SelectionAnchor = Model.PositionIndex - count;
+        var value = Model.PositionIndex - count;
+        if (Model.SelectionAnchor < Model.SelectionEnd)
+            Model.SelectionAnchor = value;
+        else
+            Model.SelectionEnd = value;
     }
 
     /// <summary>
@@ -221,46 +225,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         Model.PositionIndex = localPositionIndex;
         Model.ColumnIndex = localColumnIndex;
-        Model.SelectionEnd = Model.PositionIndex;
-    }
 
-    private void OnMouseDown_DetailRank2(double relativeX, double relativeY, bool shiftKey)
-    {
-        (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
-        Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
-        if (!shiftKey)
-            Model.SelectionAnchor = Model.PositionIndex;
-        Model.SelectionEnd = Model.PositionIndex;
-
-        var leftCharacterKind = CharacterKind.None;
-        var rightCharacterKind = CharacterKind.None;
-
-        var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
-
-        if (Model.ColumnIndex > 0)
-        {
-            leftCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex - 1]);
-        }
-
-        var lastValidColumnIndex = Model.GetLastValidColumnIndex(lineIndex);
-        if (Model.ColumnIndex < lastValidColumnIndex)
-        {
-            rightCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex]);
-        }
-
-        if (leftCharacterKind > rightCharacterKind)
-        {
-            ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
-        }
-        else if (rightCharacterKind > leftCharacterKind)
-        {
-            ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
-        }
-        else if (leftCharacterKind != CharacterKind.None && rightCharacterKind != CharacterKind.None)
-        {
-            ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
-            ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
-        }
+        var value = Model.PositionIndex;
+        if (Model.SelectionAnchor > Model.SelectionEnd)
+            Model.SelectionAnchor = value;
+        else
+            Model.SelectionEnd = value;
     }
     
     [JSInvokable]
@@ -281,7 +251,41 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         else if (detailRank == 2)
         {
-            OnMouseDown_DetailRank2(relativeX, relativeY, shiftKey);
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
+            Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
+            if (!shiftKey)
+                Model.SelectionAnchor = Model.PositionIndex;
+            Model.SelectionEnd = Model.PositionIndex;
+
+            var leftCharacterKind = CharacterKind.None;
+            var rightCharacterKind = CharacterKind.None;
+
+            var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.PositionIndex);
+
+            if (Model.ColumnIndex > 0)
+            {
+                leftCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex - 1]);
+            }
+
+            var lastValidColumnIndex = Model.GetLastValidColumnIndex(lineIndex);
+            if (Model.ColumnIndex < lastValidColumnIndex)
+            {
+                rightCharacterKind = Model.GetCharacterKind(Model[Model.PositionIndex]);
+            }
+
+            if (leftCharacterKind > rightCharacterKind)
+            {
+                ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
+            }
+            else if (rightCharacterKind > leftCharacterKind)
+            {
+                ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
+            }
+            else if (leftCharacterKind != CharacterKind.None && rightCharacterKind != CharacterKind.None)
+            {
+                ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
+                ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
+            }
             StateHasChanged();
         }
         else if (detailRank == 3)
@@ -323,20 +327,10 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 positionIndex < Model.SelectionAnchor && anchorIsLessThanEnd)
             {
                 (Model.SelectionAnchor, Model.SelectionEnd) = (Model.SelectionEnd, Model.SelectionAnchor);
-                /*var temp = Model.SelectionEnd;
-                Model.SelectionEnd = Model.SelectionAnchor;
-                Model.SelectionAnchor = temp;
                 Model.PositionIndex = Model.SelectionEnd;
-                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);*/
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
 
-            //OnMouseDown_DetailRank2(relativeX, relativeY, shiftKey);
-
-            OnMouseDown_DetailRank2(relativeX, relativeY, shiftKey: true);
-
-            //Model.PositionIndex = positionIndex;
-            //(Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
-            //Model.SelectionEnd = Model.PositionIndex;
             StateHasChanged();
         }
         else if (detailRank == 3)
