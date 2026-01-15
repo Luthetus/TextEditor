@@ -174,6 +174,13 @@ window.textEditor = {
                             event.preventDefault();
                             dotNetHelper.invokeMethodAsync("ArbitraryCtrlKeybindAsync", event.key);
                             break;
+                        default:
+                            dotNetHelper.invokeMethodAsync(
+                                "OnKeydown",
+                                event.key,
+                                event.shiftKey,
+                                event.ctrlKey);
+                            break;
                     }
                 }
                 else {
