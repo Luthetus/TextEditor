@@ -235,7 +235,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         {
             (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
-            Model.SelectionAnchor = Model.PositionIndex;
+            if (!shiftKey)
+                Model.SelectionAnchor = Model.PositionIndex;
             Model.SelectionEnd = Model.PositionIndex;
             StateHasChanged();
         }
@@ -243,7 +244,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         {
             (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
-            Model.SelectionAnchor = Model.PositionIndex;
+            if (!shiftKey)
+                Model.SelectionAnchor = Model.PositionIndex;
             Model.SelectionEnd = Model.PositionIndex;
 
             var leftCharacterKind = CharacterKind.None;
