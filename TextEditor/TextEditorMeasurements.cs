@@ -7,8 +7,8 @@ public struct TextEditorMeasurements
     public double LineHeight { get; set; }
     public double EditorWidth { get; set; }
     public double EditorHeight { get; set; }
-    public double EditorLeft { get; set; }
-    public double EditorTop { get; set; }
+    //public double EditorLeft { get; set; }
+    //public double EditorTop { get; set; }
     /// <summary>"literal" as opposed to the "scrollHeight", this is the amount of width the y-axis scrollbar measures</summary>
     public double ScrollbarLiteralWidth { get; set; }
     /// <summary>"literal" as opposed to the "scrollWidth", this is the amount of height the x-axis scrollbar measures</summary>
@@ -20,8 +20,8 @@ public struct TextEditorMeasurements
                LineHeight == default &&
                EditorWidth == default &&
                EditorHeight == default &&
-               EditorLeft == default &&
-               EditorTop == default &&
+               //EditorLeft == default &&
+               //EditorTop == default &&
                ScrollbarLiteralWidth == default &&
                ScrollbarLiteralHeight == default;
 	}

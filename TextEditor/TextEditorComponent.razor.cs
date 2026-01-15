@@ -62,7 +62,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     
     public async Task InitializeAndTakeMeasurements()
     {
-        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.initializeAndTakeMeasurements", _dotNetHelper);
+        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("textEditor.initializeAndTakeMeasurements", _dotNetHelper);
         Model.Measurements = _measurements;
         _failedToInitialize = _measurements.IsDefault();
     }
@@ -192,14 +192,14 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnMouseDown(
         long buttons,
-        double scrolledClientX,
-        double scrolledClientY,
+        double relativeX,
+        double relativeY,
         bool shiftKey,
         int detailRank)
     {
         if (detailRank == 1)
         {
-            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
             Model.SelectionAnchor = Model.PositionIndex;
             Model.SelectionEnd = Model.PositionIndex;
@@ -207,7 +207,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         else if (detailRank == 2)
         {
-            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
             Model.SelectionAnchor = Model.PositionIndex;
             Model.SelectionEnd = Model.PositionIndex;
@@ -312,15 +312,15 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     /// <summary>
     /// Be very careful with this method, the Y axis comes first because it is mirroring "line, column"
     /// </summary>
-    private (int lineIndex, int characterIndex) GetRelativeIndicesYFirst(double scrolledClientY, double scrolledClientX)
+    private (int lineIndex, int characterIndex) GetRelativeIndicesYFirst(double rY, double rX)
     {
         // rX => relativeX
         // rY => relativeY
-        double rX;
-        double rY;
+        //double rX;
+        //double rY;
         
-        rX = scrolledClientX - Model.Measurements.EditorLeft;
-        rY = scrolledClientY - Model.Measurements.EditorTop;
+        //rX = relativeX - Model.Measurements.EditorLeft;
+        //rY = relativeY - Model.Measurements.EditorTop;
         
         if (rX < 0) rX = 0;
         if (rY < 0) rY = 0;
