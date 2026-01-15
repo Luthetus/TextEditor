@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Reflection;
 
 namespace TextEditor;
 
@@ -307,7 +308,25 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         else if (detailRank == 2)
         {
+            var (lineIndex, columnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
+            var positionIndex = Model.GetPositionIndex(lineIndex, columnIndex);
+            
+            bool anchorIsLessThanEnd = Model.SelectionAnchor < Model.SelectionEnd
+                ? true
+                : false;
 
+            if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd ||
+                positionIndex < Model.SelectionAnchor && anchorIsLessThanEnd)
+            {
+                var temp = Model.SelectionEnd;
+                Model.SelectionEnd = Model.SelectionAnchor;
+                Model.SelectionAnchor = temp;
+                Model.PositionIndex = Model.SelectionEnd;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
+
+            //Model.SelectionEnd = Model.PositionIndex;
+            StateHasChanged();
         }
         else if (detailRank == 3)
         {
