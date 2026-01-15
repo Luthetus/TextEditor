@@ -489,11 +489,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         // rX => relativeX
         // rY => relativeY
-        //double rX;
-        //double rY;
-        
-        //rX = relativeX - Model.Measurements.EditorLeft;
-        //rY = relativeY - Model.Measurements.EditorTop;
         
         if (rX < 0) rX = 0;
         if (rY < 0) rY = 0;
@@ -532,9 +527,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             {
                 break;
             }
-
-
-            
         }
 
         if (columnIndexDouble - (visualColumn - previousWidth) < visualColumn - columnIndexDouble)
