@@ -73,7 +73,7 @@ window.textEditor = {
                             "OnScroll",
                             local_scroll_lastKnownScrollPosition,
                             contentElement.offsetHeight);
-                    }, 200);
+                    }, 100);
 
                     this.scroll_ticking = true;
                 }
