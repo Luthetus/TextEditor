@@ -1,7 +1,7 @@
 // The way JS Interop is done here is a bit outdated see export syntax:
 // https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/
 
-window.ideTextEditor = {
+window.textEditor = {
     mouseMoveLastCall: 0,
     //mouseMoveSkippedCount: 0,
     //mouseMoveDidCount: 0,
@@ -14,6 +14,8 @@ window.ideTextEditor = {
     cursorBlinkingStopTimer: null,
     cursorBlinkingStopDelay: 1000,
     cursorIsBlinking: true,
+    editorLeft: 0,
+    editorTop: 0,
     setFocus: function () {
         let textEditorElement = document.getElementById("te_component-id");
         if (textEditorElement) {
@@ -37,8 +39,8 @@ window.ideTextEditor = {
                (measurements.LineHeight && measurements.LineHeight == 0) &&
                (measurements.EditorWidth && measurements.EditorWidth == 0) &&
                (measurements.EditorHeight && measurements.EditorHeight == 0) &&
-               (measurements.EditorLeft && measurements.EditorLeft == 0) &&
-               (measurements.EditorTop && measurements.EditorTop == 0) &&
+               //(measurements.EditorLeft && measurements.EditorLeft == 0) &&
+               //(measurements.EditorTop && measurements.EditorTop == 0) &&
                (measurements.ScrollbarLiteralWidth && measurements.ScrollbarLiteralWidth == 0) &&
                (measurements.ScrollbarLiteralHeight && measurements.ScrollbarLiteralHeight == 0);
     },
@@ -75,11 +77,15 @@ window.ideTextEditor = {
 
                 if (this.cursorIsBlinking) this.stopCursorBlinking(cursorElement);
 
+                let boundingClientRect = contentElement.getBoundingClientRect();
+                this.editorLeft = boundingClientRect.left;
+                this.editorTop = boundingClientRect.top;
+
                 dotNetHelper.invokeMethodAsync(
                     "OnMouseDown",
                     event.buttons,
-                    event.clientX + contentElement.scrollLeft,
-                    event.clientY + contentElement.scrollTop,
+                    event.clientX + contentElement.scrollLeft - this.editorLeft,
+                    event.clientY + contentElement.scrollTop - this.editorTop,
                     event.shiftKey,
                     this.mouseDownDetailRank);
             });
@@ -93,27 +99,15 @@ window.ideTextEditor = {
                     if (this.cursorIsBlinking) this.stopCursorBlinking(cursorElement);
         
                     const now = new Date().getTime();
-                    // Check if enough time has passed since the last execution
-                    // 157 did, 1000 skipped, at 15ms throttle
-                    // TODO: Fine tune this more
-                    // 155 did, 1000 skipped, at 16ms throttle
-                    // 141 did, 1000 skipped, at 17ms throttle
-                    // 138 did, 1000 skipped, at 18ms throttle
-                    // 124 did, 1000 skipped, at 19ms throttle
-                    // 123 did, 1000 skipped, at 20ms throttle
-                    // 119 did, 1000 skipped, at 20ms throttle
-                    // 103 did, 1000 skipped, at 23ms throttle
-                    // 101 did, 1000 skipped, at 24ms throttle
                     // 95 did, 1000 skipped, at 25ms throttle
-                    // 83 did, 1000 skipped, at 30ms throttle
-                    if (now - ideTextEditor.mouseMoveLastCall >= 25) {
+                    if (now - textEditor.mouseMoveLastCall >= 25) {
                         //this.mouseMoveDidCount++;
-                        ideTextEditor.mouseMoveLastCall = now;
+                        textEditor.mouseMoveLastCall = now;
                         dotNetHelper.invokeMethodAsync(
                             "OnMouseMove",
                             event.buttons,
-                            event.clientX + contentElement.scrollLeft,
-                            event.clientY + contentElement.scrollTop,
+                            event.clientX + contentElement.scrollLeft - this.editorLeft,
+                            event.clientY + contentElement.scrollTop - this.editorTop,
                             event.shiftKey);
                     }
                     /*else {
@@ -133,8 +127,8 @@ window.ideTextEditor = {
                                 "ReceiveTooltip",
                                 event.clientX,
                                 event.clientY,
-                                event.clientX + contentElement.scrollLeft,
-                                event.clientY + contentElement.scrollTop);
+                                event.clientX + contentElement.scrollLeft - this.editorLeft,
+                                event.clientY + contentElement.scrollTop - this.editorTop);
                         }
                     }, this.mouseStopDelay);
                 }
@@ -185,7 +179,9 @@ window.ideTextEditor = {
         }
         
         let boundingClientRect = textEditorElement.getBoundingClientRect();
-        
+        this.editorLeft = boundingClientRect.left;
+        this.editorTop = boundingClientRect.top;
+
         let measureTextElement = document.createElement("div");
         measureTextElement.className = "te_measure";
         textEditorElement.appendChild(measureTextElement);
@@ -206,15 +202,18 @@ window.ideTextEditor = {
         textEditorElement.removeChild(measureScrollbarLiteralElement);
 
         const root = document.documentElement;
-        root.style.setProperty('--te_line-height', lineHeight + "px");
+        let lineHeightPropertyValue = lineHeight + "px";
+        // would this avoid layout for no reason?
+        if (root.style.getPropertyValue('--te_line-height') !== lineHeightPropertyValue)
+            root.style.setProperty('--te_line-height', lineHeightPropertyValue);
 
         return {
             CharacterWidth: characterWidth,
             LineHeight: lineHeight,
             EditorWidth: textEditorElement.offsetWidth,
             EditorHeight: textEditorElement.offsetHeight,
-            EditorLeft: boundingClientRect.left,
-			EditorTop: boundingClientRect.top,
+            //EditorLeft: boundingClientRect.left,
+			//EditorTop: boundingClientRect.top,
 			ScrollbarLiteralWidth: scrollbarLiteralWidth,
 			ScrollbarLiteralHeight: scrollbarLiteralHeight,
         }
