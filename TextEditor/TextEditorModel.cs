@@ -775,30 +775,6 @@ public class TextEditorModel
         }
     }
 
-    /// <summary>
-    /// If provided an invalid lineIndex or columnIndex, this method will return false and set the out int index to -1.
-    /// </summary>
-    public bool TryGetPositionIndex(int lineIndex, int columnIndex, out int index)
-    {
-        if (lineIndex == 0)
-        {
-            index = columnIndex;
-            return true;
-        }
-
-        for (int i = 0; i < LineBreakPositionList.Count; i++)
-        {
-            if (i + 1 == lineIndex)
-            {
-                index = LineBreakPositionList[i] + 1 + columnIndex;
-                return true;
-            }
-        }
-
-        index = -1;
-        return false;
-    }
-
     public virtual CharacterKind GetCharacterKind(char character)
     {
         // I considered using ASCII codes but I think the switch is faster and it won't take that long.
@@ -1102,6 +1078,32 @@ public class TextEditorModel
         _decorationArrayCapacity = newCapacity;
         _decorationArray = new byte[_decorationArrayCapacity];
     }
+
+    /*
+     /// <summary>
+    /// If provided an invalid lineIndex or columnIndex, this method will return false and set the out int index to -1.
+    /// </summary>
+    public bool TryGetPositionIndex(int lineIndex, int columnIndex, out int index)
+    {
+        if (lineIndex == 0)
+        {
+            index = columnIndex;
+            return true;
+        }
+
+        for (int i = 0; i < LineBreakPositionList.Count; i++)
+        {
+            if (i + 1 == lineIndex)
+            {
+                index = LineBreakPositionList[i] + 1 + columnIndex;
+                return true;
+            }
+        }
+
+        index = -1;
+        return false;
+    }
+     */
 
     /*
     /// <summary>

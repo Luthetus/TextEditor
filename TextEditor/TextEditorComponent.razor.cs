@@ -338,6 +338,11 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         var previousWidth = 1;
         for (int j = 0; j < supposedColumnIndex; j++)
         {
+            if (xlinePosStart + j >= Model.Length)
+            {
+                break;
+            }
+
             if (Model[xlinePosStart + j] == '\t')
             {
                 previousWidth = 4;
