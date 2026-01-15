@@ -81,9 +81,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     }
     
     [JSInvokable]
-    public void OnCopy()
+    public async Task OnCopy()
     {
-        JsRuntime.InvokeVoidAsync("textEditor.setClipboard", Model.GetSelection());
+        await JsRuntime.InvokeVoidAsync("textEditor.setClipboard", Model.GetSelection());
     }
     
     [JSInvokable]
