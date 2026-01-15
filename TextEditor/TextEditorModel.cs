@@ -332,7 +332,13 @@ public class TextEditorModel
     /// always insert '\n' for line endings, and then track separately the desired line end.
     /// upon saving, create a string that has the '\n' included as the desired line end.
     /// </summary>
-    public void InsertText(string text) => InsertTextAtPosition(text, PositionIndex);
+    public void InsertText(string text)
+    {
+        if (HasSelection)
+            DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, ctrlKey: false);
+
+        InsertTextAtPosition(text, PositionIndex);
+    }
 
     /// <summary>
     /// This method inserts at the provided lineIndex and columnIndex,
