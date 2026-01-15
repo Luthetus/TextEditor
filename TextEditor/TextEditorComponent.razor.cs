@@ -102,6 +102,17 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                         await JsRuntime.InvokeVoidAsync("textEditor.setClipboard", selectedText);
                     break;
                 }
+            case "x":
+                {
+                    var selectedText = Model.GetSelection();
+                    if (selectedText is not null)
+                    {
+                        await JsRuntime.InvokeVoidAsync("textEditor.setClipboard", selectedText);
+                        Model.DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, false);
+                        StateHasChanged();
+                    }
+                    break;
+                }
         }
     }
 

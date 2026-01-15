@@ -643,6 +643,10 @@ public class TextEditorModel
         if (PositionIndex > start)
         {
             PositionIndex -= count;
+            // If a selection leaves the cursor as is (such as the current implementation of Ctrl + A)
+            // then this logic gives a negative value.
+            if (PositionIndex < 0)
+                PositionIndex = 0;
             (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
         }
     }
