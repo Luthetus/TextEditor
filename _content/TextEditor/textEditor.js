@@ -169,7 +169,11 @@ window.textEditor = {
                             });
                             break;
                         case "c":
-                            dotNetHelper.invokeMethodAsync("OnCopy");
+                            dotNetHelper.invokeMethodAsync("ArbitraryCtrlKeybindAsync", event.key);
+                            break;
+                        case "a":
+                            event.preventDefault();
+                            dotNetHelper.invokeMethodAsync("ArbitraryCtrlKeybindAsync", event.key);
                             break;
                     }
                 }
