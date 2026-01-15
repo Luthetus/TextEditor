@@ -28,36 +28,7 @@
     var stringBuilder = new StringBuilder(capacity: 128);
 }
 
-<div>
-    CharacterWidth:@Model.Measurements.CharacterWidth<br/>
-    LineHeight:@Model.Measurements.LineHeight<br/>
-    EditorWidth:@Model.Measurements.EditorWidth<br/>
-    EditorHeight:@Model.Measurements.EditorHeight<br/>
-    EditorLeft:@Model.Measurements.EditorLeft<br/>
-    EditorTop:@Model.Measurements.EditorTop<br/>
-    ScrollbarLiteralWidth:@Model.Measurements.ScrollbarLiteralWidth<br/>
-    ScrollbarLiteralHeight:@Model.Measurements.ScrollbarLiteralHeight<br/>
 
-    <hr/>
-
-    LineEndPositionList.Count:@Model.LineBreakPositionList.Count<br />
-
-    <hr/>
-
-    LineIndex: @Model.LineIndex<br />
-    ColumnIndex: @Model.ColumnIndex<br />
-    PositionIndex: @Model.PositionIndex<br />
-    
-    <hr/>
-
-    SelectionAnchor: @Model.SelectionAnchor<br/>
-    SelectionEnd: @Model.SelectionEnd<br/>
-    
-    <hr/>
-
-    <button @onclick="TakeMeasurements">Remeasure</button>
-
-</div>
 
 @if (_tooltipOccurred)
 {
@@ -334,3 +305,36 @@
          style="@cursorStyle">
     </div>
 </div>
+
+@* 
+<div class="te_debug-info">
+    CharacterWidth:@Model.Measurements.CharacterWidth<br/>
+    LineHeight:@Model.Measurements.LineHeight<br/>
+    EditorWidth:@Model.Measurements.EditorWidth<br/>
+    EditorHeight:@Model.Measurements.EditorHeight<br/>
+    EditorLeft:@Model.Measurements.EditorLeft<br/>
+    EditorTop:@Model.Measurements.EditorTop<br/>
+    ScrollbarLiteralWidth:@Model.Measurements.ScrollbarLiteralWidth<br/>
+    ScrollbarLiteralHeight:@Model.Measurements.ScrollbarLiteralHeight<br/>
+
+    <hr/>
+
+    LineEndPositionList.Count:@Model.LineBreakPositionList.Count<br />
+
+    <hr/>
+
+    LineIndex: @Model.LineIndex<br />
+    ColumnIndex: @Model.ColumnIndex<br />
+    PositionIndex: @Model.PositionIndex<br />
+    
+    <hr/>
+
+    SelectionAnchor: @Model.SelectionAnchor<br/>
+    SelectionEnd: @Model.SelectionEnd<br/>
+    
+    <hr/>
+
+    <button @onclick="TakeMeasurements">Remeasure</button>
+
+</div>
+*@

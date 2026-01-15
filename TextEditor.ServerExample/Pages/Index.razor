@@ -9,17 +9,33 @@ Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
 
-@{
-    var model = new TextEditorModel();
-    model.SetText("test.abc\ndfg.test\naaaaaaaaaaaaaaaaaaaaaaa\nbbbbbbbbbbbbbbbbbbbbbb\ncccccccccccccccccccccccc\nddddddddddddddddd\neeeeeeeeeeeeeeeeee");
-    model.TooltipList = new();
-    model.TooltipList.Add(new TextEditorTooltip(
-        startPositionIndex: 0,
-        endPositionIndex: 1,
-        foreignKey: 0,
-        byteKind: TextEditorModel.CharacterTooltipByteKind));
-    model.EnableDecorations();
-    model.ReceiveKeyboardDebounce();
-}
+<TextEditorComponent Model="_model" />
 
-<TextEditorComponent Model="model"/>
+<button class="btn btn-primary" @onclick="GetTextOnClick">
+    Get text
+</button>
+
+@code {
+    [Inject]
+    private IJSRuntime JsRuntime { get; set; } = null!;
+
+    private TextEditorModel _model = new();
+
+    protected override void OnInitialized()
+    {
+        _model.TooltipList = new();
+        _model.SetText("test.abc\ndfg.test\naaaaaaaaaaaaaaaaaaaaaaa\nbbbbbbbbbbbbbbbbbbbbbb\ncccccccccccccccccccccccc\nddddddddddddddddd\neeeeeeeeeeeeeeeeee");
+        _model.TooltipList.Add(new TextEditorTooltip(
+            startPositionIndex: 0,
+            endPositionIndex: 1,
+            foreignKey: 0,
+            byteKind: TextEditorModel.CharacterTooltipByteKind));
+        _model.EnableDecorations();
+        _model.ReceiveKeyboardDebounce();
+    }
+
+    private void GetTextOnClick()
+    {
+        JsRuntime.InvokeVoidAsync("alert", _model.ToString());
+    }
+}
