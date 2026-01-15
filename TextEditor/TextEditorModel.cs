@@ -398,7 +398,7 @@ public class TextEditorModel
                 }
                 if (tabInsertedIndex == -1)
                 {
-                    tabInsertedIndex = LineBreakPositionList.Count;
+                    tabInsertedIndex = TabPositionList.Count;
                 }
             }
         }
