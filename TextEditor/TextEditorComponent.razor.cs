@@ -66,6 +66,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     public async Task InitializeAndTakeMeasurements()
     {
         _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("textEditor.initializeAndTakeMeasurements", _dotNetHelper);
+        _textEditorHeight = _measurements.EditorHeight;
         Model.Measurements = _measurements;
         _failedToInitialize = _measurements.IsDefault();
     }
@@ -73,7 +74,21 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     public async Task TakeMeasurements()
     {
         _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("textEditor.takeMeasurements");
+        _textEditorHeight = _measurements.EditorHeight;
         Model.Measurements = _measurements;
+    }
+
+    private int _scrollCount = 0;
+    private double _scrollTop;
+    private double _textEditorHeight;
+
+    [JSInvokable]
+    public void OnScroll(double scrollTop, double textEditorHeight)
+    {
+        ++_scrollCount;
+        _scrollTop = scrollTop;
+        _textEditorHeight = textEditorHeight;
+        StateHasChanged();
     }
 
     [JSInvokable]
