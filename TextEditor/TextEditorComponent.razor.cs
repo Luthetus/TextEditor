@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Reflection;
 
 namespace TextEditor;
 
@@ -11,7 +10,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     
     [Parameter, EditorRequired]
     public TextEditorModel Model { get; set; } = null!;
-    
+
+    private (int Small, int Large) OnMouseDown_DetailRank2_Bounds;
+
     private DotNetObjectReference<TextEditorComponent>? _dotNetHelper;
     /// <summary>
     /// No persistence of TextEditorModel comes with the library.
@@ -286,6 +287,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 ExpandSelectionLeft(leftCharacterKind, lastValidColumnIndex);
                 ExpandSelectionRight(rightCharacterKind, lastValidColumnIndex);
             }
+            OnMouseDown_DetailRank2_Bounds = (Model.SelectionAnchor, Model.SelectionEnd);
             StateHasChanged();
         }
         else if (detailRank == 3)
@@ -323,15 +325,27 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 ? true
                 : false;
 
-            if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd ||
-                positionIndex < Model.SelectionAnchor && anchorIsLessThanEnd)
+            var takeEvent = false;
+
+            if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd)
             {
                 Model.SelectionAnchor = Model.SelectionEnd;
+                if (positionIndex <= OnMouseDown_DetailRank2_Bounds.Small)
+                    takeEvent = true;
+            }
+            else if (positionIndex < Model.SelectionAnchor && anchorIsLessThanEnd)
+            {
+                Model.SelectionAnchor = Model.SelectionEnd;
+                if (positionIndex >= OnMouseDown_DetailRank2_Bounds.Large)
+                    takeEvent = true;
             }
 
-            Model.SelectionEnd = positionIndex;
-            Model.PositionIndex = positionIndex;
-            (Model.LineIndex, Model.ColumnIndex) = (lineIndex, columnIndex);
+            if (takeEvent)
+            {
+                Model.SelectionEnd = positionIndex;
+                Model.PositionIndex = positionIndex;
+                (Model.LineIndex, Model.ColumnIndex) = (lineIndex, columnIndex);
+            }
 
             StateHasChanged();
         }
