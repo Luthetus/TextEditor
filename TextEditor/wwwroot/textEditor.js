@@ -162,6 +162,10 @@ window.textEditor = {
                                 dotNetHelper.invokeMethodAsync(
                                     "OnPaste",
                                     text);
+                                clearTimeout(this.keydownStopTimer); // Reset timer on every move
+                                this.keydownStopTimer = setTimeout(() => {
+                                    dotNetHelper.invokeMethodAsync("ReceiveKeyboardDebounce");
+                                }, this.keydownStopDelay);
                             });
                             break;
                         case "c":
