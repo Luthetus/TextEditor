@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TextEditor;
 
@@ -80,6 +81,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         StateHasChanged();
     }
     
+    [JSInvokable]
+    public void OnPaste(string text)
+    {
+        Model.InsertText(text);
+    }
+
     [JSInvokable]
     public void OnKeydown(string key, bool shiftKey, bool ctrlKey)
     {
