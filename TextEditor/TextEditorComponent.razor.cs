@@ -192,14 +192,14 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnMouseDown(
         long buttons,
-        double clientX,
-        double clientY,
+        double scrolledClientX,
+        double scrolledClientY,
         bool shiftKey,
         int detailRank)
     {
         if (detailRank == 1)
         {
-            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
             Model.SelectionAnchor = Model.PositionIndex;
             Model.SelectionEnd = Model.PositionIndex;
@@ -207,7 +207,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
         else if (detailRank == 2)
         {
-            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
+            (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
             Model.SelectionAnchor = Model.PositionIndex;
             Model.SelectionEnd = Model.PositionIndex;
@@ -259,18 +259,18 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnMouseMove(
         long buttons,
-        double clientX,
-        double clientY,
+        double scrolledClientX,
+        double scrolledClientY,
         bool shiftKey)
     {
-        (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(clientY, clientX);
+        (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(scrolledClientY, scrolledClientX);
         Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
         Model.SelectionEnd = Model.PositionIndex;
         StateHasChanged();
     }
     
     [JSInvokable]
-    public void ReceiveTooltip(double clientX, double clientY)
+    public void ReceiveTooltip(double clientX, double clientY, double scrolledClientX, double scrolledClientY)
     {
         if (Model.TooltipList is null)
             return;
@@ -312,15 +312,15 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     /// <summary>
     /// Be very careful with this method, the Y axis comes first because it is mirroring "line, column"
     /// </summary>
-    private (int lineIndex, int characterIndex) GetRelativeIndicesYFirst(double clientY, double clientX)
+    private (int lineIndex, int characterIndex) GetRelativeIndicesYFirst(double scrolledClientY, double scrolledClientX)
     {
         // rX => relativeX
         // rY => relativeY
         double rX;
         double rY;
         
-        rX = clientX - Model.Measurements.EditorLeft;
-        rY = clientY - Model.Measurements.EditorTop;
+        rX = scrolledClientX - Model.Measurements.EditorLeft;
+        rY = scrolledClientY - Model.Measurements.EditorTop;
         
         if (rX < 0) rX = 0;
         if (rY < 0) rY = 0;
