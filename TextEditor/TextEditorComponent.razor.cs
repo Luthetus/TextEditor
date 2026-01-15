@@ -318,13 +318,16 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             if (positionIndex > Model.SelectionAnchor && !anchorIsLessThanEnd ||
                 positionIndex < Model.SelectionAnchor && anchorIsLessThanEnd)
             {
-                var temp = Model.SelectionEnd;
+                (Model.SelectionAnchor, Model.SelectionEnd) = (Model.SelectionEnd, Model.SelectionAnchor);
+                /*var temp = Model.SelectionEnd;
                 Model.SelectionEnd = Model.SelectionAnchor;
                 Model.SelectionAnchor = temp;
                 Model.PositionIndex = Model.SelectionEnd;
-                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);*/
             }
 
+            Model.PositionIndex = positionIndex;
+            (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             //Model.SelectionEnd = Model.PositionIndex;
             StateHasChanged();
         }
