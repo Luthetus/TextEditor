@@ -329,15 +329,53 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (lineIndex > Model.LineBreakPositionList.Count)
             lineIndex = Model.LineBreakPositionList.Count;
 
-        var columnIndex = (int)Math.Round(rX / Model.Measurements.CharacterWidth, MidpointRounding.AwayFromZero);
+        var columnIndexDouble = rX / Model.Measurements.CharacterWidth;
+        var supposedColumnIndex = (int)Math.Round(columnIndexDouble, MidpointRounding.AwayFromZero);
+
+        var (xlineIndex, xlinePosStart, xlinePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.GetPositionIndex(lineIndex, supposedColumnIndex));
+        var visualColumn = 0;
+        var characterColumn = 0;
+        var previousWidth = 1;
+        for (int j = 0; j < supposedColumnIndex; j++)
+        {
+            if (Model[xlinePosStart + j] == '\t')
+            {
+                previousWidth = 4;
+                visualColumn += 4;
+            }
+            else
+            {
+                previousWidth = 1;
+                visualColumn += 1;
+            }
+            ++characterColumn;
+
+            if (visualColumn >= supposedColumnIndex)
+            {
+                break;
+            }
+
+
+            
+        }
+
+        if (columnIndexDouble - (visualColumn - previousWidth) < visualColumn - columnIndexDouble)
+        {
+            supposedColumnIndex = characterColumn - 1;
+        }
+        else
+        {
+            supposedColumnIndex = characterColumn;
+        }
+
         var lastValidColumnIndex = Model.GetLastValidColumnIndex(lineIndex);
-        if (columnIndex > lastValidColumnIndex)
-            columnIndex = lastValidColumnIndex;
-        
+        if (supposedColumnIndex > lastValidColumnIndex)
+            supposedColumnIndex = lastValidColumnIndex;
+
         return
             (
                 lineIndex,
-                columnIndex
+                supposedColumnIndex
             );
     }
     

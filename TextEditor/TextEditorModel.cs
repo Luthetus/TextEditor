@@ -50,6 +50,8 @@ public class TextEditorModel
     /// </summary>
     public List<int> LineBreakPositionList { get; set; } = new();
 
+    public List<int> TabPositionList { get; set; } = new();
+
     public int LineCount => LineBreakPositionList.Count + 1;
 
     public bool HasSelection => SelectionAnchor != -1 && SelectionAnchor != SelectionEnd;
@@ -77,6 +79,24 @@ public class TextEditorModel
     public const byte KeywordDecorationByte = 1;
     
     private const int _defaultCapacity = 4;
+
+    public virtual int GetTabCountOnSameLinePriorToCursor()
+    {
+        var (lineIndex, linePosStart, linePosEnd) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
+
+        // you don't need to know the end of the line, just read backwards until a '\n' or startOfFile, then jump back to starting position and go forward until
+        // either a '\n' or EOF
+        int count = 0;
+        for (int i = linePosStart; i < PositionIndex; i++)
+        {
+            if (_textBuilder[i] == '\n')
+                break;
+            if (_textBuilder[i] == '\t')
+                count++;
+        }
+
+        return count;
+    }
 
     /// <summary>
     /// If you return 'null', then the tooltip is essentially "cancelled" as if the event never occurred.
@@ -357,6 +377,34 @@ public class TextEditorModel
 
         LineBreakPositionList.Insert(lineBreakInsertedIndex + lineBreakInsertedCount++, positionIndex);
     }
+    
+    private void InsertTextAtPosition_InsertTab(ref int tabInsertedIndex, ref int tabInsertedCount, int entryPositionIndex, int positionIndex)
+    {
+        if (tabInsertedIndex == -1)
+        {
+            if (TabPositionList.Count == 0)
+            {
+                tabInsertedIndex = 0;
+            }
+            else
+            {
+                for (int tabIndex = 0; tabIndex < TabPositionList.Count; tabIndex++)
+                {
+                    if (TabPositionList[tabIndex] >= entryPositionIndex)
+                    {
+                        tabInsertedIndex = tabIndex;
+                        break;
+                    }
+                }
+                if (tabInsertedIndex == -1)
+                {
+                    tabInsertedIndex = LineBreakPositionList.Count;
+                }
+            }
+        }
+
+        TabPositionList.Insert(tabInsertedIndex + tabInsertedCount++, positionIndex);
+    }
 
     /// <summary>
     /// This method inserts at the provided positionIndex,
@@ -372,8 +420,12 @@ public class TextEditorModel
     public void InsertTextAtPosition(string text, int positionIndex)
     {
         var entryPositionIndex = positionIndex;
+
         var lineBreakInsertedIndex = -1;
         var lineBreakInsertedCount = 0;
+
+        var tabInsertedIndex = -1;
+        var tabInsertedCount = 0;
 
         var shouldMoveCursor = positionIndex <= PositionIndex;
 
@@ -401,6 +453,11 @@ public class TextEditorModel
                 _textBuilder.Insert(positionIndex, '\n');
                 InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
+            else if (character == '\t')
+            {
+                _textBuilder.Insert(positionIndex, '\t');
+                InsertTextAtPosition_InsertTab(ref tabInsertedIndex, ref tabInsertedCount, entryPositionIndex, positionIndex);
+            }
             else
             {
                 _textBuilder.Insert(positionIndex, character);
@@ -422,6 +479,21 @@ public class TextEditorModel
         {
             if (LineBreakPositionList[i] >= entryPositionIndex)
                 LineBreakPositionList[i] += positionIndex - entryPositionIndex;
+        }
+
+        int tabStartIndex;
+        if (tabInsertedIndex == -1)
+        {
+            tabStartIndex = 0;
+        }
+        else
+        {
+            tabStartIndex = tabInsertedIndex + tabInsertedCount;
+        }
+        for (int i = tabStartIndex; i < TabPositionList.Count; i++)
+        {
+            if (TabPositionList[i] >= entryPositionIndex)
+                TabPositionList[i] += positionIndex - entryPositionIndex;
         }
 
         if (shouldMoveCursor)
@@ -546,6 +618,14 @@ public class TextEditorModel
                 LineBreakPositionList[i] -= count;
             else if (LineBreakPositionList[i] >= start)
                 LineBreakPositionList.RemoveAt(i);
+        }
+        
+        for (var i = TabPositionList.Count - 1; i >= 0; i--)
+        {
+            if (TabPositionList[i] >= end)
+                TabPositionList[i] -= count;
+            else if (TabPositionList[i] >= start)
+                TabPositionList.RemoveAt(i);
         }
 
         if (PositionIndex > start)
