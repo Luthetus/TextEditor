@@ -69,7 +69,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     
     public async Task TakeMeasurements()
     {
-        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("ideTextEditor.takeMeasurements");
+        _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("textEditor.takeMeasurements");
         Model.Measurements = _measurements;
     }
 
@@ -78,6 +78,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         Model.ReceiveKeyboardDebounce();
         StateHasChanged();
+    }
+    
+    [JSInvokable]
+    public void OnCopy()
+    {
+        JsRuntime.InvokeVoidAsync("textEditor.setClipboard", Model.GetSelection());
     }
     
     [JSInvokable]

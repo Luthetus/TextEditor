@@ -164,6 +164,9 @@ window.textEditor = {
                                     text);
                             });
                             break;
+                        case "c":
+                            dotNetHelper.invokeMethodAsync("OnCopy");
+                            break;
                     }
                 }
                 else {
@@ -309,6 +312,10 @@ window.textEditor = {
                 return false;
             } finally {
                 document.body.removeChild(textarea);
+                let textEditorElement = document.getElementById("te_component-id");
+                if (textEditorElement) {
+                    textEditorElement.focus();
+                }
             }
         }
     },

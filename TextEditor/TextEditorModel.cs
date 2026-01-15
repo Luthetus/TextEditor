@@ -882,6 +882,11 @@ public class TextEditorModel
         }
     }
 
+    public virtual string GetSelection()
+    {
+        return "nyan cat";
+    }
+
     public virtual void ReceiveKeyboardDebounce()
     {
         if (TooltipList is not null)
