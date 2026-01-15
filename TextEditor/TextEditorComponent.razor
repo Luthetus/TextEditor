@@ -41,9 +41,41 @@
     if (endLineIndex > Model.LineBreakPositionList.Count + 1) endLineIndex = Model.LineBreakPositionList.Count + 1;
 
 
+    int startPosition = 0;
+    if (startLineIndex == 0)
+    {
+        startPosition = 0;
+    }
+    else if (startLineIndex - 1 < Model.LineBreakPositionList.Count)
+    {
+        // You get the line ending of the previous line and then + 1 because all line endings
+        // are stored as '\n' until saving the file in which they are swapped out for the desired line endings.
+        //
+        startPosition = Model.LineBreakPositionList[startLineIndex - 1] + 1;
+    }
+    else
+    {
+        // I need this so the value is initialized but I
+        // TODO: need to look into this case further
+        startLineIndex = 0;
+    }
 
-
-
+    int endPosition;
+    if (endLineIndex == 0 || endLineIndex >= Model.LineBreakPositionList.Count)
+    {
+        endPosition = Model.Length;
+    }
+    else if (endLineIndex < Model.LineBreakPositionList.Count)
+    {
+        // This might be wrong. I think it takes an extra line (even beyond the "extra line so the virtualization looks smoother").
+        endPosition = Model.LineBreakPositionList[endLineIndex];
+    }
+    else
+    {
+        // I need this so the value is initialized but I
+        // TODO: need to look into this case further
+        endPosition = 0;
+    }
 }
 
 
@@ -79,6 +111,8 @@
     _textEditorHeight: @_textEditorHeight
     startIndex: @startLineIndex
     endIndex: @endLineIndex
+    startPosition: @startPosition
+    endPosition: @endPosition
 </div>
 
 <div class="te_component-class"
@@ -94,6 +128,16 @@
      }
     <div class="te_total-height"
          style="@totalHeightStyle">
+    </div>
+
+    @{
+        stringBuilder.Append("height:");
+        stringBuilder.Append((startLineIndex * _measurements.LineHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var aaaa = stringBuilder.ToString();
+        stringBuilder.Clear();
+    }
+    <div style="@aaaa">
     </div>
 
     @if (Model.HasSelection)
@@ -163,7 +207,7 @@
     }
 
     @{
-        int i = 0;
+        int i = startPosition;
         var exclusiveEndDecorationIndex = 0;
 
         byte currentDecorationByte = 0;
@@ -176,43 +220,7 @@
                 exclusiveEndDecorationIndex = Model.Length;
         }
 
-        int startPosition;
-        if (startLineIndex == 0)
-        {
-            startPosition = 0;
-        }
-        else if (startLineIndex - 1 < Model.LineBreakPositionList.Count)
-        {
-            // You get the line ending of the previous line and then + 1 because all line endings
-            // are stored as '\n' until saving the file in which they are swapped out for the desired line endings.
-            //
-            startPosition = Model.LineBreakPositionList[startLineIndex - 1] + 1;
-        }
-        else
-        {
-            // I need this so the value is initialized but I
-            // TODO: need to look into this case further
-            startLineIndex = 0;
-        }
-
-        int endPosition;
-        if (endLineIndex == 0 || endLineIndex >= Model.LineBreakPositionList.Count)
-        {
-            endPosition = Model.Length;
-        }
-        else if (endLineIndex < Model.LineBreakPositionList.Count)
-        {
-            // This might be wrong. I think it takes an extra line (even beyond the "extra line so the virtualization looks smoother").
-            endPosition = Model.LineBreakPositionList[endLineIndex];
-        }
-        else
-        {
-            // I need this so the value is initialized but I
-            // TODO: need to look into this case further
-            endPosition = 0;
-        }
-
-        i = startLineIndex; 
+        
 
         while (i < endPosition)
         {
