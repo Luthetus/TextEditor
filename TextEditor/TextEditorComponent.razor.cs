@@ -472,7 +472,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
             Model.EditIsUndone = true;
-            if (Model.EditKind == EditKind.Insert)
+            if (Model.EditKind == EditKind.InsertLtr)
             {
                 Model._editedTextHistoryCount = 0;
                 if (Model._editedTextHistoryCapacity < Model.EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
@@ -494,7 +494,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
-            else if (Model.EditKind == EditKind.Delete)
+            else if (Model.EditKind == EditKind.DeleteRtl)
             {
                 Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
@@ -510,13 +510,13 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (Model.EditKind != EditKind.None && Model.EditIsUndone)
         {
             Model.EditIsUndone = false;
-            if (Model.EditKind == EditKind.Insert)
+            if (Model.EditKind == EditKind.InsertLtr)
             {
                 Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
-            else if (Model.EditKind == EditKind.Delete)
+            else if (Model.EditKind == EditKind.DeleteRtl)
             {
                 Model.DeleteTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;

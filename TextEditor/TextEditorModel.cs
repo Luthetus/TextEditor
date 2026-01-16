@@ -598,7 +598,7 @@ public class TextEditorModel
             {
                 DeleteTextAtPositionByRandomAccess(PositionIndex, 1);
             }
-        }
+        }//&&edit!undone
         else if (deleteByCursorKind == DeleteByCursorKind.Backspace)
         {
             EditIsUndone = false;
