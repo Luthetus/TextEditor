@@ -563,12 +563,6 @@ public class TextEditorModel
 
         if (removeKind == RemoveKind.DeleteLtr)
         {
-            EditIsUndone = false;
-            EditKind = EditKind.RemoveDeleteLtr;
-            EditPosition = PositionIndex;
-            _editedTextHistoryCount = 0;
-            EditLength = 0; // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
-
             if (ctrlKey)
             {
                 var count = 1;
