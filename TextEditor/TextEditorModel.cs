@@ -1212,75 +1212,14 @@ public class TextEditorModel
     /// </summary>
     public void Shrink()
     {
-
+        /*
+        readonly StringBuilder _textBuilder = new();
+        char[] _editedTextHistory = new char[4];
+        List<TextEditorTooltip>? TooltipList { get; set; } = null;
+        List<int> LineBreakPositionList { get; set; } = new();
+        List<int> TabPositionList { get; set; } = new();
+        byte[]? DecorationArray => _decorationArray;
+        byte[]? _decorationArray = null;
+        */
     }
-
-    /*
-     /// <summary>
-    /// If provided an invalid lineIndex or columnIndex, this method will return false and set the out int index to -1.
-    /// </summary>
-    public bool TryGetPositionIndex(int lineIndex, int columnIndex, out int index)
-    {
-        if (lineIndex == 0)
-        {
-            index = columnIndex;
-            return true;
-        }
-
-        for (int i = 0; i < LineBreakPositionList.Count; i++)
-        {
-            if (i + 1 == lineIndex)
-            {
-                index = LineBreakPositionList[i] + 1 + columnIndex;
-                return true;
-            }
-        }
-
-        index = -1;
-        return false;
-    }
-     */
-
-    /*
-    /// <summary>
-    /// See <see cref="InsertText(string)"/> for explanation, this method is the same but with a char.
-    /// </summary>
-    public void InsertCharacter(char character) => InsertCharacterAtPosition(character, PositionIndex);
-
-    /// <summary>
-    /// See <see cref="InsertTextAtLineColumn(string, int, int)"/> for explanation, this method is the same but with a char.
-    /// </summary>
-    public void InsertCharacterAtLineColumn(char character, int lineIndex, int columnIndex) =>
-        InsertCharacterAtPosition(character, GetPositionIndex(lineIndex, columnIndex));
-
-    /// <summary>
-    /// See <see cref="InsertTextAtPosition(string, int)"/> for explanation, this method is the same but with a char.
-    /// </summary>
-    public void InsertCharacterAtPosition(char character, int positionIndex)
-    {
-        // always insert '\n' for line endings, and then track separately the desired line end.
-        // upon saving, create a string that has the '\n' included as the desired line end.
-        //
-        // this logic is duplicated in:
-        // - SetText(...)
-        // - InsertTextAtPosition()
-        // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
-        //
-        if (character == '\n')
-        {
-            _textBuilder.Insert(positionIndex, '\n');
-        }
-        else if (character == '\r')
-        {
-            _textBuilder.Insert(positionIndex, '\n');
-            LineBreakPositionList.Add(positionIndex);
-        }
-        else
-        {
-            _textBuilder.Append(character);
-        }
-
-        _textBuilder.Insert(positionIndex, character);
-    }
-    */
 }
