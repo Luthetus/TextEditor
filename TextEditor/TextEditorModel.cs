@@ -684,7 +684,7 @@ public class TextEditorModel
             {
                 if (Validate_BatchDeleteRtl(editWasUndone, positionIndex, count))
                 {
-                    EditPosition = positionIndex;
+                    //EditPosition = positionIndex;
                     EditLength += count;
                     if (_editedTextHistoryCapacity < EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
                     {
