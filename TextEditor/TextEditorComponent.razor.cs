@@ -103,6 +103,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public async Task ArbitraryCtrlKeybindAsync(string key)
     {
+        _showContextMenu = false;
         switch (key)
         {
             case "a":
@@ -258,6 +259,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         bool shiftKey,
         int detailRank)
     {
+        _showContextMenu = false;
         if (detailRank == 1)
         {
             (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
@@ -570,14 +572,17 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
     }
 
+    private double _dropdownClientX;
+    private double _dropdownClientY;
+    private bool _showContextMenu;
+
     [JSInvokable]
     public void ReceiveContextMenu(double clientX, double clientY, double scrolledClientX, double scrolledClientY)
     {
-        // give me clientX clientY of the left top if ? or maybe cursor?
-
-
-
-        //_contextMenu = true;
+        _dropdownClientX = clientX;
+        _dropdownClientY = clientY;
+        _showContextMenu = true;
+        StateHasChanged();
     }
 
     /// <summary>

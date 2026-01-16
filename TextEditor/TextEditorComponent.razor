@@ -69,6 +69,23 @@
     }
 }
 
+@if (_showContextMenu)
+{
+    stringBuilder.Append("left:");
+    stringBuilder.Append(Math.Max(0, _dropdownClientX - Model.Measurements.ScrollbarLiteralWidth).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+    stringBuilder.Append("px;");
+    stringBuilder.Append("top:");
+    stringBuilder.Append(Math.Max(0, _dropdownClientY - Model.Measurements.ScrollbarLiteralHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+    stringBuilder.Append("px;");
+    var dropdownStyle = stringBuilder.ToString();
+    stringBuilder.Clear();
+        
+    <div class="te_tooltip"
+            style="@dropdownStyle">
+        dropdown
+    </div>
+}
+
 <div class="te_component-class"
      tabindex="-1"
      id="te_component-id">

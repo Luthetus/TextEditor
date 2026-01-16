@@ -108,6 +108,8 @@ window.textEditor = {
             });
 
             contentElement.addEventListener('contextmenu', (event) => {
+                event.preventDefault();
+
                 // button == -1; context menu button
                 // button == -1; shift + f10
                 // button == 2;  right click
