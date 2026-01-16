@@ -184,6 +184,9 @@
                 exclusiveEndDecorationIndex = Model.Length;
         }
 
+        var safeDecorationOffsetAaa = Model.EditPosition;
+        var safeDecorationOffset = Model.EditLength;
+
         while (i < endPosition)
         {
             if (exclusiveEndDecorationIndex > i)
@@ -195,8 +198,18 @@
                 @for (; i < endPosition; i++)
                 {
                     if (i < exclusiveEndDecorationIndex)
-                    {
-                        if (Model[i] != '\n' && Model.DecorationArray![i] == currentDecorationByte)
+                    {//ugh
+                        var decorationIndex = i;
+                        if (safeDecorationOffsetAaa <= i)
+                        {
+                            decorationIndex += safeDecorationOffsetAaa;
+                            if (decorationIndex >= Model.DecorationArray.Length)
+                            {
+                                decorationIndex = i;
+                            }
+                        }
+
+                        if (Model[i] != '\n' && Model.DecorationArray![decorationIndex] == currentDecorationByte)
                         {
                             switch (Model[i])
                             {
@@ -230,7 +243,7 @@
                         {
                             <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@((MarkupString)stringBuilder.ToString())</span>
                             stringBuilder.Clear();
-                            currentDecorationByte = Model.DecorationArray![i];
+                            currentDecorationByte = Model.DecorationArray![decorationIndex];
 
                             if (Model[i] == '\n')
                             {

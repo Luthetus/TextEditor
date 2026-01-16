@@ -531,6 +531,7 @@ public class TextEditorModel
     /// </summary>
     public void SquashEdits()
     {
+        /*
         if (DecorationArray is null)
             return;
 
@@ -538,6 +539,7 @@ public class TextEditorModel
 
         // hmm
         Array.Copy(DecorationArray, EditPosition, DecorationArray, EditPosition + EditLength, Length - EditPosition);
+        */
     }
 
     /// <summary>
