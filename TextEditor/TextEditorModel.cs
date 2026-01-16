@@ -289,6 +289,9 @@ public class TextEditorModel
     public void SetText(string text)
     {
         InsertTextAtPosition(text, 0, shouldMakeEditHistory: false);
+        PositionIndex = 0;
+        LineIndex = 0;
+        ColumnIndex = 0;
     }
 
     public void SelectAll()
