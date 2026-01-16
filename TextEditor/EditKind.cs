@@ -8,6 +8,6 @@ public enum EditKind
 {
     None = 0,
     InsertLtr,
-    DeleteRtl,
-    DeleteLtr,
+    RemoveBackspaceRtl,
+    RemoveDeleteLtr,
 }

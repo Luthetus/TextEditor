@@ -349,7 +349,7 @@ public class TextEditorModel
     public void InsertText(ReadOnlySpan<char> text)
     {
         if (HasSelection)
-            DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, ctrlKey: false);
+            RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: false);
 
         InsertTextAtPosition(text, PositionIndex);
     }
@@ -534,7 +534,7 @@ public class TextEditorModel
     /// <summary>
     /// This method will respect the selection if it exists
     /// </summary>
-    public virtual void DeleteTextAtPositionByCursor(DeleteByCursorKind deleteByCursorKind, bool ctrlKey)
+    public virtual void RemoveTextAtPositionByCursor(RemoveKind removeKind, bool ctrlKey)
     {
         if (HasSelection)
         {
@@ -545,34 +545,26 @@ public class TextEditorModel
 
             if (SelectionEnd < SelectionAnchor)
             {
+                removeKind = RemoveKind.DeleteLtr;
                 start = SelectionEnd;
                 end = SelectionAnchor;
-                // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
-                EditKind = EditKind.DeleteLtr;
-                EditPosition = start;
-                _editedTextHistoryCount = 0;
-                EditLength = 0;
             }
             else
             {
-                // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
-                EditKind = EditKind.DeleteRtl;
-                EditPosition = end;
-                _editedTextHistoryCount = 0;
-                EditLength = 0;
+                removeKind = RemoveKind.BackspaceRtl;
             }
 
             SelectionAnchor = -1;
             SelectionEnd = -1;
 
-            DeleteTextAtPositionByRandomAccess(start, end - start);
+            RemoveTextAtPositionByRandomAccess(start, end - start, removeKind);
             return;
         }
 
-        if (deleteByCursorKind == DeleteByCursorKind.Delete)
+        if (removeKind == RemoveKind.DeleteLtr)
         {
             EditIsUndone = false;
-            EditKind = EditKind.DeleteLtr;
+            EditKind = EditKind.RemoveDeleteLtr;
             EditPosition = PositionIndex;
             _editedTextHistoryCount = 0;
             EditLength = 0; // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
@@ -596,14 +588,14 @@ public class TextEditorModel
                         }
                     }
                 }
-                DeleteTextAtPositionByRandomAccess(PositionIndex, count);
+                RemoveTextAtPositionByRandomAccess(PositionIndex, count, RemoveKind.DeleteLtr);
             }
             else
             {
-                DeleteTextAtPositionByRandomAccess(PositionIndex, 1);
+                RemoveTextAtPositionByRandomAccess(PositionIndex, 1, RemoveKind.DeleteLtr);
             }
         }
-        else if (deleteByCursorKind == DeleteByCursorKind.Backspace)
+        else if (removeKind == RemoveKind.BackspaceRtl)
         {
             var count = 1;
             if (ctrlKey && ColumnIndex > 0)
@@ -630,27 +622,12 @@ public class TextEditorModel
                         --count;
                     }
                 }
-                if (!Validate_BatchDeleteRtl(EditIsUndone, PositionIndex - count, count))
-                {
-                    EditIsUndone = false;
-                    EditKind = EditKind.DeleteRtl;
-                    EditPosition = PositionIndex;
-                    _editedTextHistoryCount = 0;
-                    EditLength = 0; // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
-                }
-                DeleteTextAtPositionByRandomAccess(PositionIndex - count, count);
+                
+                RemoveTextAtPositionByRandomAccess(PositionIndex - count, count, RemoveKind.BackspaceRtl);
             }
             else
             {
-                if (!Validate_BatchDeleteRtl(EditIsUndone, PositionIndex - 1, count))
-                {
-                    EditIsUndone = false;
-                    EditKind = EditKind.DeleteRtl;
-                    EditPosition = PositionIndex;
-                    _editedTextHistoryCount = 0;
-                    EditLength = 0; // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
-                }
-                DeleteTextAtPositionByRandomAccess(PositionIndex - 1, 1);
+                RemoveTextAtPositionByRandomAccess(PositionIndex - 1, 1, RemoveKind.BackspaceRtl);
             }
         }
 #if DEBUG
@@ -661,9 +638,14 @@ public class TextEditorModel
 #endif
     }
 
-    private bool Validate_BatchDeleteRtl(bool editWasUndone, int positionIndex, int count)
+    private bool Validate_BatchRemoveBackspaceRtl(bool editWasUndone, int positionIndex, int count)
     {
-        return !editWasUndone && (EditPosition - EditLength - count == positionIndex);
+        return EditKind == EditKind.RemoveBackspaceRtl && !editWasUndone && (EditPosition - EditLength - count == positionIndex);
+    }
+
+    private bool Validate_BatchRemoveDeleteLtr(bool editWasUndone, int positionIndex, int count)
+    {
+        return EditKind == EditKind.RemoveDeleteLtr && !editWasUndone && EditPosition == positionIndex;
     }
 
     public void History_EnsureCapacity(int totalEditLength)
@@ -685,7 +667,7 @@ public class TextEditorModel
     /// <summary>
     /// This method ignores the selection
     /// </summary>
-    public virtual void DeleteTextAtPositionByRandomAccess(int positionIndex, int count, bool shouldMakeEditHistory = true)
+    public virtual void RemoveTextAtPositionByRandomAccess(int positionIndex, int count, RemoveKind removeKind, bool shouldMakeEditHistory = true)
     {
         if (positionIndex < 0)
             return;
@@ -696,10 +678,11 @@ public class TextEditorModel
         {
             var editWasUndone = EditIsUndone;
             EditIsUndone = false;
-            if (EditKind == EditKind.DeleteRtl)
+            if (removeKind == RemoveKind.BackspaceRtl)
             {
-                if (Validate_BatchDeleteRtl(editWasUndone, positionIndex, count))
+                if (Validate_BatchRemoveBackspaceRtl(editWasUndone, positionIndex, count))
                 {
+                    EditPosition = positionIndex;
                     History_EnsureCapacity(EditLength += count);
                     Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, _editedTextHistoryCount);
                     _editedTextHistoryCount += count;
@@ -711,7 +694,7 @@ public class TextEditorModel
                 else
                 {
                     _editedTextHistoryCount = 0;
-                    EditKind = EditKind.DeleteRtl;
+                    EditKind = EditKind.RemoveBackspaceRtl;
                     EditPosition = positionIndex;
                     History_EnsureCapacity(EditLength = count);
                     _editedTextHistoryCount = EditLength;
@@ -721,15 +704,23 @@ public class TextEditorModel
                     }
                 }
             }
-            else if (EditKind == EditKind.DeleteLtr)
+            else if (removeKind == RemoveKind.DeleteLtr)
             {
-                if (!editWasUndone && (EditPosition == positionIndex))
+                if (Validate_BatchRemoveDeleteLtr(editWasUndone, positionIndex, count))
                 {
 
                 }
                 else
                 {
-
+                    _editedTextHistoryCount = 0;
+                    EditKind = EditKind.RemoveDeleteLtr;
+                    EditPosition = positionIndex;
+                    History_EnsureCapacity(EditLength = count);
+                    _editedTextHistoryCount = EditLength;
+                    for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                    {
+                        _editedTextHistory[editHistoryIndex] = this[i];
+                    }
                 }
             }
         }

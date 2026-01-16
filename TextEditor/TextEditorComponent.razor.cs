@@ -121,7 +121,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                     if (selectedText is not null)
                     {
                         await JsRuntime.InvokeVoidAsync("textEditor.setClipboard", selectedText);
-                        Model.DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, false);
+                        Model.RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, false);
                         StateHasChanged();
                     }
                     break;
@@ -181,10 +181,10 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 Model.MoveCursor(MoveCursorKind.End, shiftKey: shiftKey, ctrlKey: ctrlKey);
                 break;
             case "Delete":
-                Model.DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, ctrlKey: ctrlKey);
+                Model.RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: ctrlKey);
                 break;
             case "Backspace":
-                Model.DeleteTextAtPositionByCursor(DeleteByCursorKind.Backspace, ctrlKey: ctrlKey);
+                Model.RemoveTextAtPositionByCursor(RemoveKind.BackspaceRtl, ctrlKey: ctrlKey);
                 break;
         }
         
@@ -481,11 +481,11 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 {
                     Model._editedTextHistory[editHistoryIndex] = Model[i];
                 }
-                Model.DeleteTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, shouldMakeEditHistory: false);
+                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
-            else if (Model.EditKind == EditKind.DeleteRtl)
+            else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
             {
                 Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
@@ -507,9 +507,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
-            else if (Model.EditKind == EditKind.DeleteRtl)
+            else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
             {
-                Model.DeleteTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, shouldMakeEditHistory: false);
+                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
