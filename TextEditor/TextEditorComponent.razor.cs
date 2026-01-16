@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Reflection;
 
 namespace TextEditor;
 
@@ -122,7 +121,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                     if (selectedText is not null)
                     {
                         await JsRuntime.InvokeVoidAsync("textEditor.setClipboard", selectedText);
-                        Model.DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, false);
+                        Model.RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, false);
                         StateHasChanged();
                     }
                     break;
@@ -182,10 +181,10 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 Model.MoveCursor(MoveCursorKind.End, shiftKey: shiftKey, ctrlKey: ctrlKey);
                 break;
             case "Delete":
-                Model.DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, ctrlKey: ctrlKey);
+                Model.RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: ctrlKey);
                 break;
             case "Backspace":
-                Model.DeleteTextAtPositionByCursor(DeleteByCursorKind.Backspace, ctrlKey: ctrlKey);
+                Model.RemoveTextAtPositionByCursor(RemoveKind.BackspaceRtl, ctrlKey: ctrlKey);
                 break;
         }
         
@@ -470,32 +469,29 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnUndo()
     {
-        if (Model.EditKind != EditKind.None && !Model.IsUndone)
+        if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
-            Model.IsUndone = true;
-            if (Model.EditKind == EditKind.Insert)
+            Model.EditIsUndone = true;
+            if (Model.EditKind == EditKind.InsertLtr)
             {
                 Model._editedTextHistoryCount = 0;
-                if (Model._editedTextHistoryCapacity < Model.EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
-                {
-                    int newCapacity = Model._editedTextHistoryCapacity * 2;
-                    // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
-                    // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-                    if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                    if (newCapacity < Model.EditLength) newCapacity = Model.EditLength;
-
-                    Model._editedTextHistory = new char[newCapacity];
-                }
+                Model.History_EnsureCapacity(Model.EditLength);
                 Model._editedTextHistoryCount = Model.EditLength;
                 for (int editHistoryIndex = 0, i = Model.EditPosition; editHistoryIndex < Model.EditLength; editHistoryIndex++, i++)
                 {
                     Model._editedTextHistory[editHistoryIndex] = Model[i];
                 }
-                Model.DeleteTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, shouldMakeEditHistory: false);
+                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
-            else if (Model.EditKind == EditKind.Delete)
+            else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
+            {
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.PositionIndex = Model.EditPosition + Model.EditLength;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
+            else if (Model.EditKind == EditKind.RemoveDeleteLtr)
             {
                 Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
@@ -508,18 +504,24 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnRedo()
     {
-        if (Model.EditKind != EditKind.None && Model.IsUndone)
+        if (Model.EditKind != EditKind.None && Model.EditIsUndone)
         {
-            Model.IsUndone = false;
-            if (Model.EditKind == EditKind.Insert)
+            Model.EditIsUndone = false;
+            if (Model.EditKind == EditKind.InsertLtr)
             {
                 Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
-            else if (Model.EditKind == EditKind.Delete)
+            else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
             {
-                Model.DeleteTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, shouldMakeEditHistory: false);
+                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
+                Model.PositionIndex = Model.EditPosition;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
+            else if (Model.EditKind == EditKind.RemoveDeleteLtr)
+            {
+                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }

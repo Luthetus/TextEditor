@@ -34,7 +34,7 @@ public class TextEditorModel
     public int _editedTextHistoryCapacity => _editedTextHistory.Length;
     public int _editedTextHistoryCount;
     public char[] _editedTextHistory = new char[4];
-    public bool IsUndone;
+    public bool EditIsUndone;
     public int EditPosition;
     public int EditLength;
     public EditKind EditKind = EditKind.None;
@@ -349,7 +349,7 @@ public class TextEditorModel
     public void InsertText(ReadOnlySpan<char> text)
     {
         if (HasSelection)
-            DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, ctrlKey: false);
+            RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: false);
 
         InsertTextAtPosition(text, PositionIndex);
     }
@@ -516,15 +516,15 @@ public class TextEditorModel
 
         if (shouldMakeEditHistory)
         {
-            IsUndone = false;
-            if (EditKind == EditKind.Insert && EditPosition + EditLength == entryPositionIndex)
+            var editWasUndone = EditIsUndone;
+            EditIsUndone = false;
+            if (!editWasUndone && (EditKind == EditKind.InsertLtr && EditPosition + EditLength == entryPositionIndex))
             {
-                EditKind = EditKind.Insert;
                 EditLength += positionIndex - entryPositionIndex;
             }
             else
             {
-                EditKind = EditKind.Insert;
+                EditKind = EditKind.InsertLtr;
                 EditPosition = entryPositionIndex;
                 EditLength = positionIndex - entryPositionIndex;
             }
@@ -534,24 +534,34 @@ public class TextEditorModel
     /// <summary>
     /// This method will respect the selection if it exists
     /// </summary>
-    public virtual void DeleteTextAtPositionByCursor(DeleteByCursorKind deleteByCursorKind, bool ctrlKey)
+    public virtual void RemoveTextAtPositionByCursor(RemoveKind removeKind, bool ctrlKey)
     {
         if (HasSelection)
         {
+            EditIsUndone = false;
+
             var start = SelectionAnchor;
             var end = SelectionEnd;
+
             if (SelectionEnd < SelectionAnchor)
             {
+                removeKind = RemoveKind.DeleteLtr;
                 start = SelectionEnd;
                 end = SelectionAnchor;
             }
+            else
+            {
+                removeKind = RemoveKind.BackspaceRtl;
+            }
+
             SelectionAnchor = -1;
             SelectionEnd = -1;
-            DeleteTextAtPositionByRandomAccess(start, end - start);
+
+            RemoveTextAtPositionByRandomAccess(start, end - start, removeKind);
             return;
         }
 
-        if (deleteByCursorKind == DeleteByCursorKind.Delete)
+        if (removeKind == RemoveKind.DeleteLtr)
         {
             if (ctrlKey)
             {
@@ -572,14 +582,14 @@ public class TextEditorModel
                         }
                     }
                 }
-                DeleteTextAtPositionByRandomAccess(PositionIndex, count);
+                RemoveTextAtPositionByRandomAccess(PositionIndex, count, RemoveKind.DeleteLtr);
             }
             else
             {
-                DeleteTextAtPositionByRandomAccess(PositionIndex, 1);
+                RemoveTextAtPositionByRandomAccess(PositionIndex, 1, RemoveKind.DeleteLtr);
             }
         }
-        else if (deleteByCursorKind == DeleteByCursorKind.Backspace)
+        else if (removeKind == RemoveKind.BackspaceRtl)
         {
             var count = 1;
             if (ctrlKey && ColumnIndex > 0)
@@ -606,11 +616,12 @@ public class TextEditorModel
                         --count;
                     }
                 }
-                DeleteTextAtPositionByRandomAccess(PositionIndex - count, count);
+                
+                RemoveTextAtPositionByRandomAccess(PositionIndex - count, count, RemoveKind.BackspaceRtl);
             }
             else
             {
-                DeleteTextAtPositionByRandomAccess(PositionIndex - 1, 1);
+                RemoveTextAtPositionByRandomAccess(PositionIndex - 1, 1, RemoveKind.BackspaceRtl);
             }
         }
 #if DEBUG
@@ -621,10 +632,36 @@ public class TextEditorModel
 #endif
     }
 
+    private bool Validate_BatchRemoveBackspaceRtl(bool editWasUndone, int positionIndex, int count)
+    {
+        return EditKind == EditKind.RemoveBackspaceRtl && !editWasUndone && (positionIndex + count == EditPosition);
+    }
+
+    private bool Validate_BatchRemoveDeleteLtr(bool editWasUndone, int positionIndex, int count)
+    {
+        return EditKind == EditKind.RemoveDeleteLtr && !editWasUndone && EditPosition == positionIndex;
+    }
+
+    public void History_EnsureCapacity(int totalEditLength)
+    {
+        if (_editedTextHistoryCapacity >= totalEditLength)
+            return;
+        
+        int newCapacity = _editedTextHistoryCapacity * 2;
+        // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
+        // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
+        if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
+        if (newCapacity < totalEditLength) newCapacity = totalEditLength;
+
+        var newArray = new char[newCapacity];
+        Array.Copy(_editedTextHistory, 0, newArray, 0, _editedTextHistoryCount);
+        _editedTextHistory = newArray;
+    }
+
     /// <summary>
     /// This method ignores the selection
     /// </summary>
-    public virtual void DeleteTextAtPositionByRandomAccess(int positionIndex, int count, bool shouldMakeEditHistory = true)
+    public virtual void RemoveTextAtPositionByRandomAccess(int positionIndex, int count, RemoveKind removeKind, bool shouldMakeEditHistory = true)
     {
         if (positionIndex < 0)
             return;
@@ -633,50 +670,56 @@ public class TextEditorModel
 
         if (shouldMakeEditHistory)
         {
-            IsUndone = false;
-            if (EditPosition - count == positionIndex)
-            {// you know if it is delete or backspace based on relative poistion like tlength or nsomething may?
-                EditPosition = positionIndex;
-                EditLength += count;
-                if (_editedTextHistoryCapacity < EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
+            var editWasUndone = EditIsUndone;
+            EditIsUndone = false;
+            if (removeKind == RemoveKind.BackspaceRtl)
+            {
+                if (Validate_BatchRemoveBackspaceRtl(editWasUndone, positionIndex, count))
                 {
-                    int newCapacity = _editedTextHistoryCapacity * 2;
-                    // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
-                    // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-                    if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                    if (newCapacity < EditLength) newCapacity = EditLength;
-
-                    var newArray = new char[newCapacity];
-                    Array.Copy(_editedTextHistory, 0, newArray, 0, _editedTextHistoryCount);
-                    _editedTextHistory = newArray;
+                    EditPosition = positionIndex;
+                    History_EnsureCapacity(EditLength += count);
+                    Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, _editedTextHistoryCount);
+                    _editedTextHistoryCount += count;
+                    for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
+                    {
+                        _editedTextHistory[editHistoryIndex] = this[i];
+                    }
                 }
-                Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, _editedTextHistoryCount);
-                _editedTextHistoryCount += count;
-                for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
+                else
                 {
-                    _editedTextHistory[editHistoryIndex] = this[i];
+                    _editedTextHistoryCount = 0;
+                    EditKind = EditKind.RemoveBackspaceRtl;
+                    EditPosition = positionIndex;
+                    History_EnsureCapacity(EditLength = count);
+                    _editedTextHistoryCount = EditLength;
+                    for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                    {
+                        _editedTextHistory[editHistoryIndex] = this[i];
+                    }
                 }
             }
-            else
+            else if (removeKind == RemoveKind.DeleteLtr)
             {
-                _editedTextHistoryCount = 0;
-                EditKind = EditKind.Delete;
-                EditPosition = positionIndex;
-                EditLength = count;
-                if (_editedTextHistoryCapacity < EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
+                if (Validate_BatchRemoveDeleteLtr(editWasUndone, positionIndex, count))
                 {
-                    int newCapacity = _editedTextHistoryCapacity * 2;
-                    // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
-                    // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-                    if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                    if (newCapacity < EditLength) newCapacity = EditLength;
-
-                    _editedTextHistory = new char[newCapacity];
+                    History_EnsureCapacity(EditLength += count);
+                    for (int editHistoryIndex = _editedTextHistoryCount, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                    {
+                        _editedTextHistory[editHistoryIndex] = this[i];
+                    }
+                    _editedTextHistoryCount = EditLength;
                 }
-                _editedTextHistoryCount = EditLength;
-                for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                else
                 {
-                    _editedTextHistory[editHistoryIndex] = this[i];
+                    _editedTextHistoryCount = 0;
+                    EditKind = EditKind.RemoveDeleteLtr;
+                    EditPosition = positionIndex;
+                    History_EnsureCapacity(EditLength = count);
+                    _editedTextHistoryCount = EditLength;
+                    for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                    {
+                        _editedTextHistory[editHistoryIndex] = this[i];
+                    }
                 }
             }
         }
