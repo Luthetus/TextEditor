@@ -516,6 +516,7 @@ public class TextEditorModel
 
         if (shouldMakeEditHistory)
         {
+            IsUndone = false;
             if (EditKind == EditKind.Insert && EditPosition + EditLength == entryPositionIndex)
             {
                 EditKind = EditKind.Insert;
@@ -632,10 +633,29 @@ public class TextEditorModel
 
         if (shouldMakeEditHistory)
         {
+            IsUndone = false;
             if (EditPosition - count == positionIndex)
-            {
+            {// you know if it is delete or backspace based on relative poistion like tlength or nsomething may?
                 EditPosition = positionIndex;
                 EditLength += count;
+                if (_editedTextHistoryCapacity < EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
+                {
+                    int newCapacity = _editedTextHistoryCapacity * 2;
+                    // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
+                    // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
+                    if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
+                    if (newCapacity < EditLength) newCapacity = EditLength;
+
+                    var newArray = new char[newCapacity];
+                    Array.Copy(_editedTextHistory, 0, newArray, 0, _editedTextHistoryCount);
+                    _editedTextHistory = newArray;
+                }
+                Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, _editedTextHistoryCount);
+                _editedTextHistoryCount += count;
+                for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
+                {
+                    _editedTextHistory[editHistoryIndex] = this[i];
+                }
             }
             else
             {
