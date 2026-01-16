@@ -1222,15 +1222,35 @@ public class TextEditorModel
     }
 
     /// <summary>
+    
+    /// </summary>
+    public bool Shrink()
+    {
+        return false;
+        
+    }
+
+    /// <summary>
+    /// Copy, paste, modify; of List.TrimExcess() source code.
+    /// 
     /// Ensure the editor will shrink the size of its internal buffers if asked to do so,
     /// and it is possible to do so.
     /// 
     /// Returns true if any buffers were successfully shrunk.
     /// Otherwise, returns false if no buffers were able to be shrunk.
+    /// 
+    /// List source code has this comment (the indented text):
+    ///     To completely clear a list and
+    ///     release all memory referenced by the list, execute the following
+    ///     statements:
+    ///     
+    ///     list.Clear();
+    ///     list.TrimExcess();
+    ///     
+    /// And I'll support that as well.
     /// </summary>
-    public bool Shrink()
+    public void TrimExcess()
     {
-        return false;
         /*
         readonly StringBuilder _textBuilder = new();
         char[] _editedTextHistory = new char[4];
@@ -1240,5 +1260,10 @@ public class TextEditorModel
         byte[]? DecorationArray => _decorationArray;
         byte[]? _decorationArray = null;
         */
+        int threshold = (int)(((double)_items.Length) * 0.9);
+        if (_size < threshold)
+        {
+            Capacity = _size;
+        }
     }
 }
