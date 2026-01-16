@@ -514,11 +514,18 @@ public class TextEditorModel
             }
             else
             {
+                SquashEdits();
+
                 EditKind = EditKind.InsertLtr;
                 EditPosition = entryPositionIndex;
                 EditLength = positionIndex - entryPositionIndex;
             }
         }
+    }
+
+    public void SquashEdits()
+    {
+
     }
 
     /// <summary>
@@ -677,6 +684,7 @@ public class TextEditorModel
                 }
                 else
                 {
+                    SquashEdits();
                     _editedTextHistoryCount = 0;
                     EditKind = EditKind.RemoveBackspaceRtl;
                     EditPosition = positionIndex;
@@ -701,6 +709,7 @@ public class TextEditorModel
                 }
                 else
                 {
+                    SquashEdits();
                     _editedTextHistoryCount = 0;
                     EditKind = EditKind.RemoveDeleteLtr;
                     EditPosition = positionIndex;
