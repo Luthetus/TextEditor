@@ -495,6 +495,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
+            else if (Model.EditKind == EditKind.Delete)
+            {
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.PositionIndex = Model.EditPosition;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
             StateHasChanged();
         }
     }
@@ -509,6 +515,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             {
                 Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
+            else if (Model.EditKind == EditKind.Delete)
+            {
+                Model.DeleteTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, shouldMakeEditHistory: false);
+                Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             StateHasChanged();

@@ -4,4 +4,5 @@ public enum EditKind
 {
     None = 0,
     Insert,
+    Delete,
 }
