@@ -30,6 +30,11 @@ public class TextEditorModel
     public int ColumnIndex { get; set; }
     
     public TextEditorMeasurements Measurements { get; set; }
+
+    private List<char> _editedTextHistory = new();
+    public int EditPosition;
+    public int EditLength;
+    public EditKind EditKind = EditKind.None;
     
     /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
@@ -504,6 +509,18 @@ public class TextEditorModel
         {
             PositionIndex += positionIndex - entryPositionIndex;
             (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+        }
+
+        if (EditKind == EditKind.Insert && EditPosition + EditLength == entryPositionIndex)
+        {
+            EditKind = EditKind.Insert;
+            EditLength += positionIndex - entryPositionIndex;
+        }
+        else
+        {
+            EditKind = EditKind.Insert;
+            EditPosition = entryPositionIndex;
+            EditLength = positionIndex - entryPositionIndex;
         }
     }
 
