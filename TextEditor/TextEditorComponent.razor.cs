@@ -491,6 +491,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
+            else if (Model.EditKind == EditKind.RemoveDeleteLtr)
+            {
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.PositionIndex = Model.EditPosition;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
             StateHasChanged();
         }
     }
@@ -508,6 +514,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
+            {
+                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
+                Model.PositionIndex = Model.EditPosition;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
+            else if (Model.EditKind == EditKind.RemoveDeleteLtr)
             {
                 Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
