@@ -4,7 +4,7 @@ namespace TextEditor;
 
 public class TextEditorModel
 {
-    private readonly StringBuilder _textBuilder = new();
+    protected readonly StringBuilder _textBuilder = new();
 
     public char this[int key]
     {
@@ -80,13 +80,13 @@ public class TextEditorModel
     /// This list is expected to be sorted.
     /// </summary>
     public byte[]? DecorationArray => _decorationArray;
-    private byte[]? _decorationArray = null;
-    private int DecorationArrayCapacity => _decorationArrayCapacity;
-    private int _decorationArrayCapacity = 0;
+    protected byte[]? _decorationArray = null;
+    protected int DecorationArrayCapacity => _decorationArrayCapacity;
+    protected int _decorationArrayCapacity = 0;
     public const byte NoneDecorationByte = 0;
     public const byte KeywordDecorationByte = 1;
-    
-    private const int _defaultCapacity = 4;
+
+    protected const int _defaultCapacity = 4;
 
     public virtual int GetTabCountOnSameLinePriorToCursor()
     {
@@ -360,7 +360,7 @@ public class TextEditorModel
     public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex) =>
         InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));
 
-    private void InsertTextAtPosition_InsertLineBreak(ref int lineBreakInsertedIndex, ref int lineBreakInsertedCount, int entryPositionIndex, int positionIndex)
+    protected void InsertTextAtPosition_InsertLineBreak(ref int lineBreakInsertedIndex, ref int lineBreakInsertedCount, int entryPositionIndex, int positionIndex)
     {
         if (lineBreakInsertedIndex == -1)
         {
@@ -387,8 +387,8 @@ public class TextEditorModel
 
         LineBreakPositionList.Insert(lineBreakInsertedIndex + lineBreakInsertedCount++, positionIndex);
     }
-    
-    private void InsertTextAtPosition_InsertTab(ref int tabInsertedIndex, ref int tabInsertedCount, int entryPositionIndex, int positionIndex)
+
+    protected void InsertTextAtPosition_InsertTab(ref int tabInsertedIndex, ref int tabInsertedCount, int entryPositionIndex, int positionIndex)
     {
         if (tabInsertedIndex == -1)
         {
@@ -622,12 +622,12 @@ public class TextEditorModel
 #endif
     }
 
-    private bool Validate_BatchRemoveBackspaceRtl(bool editWasUndone, int positionIndex, int count)
+    protected bool Validate_BatchRemoveBackspaceRtl(bool editWasUndone, int positionIndex, int count)
     {
         return EditKind == EditKind.RemoveBackspaceRtl && !editWasUndone && (positionIndex + count == EditPosition);
     }
 
-    private bool Validate_BatchRemoveDeleteLtr(bool editWasUndone, int positionIndex, int count)
+    protected bool Validate_BatchRemoveDeleteLtr(bool editWasUndone, int positionIndex, int count)
     {
         return EditKind == EditKind.RemoveDeleteLtr && !editWasUndone && EditPosition == positionIndex;
     }
@@ -1021,130 +1021,6 @@ public class TextEditorModel
 
     public virtual void ReceiveKeyboardDebounce()
     {
-        if (TooltipList is not null)
-            TooltipList.Clear();
-        Decorate(0, _textBuilder.Length, NoneDecorationByte);
-
-        int position = 0;
-        while (position < _textBuilder.Length)
-        {
-            switch (_textBuilder[position])
-            {
-                /* Lowercase Letters */
-                case 'a':
-                case 'b':
-                case 'c':
-                case 'd':
-                case 'e':
-                case 'f':
-                case 'g':
-                case 'h':
-                case 'i':
-                case 'j':
-                case 'k':
-                case 'l':
-                case 'm':
-                case 'n':
-                case 'o':
-                case 'p':
-                case 'q':
-                case 'r':
-                case 's':
-                case 't':
-                case 'u':
-                case 'v':
-                case 'w':
-                case 'x':
-                case 'y':
-                case 'z':
-                /* Uppercase Letters */
-                case 'A':
-                case 'B':
-                case 'C':
-                case 'D':
-                case 'E':
-                case 'F':
-                case 'G':
-                case 'H':
-                case 'I':
-                case 'J':
-                case 'K':
-                case 'L':
-                case 'M':
-                case 'N':
-                case 'O':
-                case 'P':
-                case 'Q':
-                case 'R':
-                case 'S':
-                case 'T':
-                case 'U':
-                case 'V':
-                case 'W':
-                case 'X':
-                case 'Y':
-                case 'Z':
-                /* Underscore */
-                case '_':
-                    LexIdentifierOrKeywordOrKeywordContextual(ref position);
-                    break;
-            }
-
-            ++position;
-        }
-    }
-
-    private void LexIdentifierOrKeywordOrKeywordContextual(ref int position)
-    {
-        var entryPosition = position;
-        int characterIntSum = 0;
-
-        while (position < _textBuilder.Length)
-        {
-            if (!char.IsLetterOrDigit(_textBuilder[position]) &&
-                _textBuilder[position] != '_')
-            {
-                break;
-            }
-
-            characterIntSum += _textBuilder[position];
-            ++position;
-        }
-
-        var textSpanLength = position - entryPosition;
-
-        // t 116
-        // e 101
-        // s 115
-        // t 116
-        // =====
-        //   448
-
-        switch (characterIntSum)
-        {
-            case 448: // test
-                if (textSpanLength == 4 &&
-                    _textBuilder[entryPosition + 0] == 't' &&
-                    _textBuilder[entryPosition + 1] == 'e' &&
-                    _textBuilder[entryPosition + 2] == 's' &&
-                    _textBuilder[entryPosition + 3] == 't')
-                {
-                    if (DecorationArray is not null)
-                    {
-                        Decorate(entryPosition, position, KeywordDecorationByte);
-                    }
-
-                    if (TooltipList is not null)
-                    {
-                        TooltipList.Add(new TextEditorTooltip(
-                            entryPosition,
-                            position,
-                            foreignKey: 0,
-                            byteKind: TextTooltipByteKind));
-                    }
-                }
-                break;
-        }
     }
 
     /// <summary>

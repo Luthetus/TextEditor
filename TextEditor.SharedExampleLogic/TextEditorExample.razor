@@ -62,7 +62,7 @@
     protected override void OnInitialized()
     {
         _model.TooltipList = new();
-        _model.SetText("test.abc\r\ndfg.test\r\naaaaaaaaaaaaaaaaaaaaaaa\r\nbbbbbbbbbbbbbbbbbbbbbb\r\ncccccccccccccccccccccccc\r\nddddddddddddddddd\r\neeeeeeeeeeeeeeeeee");
+        _model.SetText(_someCSharpText);
         _model.TooltipList.Add(new TextEditorTooltip(
             startPositionIndex: 0,
             endPositionIndex: 1,
