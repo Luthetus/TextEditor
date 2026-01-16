@@ -197,6 +197,12 @@ window.textEditor = {
                             event.preventDefault();
                             dotNetHelper.invokeMethodAsync("ArbitraryCtrlKeybindAsync", event.key);
                             break;
+                        case "z":
+                            dotNetHelper.invokeMethodAsync("OnUndo");
+                            break;
+                        case "y":
+                            dotNetHelper.invokeMethodAsync("OnRedo");
+                            break;
                         default:
                             dotNetHelper.invokeMethodAsync(
                                 "OnKeydown",

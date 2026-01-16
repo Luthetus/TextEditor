@@ -467,6 +467,18 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     }
 
     [JSInvokable]
+    public void OnUndo()
+    {
+        JsRuntime.InvokeVoidAsync("alert", "OnUndo");
+    }
+    
+    [JSInvokable]
+    public void OnRedo()
+    {
+        JsRuntime.InvokeVoidAsync("alert", "OnRedo");
+    }
+
+    [JSInvokable]
     public void ReceiveTooltip(double clientX, double clientY, double scrolledClientX, double scrolledClientY)
     {
         if (Model.TooltipList is null)
