@@ -62,7 +62,7 @@ public class TextEditorModel
 
     public int LineCount => LineBreakPositionList.Count + 1;
 
-    public bool HasSelection => SelectionAnchor != -1 && SelectionAnchor != SelectionEnd;
+    public bool HasSelection => SelectionAnchor != SelectionEnd;
 
     /// <summary>
     /// The position index
@@ -281,8 +281,8 @@ public class TextEditorModel
         }
         else
         {
-            SelectionAnchor = -1;
-            SelectionEnd = -1;
+            SelectionAnchor = 0;
+            SelectionEnd = 0;
         }
     }
 
@@ -525,8 +525,8 @@ public class TextEditorModel
                 removeKind = RemoveKind.BackspaceRtl;
             }
 
-            SelectionAnchor = -1;
-            SelectionEnd = -1;
+            SelectionAnchor = 0;
+            SelectionEnd = 0;
 
             RemoveTextAtPositionByRandomAccess(start, end - start, removeKind);
             return;
