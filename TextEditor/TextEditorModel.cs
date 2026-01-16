@@ -661,8 +661,8 @@ public class TextEditorModel
             EditIsUndone = false;
             if (EditKind == EditKind.DeleteRtl)
             {
-                if (EditPosition - count == positionIndex)
-                {// you know if it is delete or backspace based on relative poistion like tlength or nsomething may?
+                if (EditLength == 0 || EditPosition - count == positionIndex)
+                {
                     EditPosition = positionIndex;
                     EditLength += count;
                     if (_editedTextHistoryCapacity < EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
@@ -709,7 +709,14 @@ public class TextEditorModel
             }
             else if (EditKind == EditKind.DeleteLtr)
             {
+                if (EditLength == 0 || EditPosition == positionIndex)
+                {
 
+                }
+                else
+                {
+
+                }
             }
         }
 
