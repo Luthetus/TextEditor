@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 
 namespace TextEditor;
@@ -288,6 +289,20 @@ public class TextEditorModel
 
     public void SetText(string text)
     {
+        _textBuilder.Clear();
+        LineBreakPositionList.Clear();
+        TabPositionList.Clear();
+        PositionIndex = 0;
+        LineIndex = 0;
+        ColumnIndex = 0;
+        SelectionAnchor = 0;
+        SelectionEnd = 0;
+        _editedTextHistoryCount = 0;
+        EditIsUndone = false;
+        EditPosition = 0;
+        EditLength = 0;
+        EditKind = EditKind.None;
+
         InsertTextAtPosition(text, 0, shouldMakeEditHistory: false);
         PositionIndex = 0;
         LineIndex = 0;
