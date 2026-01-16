@@ -486,6 +486,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 
                     Model._editedTextHistory = new char[newCapacity];
                 }
+                Model._editedTextHistoryCount = Model.EditLength;
                 for (int editHistoryIndex = 0, i = Model.EditPosition; editHistoryIndex < Model.EditLength; editHistoryIndex++, i++)
                 {
                     Model._editedTextHistory[editHistoryIndex] = Model[i];
@@ -506,7 +507,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             Model.IsUndone = false;
             if (Model.EditKind == EditKind.Insert)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistory.Length), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
