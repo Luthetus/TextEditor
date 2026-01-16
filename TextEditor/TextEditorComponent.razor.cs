@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Reflection;
 
 namespace TextEditor;
 
@@ -78,14 +79,12 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         Model.Measurements = _measurements;
     }
 
-    private int _scrollCount = 0;
     private double _scrollTop;
     private double _textEditorHeight;
 
     [JSInvokable]
     public void OnScroll(double scrollTop, double textEditorHeight)
     {
-        ++_scrollCount;
         _scrollTop = scrollTop;
         _textEditorHeight = textEditorHeight;
         StateHasChanged();
@@ -465,6 +464,54 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             Model.SelectionEnd = Model.PositionIndex - count;
             Model.PositionIndex = Model.SelectionEnd;
             (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+        }
+    }
+
+    [JSInvokable]
+    public void OnUndo()
+    {
+        if (Model.EditKind != EditKind.None && !Model.IsUndone)
+        {
+            Model.IsUndone = true;
+            if (Model.EditKind == EditKind.Insert)
+            {
+                Model._editedTextHistoryCount = 0;
+                if (Model._editedTextHistoryCapacity < Model.EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
+                {
+                    int newCapacity = Model._editedTextHistoryCapacity * 2;
+                    // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
+                    // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
+                    if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
+                    if (newCapacity < Model.EditLength) newCapacity = Model.EditLength;
+
+                    Model._editedTextHistory = new char[newCapacity];
+                }
+                Model._editedTextHistoryCount = Model.EditLength;
+                for (int editHistoryIndex = 0, i = Model.EditPosition; editHistoryIndex < Model.EditLength; editHistoryIndex++, i++)
+                {
+                    Model._editedTextHistory[editHistoryIndex] = Model[i];
+                }
+                Model.DeleteTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, shouldMakeEditHistory: false);
+                Model.PositionIndex = Model.EditPosition;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
+            StateHasChanged();
+        }
+    }
+    
+    [JSInvokable]
+    public void OnRedo()
+    {
+        if (Model.EditKind != EditKind.None && Model.IsUndone)
+        {
+            Model.IsUndone = false;
+            if (Model.EditKind == EditKind.Insert)
+            {
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.PositionIndex = Model.EditPosition + Model.EditLength;
+                (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
+            }
+            StateHasChanged();
         }
     }
 

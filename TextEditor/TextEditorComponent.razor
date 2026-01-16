@@ -27,9 +27,6 @@
     //
     var stringBuilder = new StringBuilder(capacity: 128);
 
-
-
-
     int startLineIndex;
     if (_measurements.LineHeight != 0)
         startLineIndex = ((int)(_scrollTop / _measurements.LineHeight) - 1);
@@ -39,12 +36,13 @@
 
     int endLineIndex = startLineIndex + ((int)(_textEditorHeight / _measurements.LineHeight) + 1);
     if (endLineIndex > Model.LineBreakPositionList.Count + 1) endLineIndex = Model.LineBreakPositionList.Count + 1;
-
-
-    
 }
 
-
+<div>
+    _editKind:@Model.EditKind<br/>
+    _editPosition:@Model.EditPosition<br/>
+    _editLength:@Model.EditLength<br/>
+</div>
 
 @if (_tooltipOccurred)
 {
@@ -215,8 +213,6 @@
                 exclusiveEndDecorationIndex = Model.Length;
         }
 
-        
-
         while (i < endPosition)
         {
             if (exclusiveEndDecorationIndex > i)
@@ -337,25 +333,6 @@
             </div>
         }
     }
-
-    @*
-    @if (Model.DecorationArray is null || Model.DecorationArray.Length < endPosition || Model.DecorationArray.Length == 0)
-    {
-        // I'm just going to avoid the decorations if things look sketchy.
-        // I need to figure out how to do this with good precision.
-        //
-        // In the IDE repo, I put the character and the decoration byte as a singular struct.
-        // Thus the Content and the decorations are in the same "List".
-        // But that forces you to carry around decorations even if you don't intend on using them...
-        int i = 0;
-
-
-    }
-    else
-    {
-
-    }
-    *@
 
     @{
         var tabCountOnSameLinePriorToCursor = Model.GetTabCountOnSameLinePriorToCursor();
