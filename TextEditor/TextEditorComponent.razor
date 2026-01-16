@@ -38,54 +38,6 @@
     if (endLineIndex > Model.LineBreakPositionList.Count + 1) endLineIndex = Model.LineBreakPositionList.Count + 1;
 }
 
-<div>
-    _editKind:@Model.EditKind<br/>
-    _editPosition:@Model.EditPosition<br/>
-    _editLength:@Model.EditLength<br/>
-</div>
-
-@if (_tooltipOccurred)
-{
-    var tooltipText = Model.GetTooltipText(_tooltip);
-    if (tooltipText is null)
-    {
-        _tooltipOccurred = false;
-    }
-    else
-    {
-        stringBuilder.Append("left:");
-        stringBuilder.Append(Math.Max(0, _tooltipClientX - Model.Measurements.ScrollbarLiteralWidth).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-        stringBuilder.Append("px;");
-        stringBuilder.Append("top:");
-        stringBuilder.Append(Math.Max(0, _tooltipClientY - Model.Measurements.ScrollbarLiteralHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-        stringBuilder.Append("px;");
-        var tooltipStyle = stringBuilder.ToString();
-        stringBuilder.Clear();
-        
-        <div class="te_tooltip"
-             style="@tooltipStyle">
-            @tooltipText
-        </div>
-    }
-}
-
-@if (_showContextMenu)
-{
-    stringBuilder.Append("left:");
-    stringBuilder.Append(Math.Max(0, _dropdownClientX - Model.Measurements.ScrollbarLiteralWidth).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-    stringBuilder.Append("px;");
-    stringBuilder.Append("top:");
-    stringBuilder.Append(Math.Max(0, _dropdownClientY - Model.Measurements.ScrollbarLiteralHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-    stringBuilder.Append("px;");
-    var dropdownStyle = stringBuilder.ToString();
-    stringBuilder.Clear();
-        
-    <div class="te_tooltip"
-            style="@dropdownStyle">
-        dropdown
-    </div>
-}
-
 <div class="te_component-class"
      tabindex="-1"
      id="te_component-id">
@@ -377,6 +329,48 @@
          style="@cursorStyle">
     </div>
 </div>
+
+@if (_tooltipOccurred)
+{
+    var tooltipText = Model.GetTooltipText(_tooltip);
+    if (tooltipText is null)
+    {
+        _tooltipOccurred = false;
+    }
+    else
+    {
+        stringBuilder.Append("left:");
+        stringBuilder.Append(Math.Max(0, _tooltipClientX - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("top:");
+        stringBuilder.Append(Math.Max(0, _tooltipClientY - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var tooltipStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+
+        <div class="te_tooltip"
+             style="@tooltipStyle">
+            @tooltipText
+        </div>
+    }
+}
+
+@if (_showContextMenu)
+{
+    stringBuilder.Append("left:");
+    stringBuilder.Append(Math.Max(0, _dropdownClientX - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+    stringBuilder.Append("px;");
+    stringBuilder.Append("top:");
+    stringBuilder.Append(Math.Max(0, _dropdownClientY - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+    stringBuilder.Append("px;");
+    var dropdownStyle = stringBuilder.ToString();
+    stringBuilder.Clear();
+
+    <div class="te_tooltip"
+         style="@dropdownStyle">
+        dropdown
+    </div>
+}
 
 @* 
 <div class="te_debug-info">
