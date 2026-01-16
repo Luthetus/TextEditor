@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextEditor.WasmExample", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextEditor", "TextEditor\TextEditor.csproj", "{459B272D-F9B6-4801-B08B-0E79429B14EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextEditorTests", "TextEditorTests\TextEditorTests.csproj", "{BDB0072C-0C0E-40B5-A74A-1699858613AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{459B272D-F9B6-4801-B08B-0E79429B14EC}.Release|x64.Build.0 = Release|Any CPU
 		{459B272D-F9B6-4801-B08B-0E79429B14EC}.Release|x86.ActiveCfg = Release|Any CPU
 		{459B272D-F9B6-4801-B08B-0E79429B14EC}.Release|x86.Build.0 = Release|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Debug|x64.Build.0 = Debug|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Debug|x86.Build.0 = Debug|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Release|x64.ActiveCfg = Release|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Release|x64.Build.0 = Release|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Release|x86.ActiveCfg = Release|Any CPU
+		{BDB0072C-0C0E-40B5-A74A-1699858613AB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
