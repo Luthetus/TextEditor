@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 namespace TextEditor;
@@ -102,6 +103,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public async Task ArbitraryCtrlKeybindAsync(string key)
     {
+        _showContextMenu = false;
         switch (key)
         {
             case "a":
@@ -257,6 +259,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         bool shiftKey,
         int detailRank)
     {
+        _showContextMenu = false;
         if (detailRank == 1)
         {
             (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
@@ -568,7 +571,20 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             StateHasChanged();
         }
     }
-    
+
+    private double _dropdownClientX;
+    private double _dropdownClientY;
+    private bool _showContextMenu;
+
+    [JSInvokable]
+    public void ReceiveContextMenu(double clientX, double clientY, double scrolledClientX, double scrolledClientY)
+    {
+        _dropdownClientX = clientX;
+        _dropdownClientY = clientY;
+        _showContextMenu = true;
+        StateHasChanged();
+    }
+
     /// <summary>
     /// Be very careful with this method, the Y axis comes first because it is mirroring "line, column"
     /// </summary>
@@ -635,7 +651,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 supposedColumnIndex
             );
     }
-    
+
     public void Dispose()
     {
         _dotNetHelper?.Dispose();
