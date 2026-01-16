@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "TextEditor.WasmExample",
   "resources": {
-    "hash": "sha256-iuI2+xmIlNoZdgb/Mfdda9T8numRxr7mI47rjSyvCig=",
+    "hash": "sha256-oLqtCbwznno2w70P+pkkxTTsSrJO/6adyADT5V8OfO8=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Components.inh0vi34ig.wasm": "Microsoft.AspNetCore.Components.wasm",
       "Microsoft.AspNetCore.Components.Web.akqz85au1m.wasm": "Microsoft.AspNetCore.Components.Web.wasm",
@@ -36,9 +36,9 @@
       "System.Text.Json.bhdyf15wek.wasm": "System.Text.Json.wasm",
       "System.Text.RegularExpressions.vbr1gezq3a.wasm": "System.Text.RegularExpressions.wasm",
       "System.Private.CoreLib.3ftsfoiq21.wasm": "System.Private.CoreLib.wasm",
-      "TextEditor.7ixp2t3hmi.wasm": "TextEditor.wasm",
-      "TextEditor.SharedExampleLogic.hdu1mb48mi.wasm": "TextEditor.SharedExampleLogic.wasm",
-      "TextEditor.WasmExample.1b0brnvszz.wasm": "TextEditor.WasmExample.wasm",
+      "TextEditor.kfzy6p4ndg.wasm": "TextEditor.wasm",
+      "TextEditor.SharedExampleLogic.pgc3z3o433.wasm": "TextEditor.SharedExampleLogic.wasm",
+      "TextEditor.WasmExample.wq3hk6fmfn.wasm": "TextEditor.WasmExample.wasm",
       "dotnet.native.emhx7j4reu.js": "dotnet.native.js",
       "dotnet.native.lp09yutuey.wasm": "dotnet.native.wasm",
       "dotnet.js": "dotnet.js",
@@ -97,9 +97,9 @@
       "System.Text.Encodings.Web.qyidcnqnsa.wasm": "sha256-QkmFquk4BHgFDVkCakoTzmLIV9UuzTDf4Fw62XFkzsA=",
       "System.Text.Json.bhdyf15wek.wasm": "sha256-QSTrpz9xSaSOhB3iYl/H+pzKyYmQ/a3JxLXtCfWKcuM=",
       "System.Text.RegularExpressions.vbr1gezq3a.wasm": "sha256-ZQejR0x7+S2JJA2Z1IkLWqWXukLRjL/c/zguib2fpHo=",
-      "TextEditor.7ixp2t3hmi.wasm": "sha256-37sXWcA65zscBdyRJvUOt6HKhHHJ9LL66kZdpSiDn2E=",
-      "TextEditor.SharedExampleLogic.hdu1mb48mi.wasm": "sha256-BXK2fyoex9F+XPqwJODd8XWQj8UlqFcd6gQ58mFwwOA=",
-      "TextEditor.WasmExample.1b0brnvszz.wasm": "sha256-s4L+fT0oehigB0OJJz0OcAI8V4O02uq15bkDRT+73tA="
+      "TextEditor.kfzy6p4ndg.wasm": "sha256-4LH9g9WLi9RETKRBXsbIOjwyB3mEYdsiFQpVvmIi/p0=",
+      "TextEditor.SharedExampleLogic.pgc3z3o433.wasm": "sha256-Jy+rjSFaNgblOlutXl9Zs2ml98P9YU3xPy7Ah1fo7Xc=",
+      "TextEditor.WasmExample.wq3hk6fmfn.wasm": "sha256-OAlDsd/Mcs5cxceSyWtX/FPEEDYTxqRumjvwW4rf7FY="
     }
   },
   "cacheBootResources": true,
