@@ -475,16 +475,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             if (Model.EditKind == EditKind.InsertLtr)
             {
                 Model._editedTextHistoryCount = 0;
-                if (Model._editedTextHistoryCapacity < Model.EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
-                {
-                    int newCapacity = Model._editedTextHistoryCapacity * 2;
-                    // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
-                    // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-                    if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                    if (newCapacity < Model.EditLength) newCapacity = Model.EditLength;
-
-                    Model._editedTextHistory = new char[newCapacity];
-                }
+                Model.History_EnsureCapacity(Model.EditLength);
                 Model._editedTextHistoryCount = Model.EditLength;
                 for (int editHistoryIndex = 0, i = Model.EditPosition; editHistoryIndex < Model.EditLength; editHistoryIndex++, i++)
                 {

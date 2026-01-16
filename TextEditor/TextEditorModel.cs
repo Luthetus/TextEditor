@@ -666,6 +666,22 @@ public class TextEditorModel
         return !editWasUndone && (EditPosition - EditLength - count == positionIndex);
     }
 
+    public void History_EnsureCapacity(int totalEditLength)
+    {
+        if (_editedTextHistoryCapacity < totalEditLength)
+        {
+            int newCapacity = _editedTextHistoryCapacity * 2;
+            // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
+            // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
+            if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
+            if (newCapacity < totalEditLength) newCapacity = totalEditLength;
+
+            var newArray = new char[newCapacity];
+            Array.Copy(_editedTextHistory, 0, newArray, 0, _editedTextHistoryCount);
+            _editedTextHistory = newArray;
+        }
+    }
+
     /// <summary>
     /// This method ignores the selection
     /// </summary>
@@ -686,18 +702,7 @@ public class TextEditorModel
                 {
                     //EditPosition = positionIndex;
                     EditLength += count;
-                    if (_editedTextHistoryCapacity < EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
-                    {
-                        int newCapacity = _editedTextHistoryCapacity * 2;
-                        // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
-                        // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-                        if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                        if (newCapacity < EditLength) newCapacity = EditLength;
-
-                        var newArray = new char[newCapacity];
-                        Array.Copy(_editedTextHistory, 0, newArray, 0, _editedTextHistoryCount);
-                        _editedTextHistory = newArray;
-                    }
+                    History_EnsureCapacity(EditLength);
                     Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, _editedTextHistoryCount);
                     _editedTextHistoryCount += count;
                     for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
@@ -711,16 +716,7 @@ public class TextEditorModel
                     EditKind = EditKind.DeleteLtr;
                     EditPosition = positionIndex;
                     EditLength = count;
-                    if (_editedTextHistoryCapacity < EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
-                    {
-                        int newCapacity = _editedTextHistoryCapacity * 2;
-                        // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
-                        // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-                        if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                        if (newCapacity < EditLength) newCapacity = EditLength;
-
-                        _editedTextHistory = new char[newCapacity];
-                    }
+                    History_EnsureCapacity(EditLength);
                     _editedTextHistoryCount = EditLength;
                     for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
                     {
