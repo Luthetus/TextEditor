@@ -2,6 +2,11 @@
     --te_line-height: 30px;
 }
 
+.te_theme {
+    background-color: var(--te_background-color);
+    color: var(--te_color);
+}
+
 .te_component-class {
     cursor: text;
     border: 2px solid red;
@@ -32,8 +37,7 @@
 .te_select {
     position: absolute;
     height: var(--te_line-height);
-    background-color: #0071ff;
-    opacity: 0.3;
+    background-color: var(--te_selection);
 }
 
 .ide_te_blink {
@@ -78,10 +82,11 @@
 
 .te_tooltip {
     position: fixed;
-    background-color: orange;
+    background-color: var(--te_secondary-background-color);
     min-width: 30px;
     min-height: 30px;
     padding: 10px 15px;
+    outline: 1px solid var(--te_overlay-shadow-color);
 }
 
 .te_k {
@@ -95,5 +100,23 @@
         
         Thus this class name is somewhat cryptic.
     */
-    color: blue;
+    color: var(--te_keyword);
+}
+
+.te_dark {
+    --te_background-color: #1E1E1E;
+    --te_color: #DCDCDC;
+    --te_secondary-background-color: rgb(45, 45, 45);
+    --te_keyword: rgb(86, 156, 214);
+    --te_selection: #1E557D;
+    --te_overlay-shadow-color: #949494;
+}
+
+.te_light {
+    --te_background-color: white;
+    --te_color: black;
+    --te_secondary-background-color: rgb(245, 245, 245);
+    --te_keyword: rgb(0, 0, 255);
+    --te_selection: #ADD6FF;
+    --te_overlay-shadow-color: #4a4a4a;
 }
