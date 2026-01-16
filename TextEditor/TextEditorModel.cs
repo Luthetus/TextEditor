@@ -1209,9 +1209,13 @@ public class TextEditorModel
     /// <summary>
     /// Ensure the editor will shrink the size of its internal buffers if asked to do so,
     /// and it is possible to do so.
+    /// 
+    /// Returns true if any buffers were successfully shrunk.
+    /// Otherwise, returns false if no buffers were able to be shrunk.
     /// </summary>
-    public void Shrink()
+    public bool Shrink()
     {
+        return false;
         /*
         readonly StringBuilder _textBuilder = new();
         char[] _editedTextHistory = new char[4];
