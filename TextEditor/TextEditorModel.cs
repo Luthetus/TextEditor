@@ -288,39 +288,7 @@ public class TextEditorModel
 
     public void SetText(string text)
     {
-        var indexBuilder = 0;
-        for (int indexText = 0; indexText < text.Length; indexText++)
-        {
-            var character = text[indexText];
-
-            // always insert '\n' for line endings, and then track separately the desired line end.
-            // upon saving, create a string that has the '\n' included as the desired line end.
-            //
-            // this logic is duplicated in:
-            // - SetText(...)
-            // - InsertTextAtPosition()
-            // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
-            //
-            if (character == '\n')
-            {
-                _textBuilder.Append('\n');
-                LineBreakPositionList.Add(indexBuilder);
-                ++indexBuilder;
-            }
-            else if (character == '\r')
-            {
-                if (indexText < text.Length - 1 && text[indexText + 1] == '\n')
-                    ++indexText;
-                _textBuilder.Append('\n');
-                LineBreakPositionList.Add(indexBuilder);
-                ++indexBuilder;
-            }
-            else
-            {
-                _textBuilder.Append(character);
-                ++indexBuilder;
-            }
-        }
+        InsertTextAtPosition(text, 0, shouldMakeEditHistory: false);
     }
 
     public void SelectAll()
