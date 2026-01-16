@@ -702,7 +702,12 @@ public class TextEditorModel
             {
                 if (Validate_BatchRemoveDeleteLtr(editWasUndone, positionIndex, count))
                 {
-
+                    History_EnsureCapacity(EditLength += count);
+                    for (int editHistoryIndex = _editedTextHistoryCount, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                    {
+                        _editedTextHistory[editHistoryIndex] = this[i];
+                    }
+                    _editedTextHistoryCount = EditLength;
                 }
                 else
                 {
