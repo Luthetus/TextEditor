@@ -1197,12 +1197,19 @@ public class TextEditorModel
         _decorationArray = new byte[_decorationArrayCapacity];
     }
 
+    /// <summary>
+    /// Ensure the editor will put the decoration logic in a GC-collectable state
+    /// </summary>
     public void DisableDecorations()
     {
         _decorationArray = null;
         _decorationArrayCapacity = 0;
     }
 
+    /// <summary>
+    /// Ensure the editor will shrink the size of its internal buffers if asked to do so,
+    /// and it is possible to do so.
+    /// </summary>
     public void Shrink()
     {
 

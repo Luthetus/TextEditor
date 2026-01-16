@@ -2,6 +2,14 @@
 
 namespace TextEditorTests;
 
+/// <summary>
+/// All of the tests relate to garbage collection and having a small footprint.
+/// 
+/// If you want to re-use the same TextEditorModel instance you should be permited to do so.
+/// 
+/// If you want to enable/disable decorations...
+/// If you want to shrink the internal buffers (and they can be shrunk)...
+/// </summary>
 public class UnitTest1
 {
     /// <summary>
@@ -78,7 +86,8 @@ public class UnitTest1
     }
 
     /// <summary>
-    /// Ensure the editor will shrink the size of its internal buffers if asked to do so.
+    /// Ensure the editor will shrink the size of its internal buffers if asked to do so,
+    /// and it is possible to do so.
     /// </summary>
     [Fact]
     public void Shrinks()
