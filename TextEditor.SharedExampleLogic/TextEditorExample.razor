@@ -26,6 +26,8 @@
     </li>
 </ul>
 
+<div>CSharp lexer isn't complete, I'm gonna look more at the Lexing from an API standpoint, I'll leave any further lexing as an exercise for the reader.</div>
+
 <TextEditorComponent Model="_model" />
 
 <button class="btn btn-primary" @onclick="GetTextOnClick">
@@ -81,11 +83,13 @@
     {
         _model.LanguageKind = LanguageKind.CSharp;
         _model.SetText(_someCSharpText);
+        _model.ReceiveKeyboardDebounce();
     }
 
     private void SetSomeRazorActive()
     {
         _model.LanguageKind = LanguageKind.Razor;
         _model.SetText(_someRazorText);
+        _model.ReceiveKeyboardDebounce();
     }
 }
