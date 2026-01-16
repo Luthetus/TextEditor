@@ -523,9 +523,21 @@ public class TextEditorModel
         }
     }
 
+    /// <summary>
+    /// The decorations can be shifted by the current contiguous edit.
+    /// 
+    /// Anytime the contiguous edit moves, you need to make sure the previous edit
+    /// modifies the decorations for good so the shift is persisted.
+    /// </summary>
     public void SquashEdits()
     {
+        if (DecorationArray is null)
+            return;
 
+        DecorateEnsureCapacityWritable();
+
+        // hmm
+        Array.Copy(DecorationArray, EditPosition, DecorationArray, EditPosition + EditLength, Length - EditPosition);
     }
 
     /// <summary>
