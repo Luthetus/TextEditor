@@ -1,0 +1,32 @@
+﻿@using Microsoft.JSInterop
+
+<TextEditorComponent Model="_model" />
+
+<button class="btn btn-primary" @onclick="GetTextOnClick">
+    Get text
+</button>
+
+@code {
+    [Inject]
+    private IJSRuntime JsRuntime { get; set; } = null!;
+
+    private TextEditorModel _model = new();
+
+    protected override void OnInitialized()
+    {
+        _model.TooltipList = new();
+        _model.SetText("test.abc\r\ndfg.test\r\naaaaaaaaaaaaaaaaaaaaaaa\r\nbbbbbbbbbbbbbbbbbbbbbb\r\ncccccccccccccccccccccccc\r\nddddddddddddddddd\r\neeeeeeeeeeeeeeeeee");
+        _model.TooltipList.Add(new TextEditorTooltip(
+            startPositionIndex: 0,
+            endPositionIndex: 1,
+            foreignKey: 0,
+            byteKind: TextEditorModel.CharacterTooltipByteKind));
+        _model.EnableDecorations();
+        _model.ReceiveKeyboardDebounce();
+    }
+
+    private void GetTextOnClick()
+    {
+        JsRuntime.InvokeVoidAsync("alert", _model.ToString());
+    }
+}

@@ -62,7 +62,7 @@ public class TextEditorModel
 
     public int LineCount => LineBreakPositionList.Count + 1;
 
-    public bool HasSelection => SelectionAnchor != -1 && SelectionAnchor != SelectionEnd;
+    public bool HasSelection => SelectionAnchor != SelectionEnd;
 
     /// <summary>
     /// The position index
@@ -281,13 +281,32 @@ public class TextEditorModel
         }
         else
         {
-            SelectionAnchor = -1;
-            SelectionEnd = -1;
+            SelectionAnchor = 0;
+            SelectionEnd = 0;
         }
+    }
+
+    public void Clear()
+    {
+        _textBuilder.Clear();
+        LineBreakPositionList.Clear();
+        TabPositionList.Clear();
+        PositionIndex = 0;
+        LineIndex = 0;
+        ColumnIndex = 0;
+        SelectionAnchor = 0;
+        SelectionEnd = 0;
+        _editedTextHistoryCount = 0;
+        EditIsUndone = false;
+        EditPosition = 0;
+        EditLength = 0;
+        EditKind = EditKind.None;
     }
 
     public void SetText(string text)
     {
+        Clear();
+
         InsertTextAtPosition(text, 0, shouldMakeEditHistory: false);
         PositionIndex = 0;
         LineIndex = 0;
@@ -525,8 +544,8 @@ public class TextEditorModel
                 removeKind = RemoveKind.BackspaceRtl;
             }
 
-            SelectionAnchor = -1;
-            SelectionEnd = -1;
+            SelectionAnchor = 0;
+            SelectionEnd = 0;
 
             RemoveTextAtPositionByRandomAccess(start, end - start, removeKind);
             return;
@@ -1198,71 +1217,54 @@ public class TextEditorModel
     }
 
     /*
-     /// <summary>
-    /// If provided an invalid lineIndex or columnIndex, this method will return false and set the out int index to -1.
+     * I'm actually not too sure how I would do this yet so ima comment this out.
+     * 
+    /// <summary>
+    /// Ensure the editor will put the decoration logic in a GC-collectable state
     /// </summary>
-    public bool TryGetPositionIndex(int lineIndex, int columnIndex, out int index)
+    public void DisableDecorations()
     {
-        if (lineIndex == 0)
-        {
-            index = columnIndex;
-            return true;
-        }
-
-        for (int i = 0; i < LineBreakPositionList.Count; i++)
-        {
-            if (i + 1 == lineIndex)
-            {
-                index = LineBreakPositionList[i] + 1 + columnIndex;
-                return true;
-            }
-        }
-
-        index = -1;
-        return false;
+        _decorationArray = null;
+        _decorationArrayCapacity = 0;
     }
-     */
-
-    /*
-    /// <summary>
-    /// See <see cref="InsertText(string)"/> for explanation, this method is the same but with a char.
-    /// </summary>
-    public void InsertCharacter(char character) => InsertCharacterAtPosition(character, PositionIndex);
 
     /// <summary>
-    /// See <see cref="InsertTextAtLineColumn(string, int, int)"/> for explanation, this method is the same but with a char.
+    /// Copy, paste, modify; of List.TrimExcess() source code.
+    /// 
+    /// Ensure the editor will shrink the size of its internal buffers if asked to do so,
+    /// and it is possible to do so.
+    /// 
+    /// Returns true if any buffers were successfully shrunk.
+    /// Otherwise, returns false if no buffers were able to be shrunk.
+    /// 
+    /// List source code has this comment (the indented text):
+    ///     To completely clear a list and
+    ///     release all memory referenced by the list, execute the following
+    ///     statements:
+    ///     
+    ///     list.Clear();
+    ///     list.TrimExcess();
+    ///     
+    /// And I'll support that as well.
     /// </summary>
-    public void InsertCharacterAtLineColumn(char character, int lineIndex, int columnIndex) =>
-        InsertCharacterAtPosition(character, GetPositionIndex(lineIndex, columnIndex));
-
-    /// <summary>
-    /// See <see cref="InsertTextAtPosition(string, int)"/> for explanation, this method is the same but with a char.
-    /// </summary>
-    public void InsertCharacterAtPosition(char character, int positionIndex)
+    public void TrimExcess()
     {
-        // always insert '\n' for line endings, and then track separately the desired line end.
-        // upon saving, create a string that has the '\n' included as the desired line end.
-        //
-        // this logic is duplicated in:
-        // - SetText(...)
-        // - InsertTextAtPosition()
-        // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
-        //
-        if (character == '\n')
-        {
-            _textBuilder.Insert(positionIndex, '\n');
-        }
-        else if (character == '\r')
-        {
-            _textBuilder.Insert(positionIndex, '\n');
-            LineBreakPositionList.Add(positionIndex);
-        }
-        else
-        {
-            _textBuilder.Append(character);
-        }
+        /*
+        readonly StringBuilder _textBuilder = new();
+        char[] _editedTextHistory = new char[4];
+        List<TextEditorTooltip>? TooltipList { get; set; } = null;
+        List<int> LineBreakPositionList { get; set; } = new();
+        List<int> TabPositionList { get; set; } = new();
+        byte[]? DecorationArray => _decorationArray;
+        byte[]? _decorationArray = null;
+        *//*
+        _textBuilder.
 
-        _textBuilder.Insert(positionIndex, character);
+        int threshold = (int)(((double)_items.Length) * 0.9);
+        if (_size < threshold)
+        {
+            Capacity = _size;
+        }
     }
     */
 }

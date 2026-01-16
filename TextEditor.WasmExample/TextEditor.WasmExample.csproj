@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TextEditor\TextEditor.csproj" />
+    <ProjectReference Include="..\TextEditor.SharedExampleLogic\TextEditor.SharedExampleLogic.csproj" />
   </ItemGroup>
 
 </Project>
