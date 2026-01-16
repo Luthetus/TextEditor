@@ -1,5 +1,29 @@
 ﻿@using Microsoft.JSInterop
 
+<div>
+    Goal of demo is to demonstate how to:
+    <ul>
+        <li>re-use model for many files (note: to open more than one file at a time you'd need more than one model)</li>
+        <li>get the text</li>
+    </ul>
+</div>
+
+<div>
+    Pretend this is a folder explorer.
+    Each list item opens a file.
+
+    The demo holds the content in memory (since browser sandbox).
+    But natively an app could read from the file system.
+</div>
+<ul>
+    <li>
+        <button @onclick="SetSomeCSharpActive" class="btn btn-primary">SomeCSharp.cs</button>
+    </li>
+    <li>
+        <button @onclick="SetSomeRazorActive" class="btn btn-primary">SomeRazor.razor</button>
+    </li>
+</ul>
+
 <TextEditorComponent Model="_model" />
 
 <button class="btn btn-primary" @onclick="GetTextOnClick">
@@ -9,6 +33,27 @@
 @code {
     [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
+
+    private string _someCSharpText = @"public class SomeCSharp
+{
+    private int _number;
+    public int Number => _number;
+
+    public void OnClick(int number)
+    {
+        _number = number;
+    }
+}";
+
+    private string _someRazorText = @"<div class=""ns_component"">
+    Hello World!
+
+    @{
+        var x = 2;
+    }
+
+    <div>@x</div>
+</div>";
 
     private TextEditorModel _model = new();
 
@@ -28,5 +73,15 @@
     private void GetTextOnClick()
     {
         JsRuntime.InvokeVoidAsync("alert", _model.ToString());
+    }
+
+    private void SetSomeCSharpActive()
+    {
+        _model.SetText(_someCSharpText);
+    }
+
+    private void SetSomeRazorActive()
+    {
+        _model.SetText(_someRazorText);
     }
 }
