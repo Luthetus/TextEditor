@@ -31,7 +31,10 @@ public class TextEditorModel
     
     public TextEditorMeasurements Measurements { get; set; }
 
-    private List<char> _editedTextHistory = new();
+    public int _editedTextHistoryCapacity => _editedTextHistory.Length;
+    public int _editedTextHistoryCount;
+    public char[] _editedTextHistory = new char[4];
+    public bool IsUndone;
     public int EditPosition;
     public int EditLength;
     public EditKind EditKind = EditKind.None;
@@ -343,7 +346,7 @@ public class TextEditorModel
     /// always insert '\n' for line endings, and then track separately the desired line end.
     /// upon saving, create a string that has the '\n' included as the desired line end.
     /// </summary>
-    public void InsertText(string text)
+    public void InsertText(ReadOnlySpan<char> text)
     {
         if (HasSelection)
             DeleteTextAtPositionByCursor(DeleteByCursorKind.Delete, ctrlKey: false);
@@ -434,7 +437,7 @@ public class TextEditorModel
     /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
     /// if that is the desired insertion point.
     /// </summary>
-    public void InsertTextAtPosition(string text, int positionIndex)
+    public void InsertTextAtPosition(ReadOnlySpan<char> text, int positionIndex, bool shouldMakeEditHistory = true)
     {
         var entryPositionIndex = positionIndex;
 
@@ -511,16 +514,19 @@ public class TextEditorModel
             (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
         }
 
-        if (EditKind == EditKind.Insert && EditPosition + EditLength == entryPositionIndex)
+        if (shouldMakeEditHistory)
         {
-            EditKind = EditKind.Insert;
-            EditLength += positionIndex - entryPositionIndex;
-        }
-        else
-        {
-            EditKind = EditKind.Insert;
-            EditPosition = entryPositionIndex;
-            EditLength = positionIndex - entryPositionIndex;
+            if (EditKind == EditKind.Insert && EditPosition + EditLength == entryPositionIndex)
+            {
+                EditKind = EditKind.Insert;
+                EditLength += positionIndex - entryPositionIndex;
+            }
+            else
+            {
+                EditKind = EditKind.Insert;
+                EditPosition = entryPositionIndex;
+                EditLength = positionIndex - entryPositionIndex;
+            }
         }
     }
 
@@ -617,7 +623,7 @@ public class TextEditorModel
     /// <summary>
     /// This method ignores the selection
     /// </summary>
-    public virtual void DeleteTextAtPositionByRandomAccess(int positionIndex, int count)
+    public virtual void DeleteTextAtPositionByRandomAccess(int positionIndex, int count, bool shouldMakeEditHistory = true)
     {
         if (positionIndex < 0)
             return;
