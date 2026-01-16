@@ -14,6 +14,8 @@
 
     The demo holds the content in memory (since browser sandbox).
     But natively an app could read from the file system.
+
+    Note: when editing a file you always read the entire file into memory, I'm referring to the storage of the file when it isn't in the model.
 </div>
 <ul>
     <li>
@@ -55,12 +57,12 @@
     <div>@x</div>
 </div>";
 
-    private TextEditorModel _model = new();
+    private MyTextEditor _model = new();
 
     protected override void OnInitialized()
     {
         _model.TooltipList = new();
-        _model.SetText("test.abc\r\ndfg.test\r\naaaaaaaaaaaaaaaaaaaaaaa\r\nbbbbbbbbbbbbbbbbbbbbbb\r\ncccccccccccccccccccccccc\r\nddddddddddddddddd\r\neeeeeeeeeeeeeeeeee");
+        _model.SetText(_someCSharpText);
         _model.TooltipList.Add(new TextEditorTooltip(
             startPositionIndex: 0,
             endPositionIndex: 1,
@@ -77,11 +79,13 @@
 
     private void SetSomeCSharpActive()
     {
+        _model.LanguageKind = LanguageKind.CSharp;
         _model.SetText(_someCSharpText);
     }
 
     private void SetSomeRazorActive()
     {
+        _model.LanguageKind = LanguageKind.Razor;
         _model.SetText(_someRazorText);
     }
 }
