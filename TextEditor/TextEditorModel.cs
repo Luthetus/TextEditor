@@ -1216,6 +1216,9 @@ public class TextEditorModel
         _decorationArray = new byte[_decorationArrayCapacity];
     }
 
+    /*
+     * I'm actually not too sure how I would do this yet so ima comment this out.
+     * 
     /// <summary>
     /// Ensure the editor will put the decoration logic in a GC-collectable state
     /// </summary>
@@ -1254,12 +1257,14 @@ public class TextEditorModel
         List<int> TabPositionList { get; set; } = new();
         byte[]? DecorationArray => _decorationArray;
         byte[]? _decorationArray = null;
-        */
-        /*
+        *//*
+        _textBuilder.
+
         int threshold = (int)(((double)_items.Length) * 0.9);
         if (_size < threshold)
         {
             Capacity = _size;
-        }*/
+        }
     }
+    */
 }

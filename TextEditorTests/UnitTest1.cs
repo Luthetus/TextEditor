@@ -135,6 +135,9 @@ public class UnitTest1
         Assert.Equal(EditKind.None, model.EditKind);
     }
 
+    /*
+     * I'm actually not too sure how I would do this yet so ima comment this out.
+     * 
     /// <summary>
     /// Ensure the editor will put the decoration logic in a GC-collectable state
     /// </summary>
@@ -153,4 +156,5 @@ public class UnitTest1
     {
         throw new NotImplementedException();
     }
+    */
 }
