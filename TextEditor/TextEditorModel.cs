@@ -516,8 +516,9 @@ public class TextEditorModel
 
         if (shouldMakeEditHistory)
         {
+            var editWasUndone = EditIsUndone;
             EditIsUndone = false;
-            if (EditKind == EditKind.InsertLtr && EditPosition + EditLength == entryPositionIndex)
+            if (!editWasUndone && (EditKind == EditKind.InsertLtr && EditPosition + EditLength == entryPositionIndex))
             {
                 EditLength += positionIndex - entryPositionIndex;
             }
@@ -549,6 +550,7 @@ public class TextEditorModel
                 // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
                 EditKind = EditKind.DeleteLtr;
                 EditPosition = start;
+                _editedTextHistoryCount = 0;
                 EditLength = 0;
             }
             else
@@ -556,6 +558,7 @@ public class TextEditorModel
                 // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
                 EditKind = EditKind.DeleteRtl;
                 EditPosition = end;
+                _editedTextHistoryCount = 0;
                 EditLength = 0;
             }
 
@@ -571,6 +574,7 @@ public class TextEditorModel
             EditIsUndone = false;
             EditKind = EditKind.DeleteLtr;
             EditPosition = PositionIndex;
+            _editedTextHistoryCount = 0;
             EditLength = 0; // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
 
             if (ctrlKey)
@@ -604,6 +608,7 @@ public class TextEditorModel
             EditIsUndone = false;
             EditKind = EditKind.DeleteRtl;
             EditPosition = PositionIndex;
+            _editedTextHistoryCount = 0;
             EditLength = 0; // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
 
             var count = 1;
@@ -658,10 +663,11 @@ public class TextEditorModel
 
         if (shouldMakeEditHistory)
         {
+            var editWasUndone = EditIsUndone;
             EditIsUndone = false;
             if (EditKind == EditKind.DeleteRtl)
             {
-                if (EditLength == 0 || EditPosition - count == positionIndex)
+                if (!editWasUndone && (EditLength == 0 || EditPosition - count == positionIndex))
                 {
                     EditPosition = positionIndex;
                     EditLength += count;
@@ -709,7 +715,7 @@ public class TextEditorModel
             }
             else if (EditKind == EditKind.DeleteLtr)
             {
-                if (EditLength == 0 || EditPosition == positionIndex)
+                if (!editWasUndone && (EditLength == 0 || EditPosition == positionIndex))
                 {
 
                 }
