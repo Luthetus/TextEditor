@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text;
 
 namespace TextEditor;
@@ -287,7 +286,7 @@ public class TextEditorModel
         }
     }
 
-    public void SetText(string text)
+    public void Clear()
     {
         _textBuilder.Clear();
         LineBreakPositionList.Clear();
@@ -302,6 +301,11 @@ public class TextEditorModel
         EditPosition = 0;
         EditLength = 0;
         EditKind = EditKind.None;
+    }
+
+    public void SetText(string text)
+    {
+        Clear();
 
         InsertTextAtPosition(text, 0, shouldMakeEditHistory: false);
         PositionIndex = 0;
@@ -1222,15 +1226,6 @@ public class TextEditorModel
     }
 
     /// <summary>
-    
-    /// </summary>
-    public bool Shrink()
-    {
-        return false;
-        
-    }
-
-    /// <summary>
     /// Copy, paste, modify; of List.TrimExcess() source code.
     /// 
     /// Ensure the editor will shrink the size of its internal buffers if asked to do so,
@@ -1260,10 +1255,11 @@ public class TextEditorModel
         byte[]? DecorationArray => _decorationArray;
         byte[]? _decorationArray = null;
         */
+        /*
         int threshold = (int)(((double)_items.Length) * 0.9);
         if (_size < threshold)
         {
             Capacity = _size;
-        }
+        }*/
     }
 }
