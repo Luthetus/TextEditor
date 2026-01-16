@@ -106,6 +106,35 @@ window.textEditor = {
                     event.shiftKey,
                     this.mouseDownDetailRank);
             });
+
+            contentElement.addEventListener('contextmenu', (event) => {
+                // button == -1; context menu button
+                // button == -1; shift + f10
+                // button == 2;  right click
+                if (this.cursorIsBlinking) this.stopCursorBlinking(cursorElement);
+
+                let editorBoundingClientRect = contentElement.getBoundingClientRect();
+                this.editorLeft = editorBoundingClientRect.left;
+                this.editorTop = editorBoundingClientRect.top;
+
+                // Coordinates to show the "position: fixed;" context menu
+                let x = event.clientX;
+                let y = event.clientY;
+
+                if (event.button === -1) {
+                    let cursorBoundingClientRect = cursorElement.getBoundingClientRect();
+                    x = cursorBoundingClientRect.left;
+                    y = cursorBoundingClientRect.top;
+                }
+
+                dotNetHelper.invokeMethodAsync(
+                    "ReceiveContextMenu",
+                    x,
+                    y,
+                    // Below are the relative (to the text editor) coordinates for where the user clicked
+                    event.clientX + contentElement.scrollLeft - this.editorLeft,
+                    event.clientY + contentElement.scrollTop - this.editorTop);
+            });
             
             contentElement.addEventListener('mousemove', (event) => {
                 if ((event.buttons & 1) === 0) {

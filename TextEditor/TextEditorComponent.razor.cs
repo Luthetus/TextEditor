@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 namespace TextEditor;
@@ -568,7 +569,17 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             StateHasChanged();
         }
     }
-    
+
+    [JSInvokable]
+    public void ReceiveContextMenu(double clientX, double clientY, double scrolledClientX, double scrolledClientY)
+    {
+        // give me clientX clientY of the left top if ? or maybe cursor?
+
+
+
+        //_contextMenu = true;
+    }
+
     /// <summary>
     /// Be very careful with this method, the Y axis comes first because it is mirroring "line, column"
     /// </summary>
@@ -635,7 +646,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 supposedColumnIndex
             );
     }
-    
+
     public void Dispose()
     {
         _dotNetHelper?.Dispose();
