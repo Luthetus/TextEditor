@@ -2,7 +2,7 @@
 
 public sealed class MyTextEditor : TextEditorModel
 {
-    public LanguageKind LanguageKind { get; set; }
+    public LanguageKind LanguageKind { get; set; } = LanguageKind.CSharp;
 
     public override void ReceiveKeyboardDebounce()
     {
@@ -19,156 +19,155 @@ public sealed class MyTextEditor : TextEditorModel
 
     public void LexCSharp()
     {
+        if (TooltipList is not null)
+            TooltipList.Clear();
+        Decorate(0, _textBuilder.Length, NoneDecorationByte);
+
+        int position = 0;
+        while (position < _textBuilder.Length)
         {
-            if (TooltipList is not null)
-                TooltipList.Clear();
-            Decorate(0, _textBuilder.Length, NoneDecorationByte);
-
-            int position = 0;
-            while (position < _textBuilder.Length)
+            switch (_textBuilder[position])
             {
-                switch (_textBuilder[position])
-                {
-                    /* Lowercase Letters */
-                    case 'a':
-                    case 'b':
-                    case 'c':
-                    case 'd':
-                    case 'e':
-                    case 'f':
-                    case 'g':
-                    case 'h':
-                    case 'i':
-                    case 'j':
-                    case 'k':
-                    case 'l':
-                    case 'm':
-                    case 'n':
-                    case 'o':
-                    case 'p':
-                    case 'q':
-                    case 'r':
-                    case 's':
-                    case 't':
-                    case 'u':
-                    case 'v':
-                    case 'w':
-                    case 'x':
-                    case 'y':
-                    case 'z':
-                    /* Uppercase Letters */
-                    case 'A':
-                    case 'B':
-                    case 'C':
-                    case 'D':
-                    case 'E':
-                    case 'F':
-                    case 'G':
-                    case 'H':
-                    case 'I':
-                    case 'J':
-                    case 'K':
-                    case 'L':
-                    case 'M':
-                    case 'N':
-                    case 'O':
-                    case 'P':
-                    case 'Q':
-                    case 'R':
-                    case 'S':
-                    case 'T':
-                    case 'U':
-                    case 'V':
-                    case 'W':
-                    case 'X':
-                    case 'Y':
-                    case 'Z':
-                    /* Underscore */
-                    case '_':
-                        LexIdentifierOrKeywordOrKeywordContextual(ref position);
-                        break;
-                }
-
-                ++position;
+                /* Lowercase Letters */
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                case 'g':
+                case 'h':
+                case 'i':
+                case 'j':
+                case 'k':
+                case 'l':
+                case 'm':
+                case 'n':
+                case 'o':
+                case 'p':
+                case 'q':
+                case 'r':
+                case 's':
+                case 't':
+                case 'u':
+                case 'v':
+                case 'w':
+                case 'x':
+                case 'y':
+                case 'z':
+                /* Uppercase Letters */
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'D':
+                case 'E':
+                case 'F':
+                case 'G':
+                case 'H':
+                case 'I':
+                case 'J':
+                case 'K':
+                case 'L':
+                case 'M':
+                case 'N':
+                case 'O':
+                case 'P':
+                case 'Q':
+                case 'R':
+                case 'S':
+                case 'T':
+                case 'U':
+                case 'V':
+                case 'W':
+                case 'X':
+                case 'Y':
+                case 'Z':
+                /* Underscore */
+                case '_':
+                    LexIdentifierOrKeywordOrKeywordContextual(ref position);
+                    break;
             }
+
+            ++position;
         }
+    }
     
     public void LexRazor()
     {
+        if (TooltipList is not null)
+            TooltipList.Clear();
+        Decorate(0, _textBuilder.Length, NoneDecorationByte);
+
+        int position = 0;
+        while (position < _textBuilder.Length)
         {
-            if (TooltipList is not null)
-                TooltipList.Clear();
-            Decorate(0, _textBuilder.Length, NoneDecorationByte);
-
-            int position = 0;
-            while (position < _textBuilder.Length)
+            switch (_textBuilder[position])
             {
-                switch (_textBuilder[position])
-                {
-                    /* Lowercase Letters */
-                    case 'a':
-                    case 'b':
-                    case 'c':
-                    case 'd':
-                    case 'e':
-                    case 'f':
-                    case 'g':
-                    case 'h':
-                    case 'i':
-                    case 'j':
-                    case 'k':
-                    case 'l':
-                    case 'm':
-                    case 'n':
-                    case 'o':
-                    case 'p':
-                    case 'q':
-                    case 'r':
-                    case 's':
-                    case 't':
-                    case 'u':
-                    case 'v':
-                    case 'w':
-                    case 'x':
-                    case 'y':
-                    case 'z':
-                    /* Uppercase Letters */
-                    case 'A':
-                    case 'B':
-                    case 'C':
-                    case 'D':
-                    case 'E':
-                    case 'F':
-                    case 'G':
-                    case 'H':
-                    case 'I':
-                    case 'J':
-                    case 'K':
-                    case 'L':
-                    case 'M':
-                    case 'N':
-                    case 'O':
-                    case 'P':
-                    case 'Q':
-                    case 'R':
-                    case 'S':
-                    case 'T':
-                    case 'U':
-                    case 'V':
-                    case 'W':
-                    case 'X':
-                    case 'Y':
-                    case 'Z':
-                    /* Underscore */
-                    case '_':
-                        LexIdentifierOrKeywordOrKeywordContextual(ref position);
-                        break;
-                }
-
-                ++position;
+                /* Lowercase Letters */
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                case 'g':
+                case 'h':
+                case 'i':
+                case 'j':
+                case 'k':
+                case 'l':
+                case 'm':
+                case 'n':
+                case 'o':
+                case 'p':
+                case 'q':
+                case 'r':
+                case 's':
+                case 't':
+                case 'u':
+                case 'v':
+                case 'w':
+                case 'x':
+                case 'y':
+                case 'z':
+                /* Uppercase Letters */
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'D':
+                case 'E':
+                case 'F':
+                case 'G':
+                case 'H':
+                case 'I':
+                case 'J':
+                case 'K':
+                case 'L':
+                case 'M':
+                case 'N':
+                case 'O':
+                case 'P':
+                case 'Q':
+                case 'R':
+                case 'S':
+                case 'T':
+                case 'U':
+                case 'V':
+                case 'W':
+                case 'X':
+                case 'Y':
+                case 'Z':
+                /* Underscore */
+                case '_':
+                    LexIdentifierOrKeywordOrKeywordContextual(ref position);
+                    break;
             }
+
+            ++position;
         }
-        protected void LexIdentifierOrKeywordOrKeywordContextual(ref int position)
+    }
+    
+    private void LexIdentifierOrKeywordOrKeywordContextual(ref int position)
     {
         var entryPosition = position;
         int characterIntSum = 0;

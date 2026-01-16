@@ -57,7 +57,7 @@
     <div>@x</div>
 </div>";
 
-    private TextEditorModel _model = new();
+    private MyTextEditor _model = new();
 
     protected override void OnInitialized()
     {
@@ -79,11 +79,13 @@
 
     private void SetSomeCSharpActive()
     {
+        _model.LanguageKind = LanguageKind.CSharp;
         _model.SetText(_someCSharpText);
     }
 
     private void SetSomeRazorActive()
     {
+        _model.LanguageKind = LanguageKind.Razor;
         _model.SetText(_someRazorText);
     }
 }
