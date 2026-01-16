@@ -662,6 +662,13 @@ public class TextEditorModel
                 PositionIndex = 0;
             (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
         }
+
+        if (shouldMakeEditHistory)
+        {
+            EditKind = EditKind.None;
+            EditPosition = positionIndex;
+            EditLength = 0;
+        }
     }
 
     public virtual (int lineIndex, int linePosStart, int linePosEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)
