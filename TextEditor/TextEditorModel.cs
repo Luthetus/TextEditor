@@ -1197,6 +1197,17 @@ public class TextEditorModel
         _decorationArray = new byte[_decorationArrayCapacity];
     }
 
+    public void DisableDecorations()
+    {
+        _decorationArray = null;
+        _decorationArrayCapacity = 0;
+    }
+
+    public void Shrink()
+    {
+
+    }
+
     /*
      /// <summary>
     /// If provided an invalid lineIndex or columnIndex, this method will return false and set the out int index to -1.

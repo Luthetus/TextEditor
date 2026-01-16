@@ -67,4 +67,22 @@ public class UnitTest1
         Assert.Equal(0, model.EditLength);
         Assert.Equal(EditKind.None, model.EditKind);
     }
+
+    /// <summary>
+    /// Ensure the editor will put the decoration logic in a GC-collectable state
+    /// </summary>
+    [Fact]
+    public void DisablesDecorations()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Ensure the editor will shrink the size of its internal buffers if asked to do so.
+    /// </summary>
+    [Fact]
+    public void Shrinks()
+    {
+        throw new NotImplementedException();
+    }
 }
