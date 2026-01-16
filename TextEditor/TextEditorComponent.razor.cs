@@ -488,7 +488,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
             {
                 Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
-                Model.PositionIndex = Model.EditPosition;
+                Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             StateHasChanged();
