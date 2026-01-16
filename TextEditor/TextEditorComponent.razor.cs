@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Reflection;
 
 namespace TextEditor;
 
@@ -470,9 +469,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnUndo()
     {
-        if (Model.EditKind != EditKind.None && !Model.IsUndone)
+        if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
-            Model.IsUndone = true;
+            Model.EditIsUndone = true;
             if (Model.EditKind == EditKind.Insert)
             {
                 Model._editedTextHistoryCount = 0;
@@ -508,9 +507,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnRedo()
     {
-        if (Model.EditKind != EditKind.None && Model.IsUndone)
+        if (Model.EditKind != EditKind.None && Model.EditIsUndone)
         {
-            Model.IsUndone = false;
+            Model.EditIsUndone = false;
             if (Model.EditKind == EditKind.Insert)
             {
                 Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
