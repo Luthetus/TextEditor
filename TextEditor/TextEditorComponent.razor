@@ -184,9 +184,6 @@
                 exclusiveEndDecorationIndex = Model.Length;
         }
 
-        var safeDecorationOffsetAaa = Model.EditPosition;
-        var safeDecorationOffset = Model.EditLength;
-
         while (i < endPosition)
         {
             if (exclusiveEndDecorationIndex > i)
@@ -198,12 +195,12 @@
                 @for (; i < endPosition; i++)
                 {
                     if (i < exclusiveEndDecorationIndex)
-                    {//ugh
+                    {
                         var decorationIndex = i;
-                        if (safeDecorationOffsetAaa <= i)
+                        if (Model.EditPosition <= i)
                         {
-                            decorationIndex += safeDecorationOffsetAaa;
-                            if (decorationIndex >= Model.DecorationArray.Length)
+                            decorationIndex -= Model.EditLength;
+                            if (decorationIndex < 0)
                             {
                                 decorationIndex = i;
                             }
