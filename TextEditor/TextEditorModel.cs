@@ -630,6 +630,29 @@ public class TextEditorModel
         if (positionIndex >= Length)
             return;
 
+        if (shouldMakeEditHistory)
+        {
+            _editedTextHistoryCount = 0;
+            EditKind = EditKind.Delete;
+            EditPosition = positionIndex;
+            EditLength = count;
+            if (_editedTextHistoryCapacity < EditLength /*_decorationArrayCapacity < _textBuilder.Length*/)
+            {
+                int newCapacity = _editedTextHistoryCapacity * 2;
+                // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
+                // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
+                if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
+                if (newCapacity < EditLength) newCapacity = EditLength;
+
+                _editedTextHistory = new char[newCapacity];
+            }
+            _editedTextHistoryCount = EditLength;
+            for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+            {
+                _editedTextHistory[editHistoryIndex] = this[i];
+            }
+        }
+
         var start = positionIndex;
         var end = positionIndex + count;
 
@@ -661,13 +684,6 @@ public class TextEditorModel
             if (PositionIndex < 0)
                 PositionIndex = 0;
             (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
-        }
-
-        if (shouldMakeEditHistory)
-        {
-            EditKind = EditKind.None;
-            EditPosition = positionIndex;
-            EditLength = 0;
         }
     }
 
