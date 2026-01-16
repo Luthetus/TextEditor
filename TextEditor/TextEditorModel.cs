@@ -700,9 +700,7 @@ public class TextEditorModel
             {
                 if (Validate_BatchDeleteRtl(editWasUndone, positionIndex, count))
                 {
-                    //EditPosition = positionIndex;
-                    EditLength += count;
-                    History_EnsureCapacity(EditLength);
+                    History_EnsureCapacity(EditLength += count);
                     Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, _editedTextHistoryCount);
                     _editedTextHistoryCount += count;
                     for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
@@ -713,10 +711,9 @@ public class TextEditorModel
                 else
                 {
                     _editedTextHistoryCount = 0;
-                    EditKind = EditKind.DeleteLtr;
+                    EditKind = EditKind.DeleteRtl;
                     EditPosition = positionIndex;
-                    EditLength = count;
-                    History_EnsureCapacity(EditLength);
+                    History_EnsureCapacity(EditLength = count);
                     _editedTextHistoryCount = EditLength;
                     for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
                     {
