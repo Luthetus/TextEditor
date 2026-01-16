@@ -78,6 +78,7 @@
 
 .te_row {
     height: var(--te_line-height);
+    position: relative;
 }
 
 .te_tooltip {
@@ -108,7 +109,7 @@
     --te_color: #DCDCDC;
     --te_secondary-background-color: rgb(45, 45, 45);
     --te_keyword: rgb(86, 156, 214);
-    --te_selection: #1E557D;
+    --te_selection: #245B82;
     --te_overlay-shadow-color: #949494;
 }
 
