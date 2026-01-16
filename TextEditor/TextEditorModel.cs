@@ -640,7 +640,7 @@ public class TextEditorModel
 
     private bool Validate_BatchRemoveBackspaceRtl(bool editWasUndone, int positionIndex, int count)
     {
-        return EditKind == EditKind.RemoveBackspaceRtl && !editWasUndone && (EditPosition - EditLength - count == positionIndex);
+        return EditKind == EditKind.RemoveBackspaceRtl && !editWasUndone && (positionIndex + count == EditPosition);
     }
 
     private bool Validate_BatchRemoveDeleteLtr(bool editWasUndone, int positionIndex, int count)
