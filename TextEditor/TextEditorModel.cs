@@ -602,15 +602,9 @@ public class TextEditorModel
             {
                 DeleteTextAtPositionByRandomAccess(PositionIndex, 1);
             }
-        }//&&edit!undone
+        }
         else if (deleteByCursorKind == DeleteByCursorKind.Backspace)
         {
-            EditIsUndone = false;
-            EditKind = EditKind.DeleteRtl;
-            EditPosition = PositionIndex;
-            _editedTextHistoryCount = 0;
-            EditLength = 0; // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
-
             var count = 1;
             if (ctrlKey && ColumnIndex > 0)
             {
@@ -636,10 +630,26 @@ public class TextEditorModel
                         --count;
                     }
                 }
+                if (!Validate_BatchDeleteRtl(EditIsUndone, PositionIndex - count, count))
+                {
+                    EditIsUndone = false;
+                    EditKind = EditKind.DeleteRtl;
+                    EditPosition = PositionIndex;
+                    _editedTextHistoryCount = 0;
+                    EditLength = 0; // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
+                }
                 DeleteTextAtPositionByRandomAccess(PositionIndex - count, count);
             }
             else
             {
+                if (!Validate_BatchDeleteRtl(EditIsUndone, PositionIndex - 1, count))
+                {
+                    EditIsUndone = false;
+                    EditKind = EditKind.DeleteRtl;
+                    EditPosition = PositionIndex;
+                    _editedTextHistoryCount = 0;
+                    EditLength = 0; // Pre-create the edit history so the DeleteTextAtPositionByRandomAccess can continue from it.
+                }
                 DeleteTextAtPositionByRandomAccess(PositionIndex - 1, 1);
             }
         }
@@ -649,6 +659,11 @@ public class TextEditorModel
             throw new NotImplementedException();
         }
 #endif
+    }
+
+    private bool Validate_BatchDeleteRtl(bool editWasUndone, int positionIndex, int count)
+    {
+        return !editWasUndone && (EditPosition - EditLength - count == positionIndex);
     }
 
     /// <summary>
@@ -667,7 +682,7 @@ public class TextEditorModel
             EditIsUndone = false;
             if (EditKind == EditKind.DeleteRtl)
             {
-                if (!editWasUndone && (EditLength == 0 || EditPosition - count == positionIndex))
+                if (Validate_BatchDeleteRtl(editWasUndone, positionIndex, count))
                 {
                     EditPosition = positionIndex;
                     EditLength += count;
@@ -715,7 +730,7 @@ public class TextEditorModel
             }
             else if (EditKind == EditKind.DeleteLtr)
             {
-                if (!editWasUndone && (EditLength == 0 || EditPosition == positionIndex))
+                if (!editWasUndone && (EditPosition == positionIndex))
                 {
 
                 }
