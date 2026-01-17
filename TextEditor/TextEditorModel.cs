@@ -958,6 +958,7 @@ public class TextEditorModel
 
                     // I hope I can sleep
                     // i need to take I am sick so I'm taking nyquil
+                    // ... like I have a cold or something is what I mean so I been taking that
                     //
                     // "we could be heroes"
                     //
