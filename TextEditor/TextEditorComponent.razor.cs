@@ -488,7 +488,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                  then when you squish if not undone then you insert
                  */
 
-
                 Model.EditedTextHistoryCount = 0;
                 Model.History_EnsureCapacity(Model.EditLength);
                 Model.EditedTextHistoryCount = Model.EditLength;
@@ -510,7 +509,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                  ctrl y u have text there to readd
                  */
 
-
                 Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
@@ -519,7 +517,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             {
                 /*
                  _textbuffer [abc123]
-                 backspace [123]
+                 delete [123]
                  dont make _textBuffer [abc'\0''\0''\0']
                  do instead leave as is _textbuffer [abc123]
                  ctrl y u have text there to readd
