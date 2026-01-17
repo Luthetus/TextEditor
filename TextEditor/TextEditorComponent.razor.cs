@@ -474,6 +474,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 
         if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
+            // in all cases if IsUndone then execute same code as when editkind is None
+
             Model.EditIsUndone = true;
             if (Model.EditKind == EditKind.InsertLtr)
             {
