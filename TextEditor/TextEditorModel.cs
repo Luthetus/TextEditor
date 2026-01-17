@@ -28,6 +28,19 @@ public class TextEditorModel
     ///     - reading from the gap buffer
     /// - after the gap buffer
     ///     - offset by the length of the gap buffer
+    ///     
+    /// ============
+    /// 
+    /// I think I'm gonna keep the linend positions and tabs
+    /// up to date at all times.
+    /// 
+    /// Because they theoretically are a massively smaller list than the content itself.
+    /// 
+    /// (although
+    ///     1: this isn't necessarily the case,
+    ///     2: they're still a bit large and it isn't desired to keep them up to date I imagine)
+    ///    
+    /// But I gotta do one thing at time.
     /// </summary>
     protected readonly StringBuilder _gapBuffer = new();
 
@@ -60,7 +73,7 @@ public class TextEditorModel
                     }
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
-                    break;
+                    throw new NotImplementedException();
 #if DEBUG
                 default:
                     throw new NotImplementedException();
