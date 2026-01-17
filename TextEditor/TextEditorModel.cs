@@ -71,8 +71,7 @@ public partial class TextEditorModel
                 case EditKind.None:
                     return _textBuilder.Length;
                 case EditKind.InsertLtr:
-                    // -1 for the '\0' that represents the inserted gap buffer
-                    return _textBuilder.Length - 1 + _gapBuffer.Length;
+                    return _textBuilder.Length + _gapBuffer.Length;
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
                     return _textBuilder.Length - EditLength;
@@ -92,8 +91,6 @@ public partial class TextEditorModel
     /// <summary>
     /// This method inserts at the provided positionIndex, and if the positionIndex is <= the user's position index, then the user's position index is increased by the amount of text inserted
     /// (note that the text ultimately inserted might not be equal to the text parameter because line endings are always inserted as '\n' then upon saving the file they are written out as the desired line ending)
-    /// 
-    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position if that is the desired insertion point.
     /// 
     /// 'bool __unsafe__insertDirectly' should remain as the default false value 99.9% of the time, it is intended for internal use only.
     /// </summary>

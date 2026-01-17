@@ -19,18 +19,9 @@ public partial class TextEditorModel
     protected StringBuilder GetTextBuilder() => _textBuilder;
 
     /// <summary>
-    /// An insertion gap buffer is a single '\0' in the _textBuilder.
+    /// An insertion gap buffer is tracked by the pending EditPosition, there is no '\0' marker
     /// 
     /// When deleting, the deleted text is replaced with '\0'
-    /// 
-    /// When squashing the insertion gap buffer the singular '\0' is replaced with the text in the gap buffer.
-    /// 
-    /// When squashing the deleting, the contiguous '\0' are removed from the _textBuilder in bulk.
-    /// 
-    /// You cannot differentiate an insertion vs deleting gap buffer scenario by the single '\0' alone,
-    /// because perhaps you deleted a single character.
-    /// 
-    /// So you need to look at the current EditKind as well.
     /// 
     /// ===========
     /// 3 case
