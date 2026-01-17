@@ -659,6 +659,26 @@ public class TextEditorModel
     /// </summary>
     public void SquashEdits()
     {
+        switch (EditKind)
+        {
+            case EditKind.None:
+                return;
+            case EditKind.InsertLtr:
+                _textBuilder.Insert(EditPosition, _gapBuffer);
+                _gapBuffer.Clear();
+                return;
+            case EditKind.RemoveBackspaceRtl:
+            case EditKind.RemoveDeleteLtr:
+                _textBuilder.Remove(EditPosition, EditLength);
+                return;
+            default:
+#if DEBUG
+                throw new NotImplementedException();
+#else
+                SomethingBadHappenedButDontCrashSomeonesApp();
+                return;
+#endif
+        }
         /*
         if (DecorationArray is null)
             return;
