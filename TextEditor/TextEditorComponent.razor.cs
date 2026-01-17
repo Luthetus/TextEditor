@@ -678,8 +678,21 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         return largeRectangleToOffsetLinesStyle;
     }
 
-    private void Selection_DoAppendChunk_A(StringBuilder stringBuilder, int pos, int linePosStart, double xleftExtraFromTabs, int lineIndex)
+    private string GetSelectionStyle(StringBuilder stringBuilder, ref int pos, int end)
     {
+        var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(pos);
+
+        int count = 0;
+        for (int j = linePosStart; j < pos; j++)
+        {
+            if (Model[j] == '\n')
+                break;
+            if (Model[j] == '\t')
+                count++;
+        }
+        // tabCount == 4, extra is 4 - 1 => 3
+        var xleftExtraFromTabs = count * 3 * Model.Measurements.CharacterWidth;
+
         stringBuilder.Append("left:");
         stringBuilder.Append((Model.Measurements.CharacterWidth * (pos - linePosStart) + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
@@ -687,14 +700,33 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         stringBuilder.Append((Model.Measurements.LineHeight * lineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
         stringBuilder.Append("width:");
-    }
 
-    private string Selection_GetStyle_B(StringBuilder stringBuilder, int widthCount, double xleftExtraFromTabs)
-    {
+        var lineSegmentStart = pos;
+        var lineSegmentEnd = linePosEnd < end ? linePosEnd : end;
+        int widthCount = lineSegmentEnd - lineSegmentStart;
+        if (linePosEnd < end)
+        {
+            ++widthCount;
+        }
+
+        count = 0;
+        for (int j = lineSegmentStart; j < lineSegmentEnd; j++)
+        {
+            if (Model[j] == '\n')
+                break;
+            if (Model[j] == '\t')
+                count++;
+        }
+        // tabCount == 4, extra is 4 - 1 => 3
+        xleftExtraFromTabs = count * 3 * Model.Measurements.CharacterWidth;
+
         stringBuilder.Append((Model.Measurements.CharacterWidth * widthCount + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
         var selectStyle = stringBuilder.ToString();
         stringBuilder.Clear();
+
+        pos = linePosEnd;
+
         return selectStyle;
     }
 
