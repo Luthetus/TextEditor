@@ -34,7 +34,7 @@ public class TextEditorModel
     /// I think I'm gonna keep the linend positions and tabs
     /// up to date at all times.
     /// 
-    /// Because they theoretically are a massively smaller list than the content itself.
+    /// Because they theoretically are much smaller lists than the content itself.
     /// 
     /// (although
     ///     1: this isn't necessarily the case,
