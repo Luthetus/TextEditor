@@ -808,6 +808,43 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         return cursorStyle;
     }
 
+    /// <summary>
+    /// (in the case that this won't inline, it still doesn't matter the gap buffer doesn't work, rip out all the noise, if this matters then look at it later when the gap buffer works).
+    /// </summary>
+    private void AppendEscapedCharacter(StringBuilder stringBuilder, char character)
+    {
+        switch (character)
+        {
+            case '\t':
+                stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
+                break;
+            case '\0':
+                stringBuilder.Append("0");
+                break;
+            case ' ':
+                stringBuilder.Append("&nbsp;");
+                break;
+            case '<':
+                stringBuilder.Append("&lt;");
+                break;
+            case '>':
+                stringBuilder.Append("&gt;");
+                break;
+            case '"':
+                stringBuilder.Append("&quot;");
+                break;
+            case '\'':
+                stringBuilder.Append("&#39;");
+                break;
+            case '&':
+                stringBuilder.Append("&amp;");
+                break;
+            default:
+                stringBuilder.Append(Model[i]);
+                break;
+        }
+    }
+
     public void Dispose()
     {
         _dotNetHelper?.Dispose();

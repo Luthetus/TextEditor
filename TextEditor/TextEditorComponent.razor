@@ -64,36 +64,7 @@
                     {
                         if (Model[i] != '\n' && GetDecorationByte(i) == currentDecorationByte)
                         {
-                            switch (Model[i])
-                            {
-                                case '\t':
-                                    stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                                    break;
-                                case '\0':
-                                    stringBuilder.Append("0");
-                                    break;
-                                case ' ':
-                                    stringBuilder.Append("&nbsp;");
-                                    break;
-                                case '<':
-                                    stringBuilder.Append("&lt;");
-                                    break;
-                                case '>':
-                                    stringBuilder.Append("&gt;");
-                                    break;
-                                case '"':
-                                    stringBuilder.Append("&quot;");
-                                    break;
-                                case '\'':
-                                    stringBuilder.Append("&#39;");
-                                    break;
-                                case '&':
-                                    stringBuilder.Append("&amp;");
-                                    break;
-                                default:
-                                    stringBuilder.Append(Model[i]);
-                                    break;
-                            }
+                            AppendEscapedCharacter(stringBuilder, Model[i]);
                         }
                         else
                         {
@@ -108,36 +79,7 @@
                             }
                             else
                             {
-                                switch (Model[i])
-                                {
-                                    case '\t':
-                                        stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                                        break;
-                                    case '\0':
-                                        stringBuilder.Append("0");
-                                        break;
-                                    case ' ':
-                                        stringBuilder.Append("&nbsp;");
-                                        break;
-                                    case '<':
-                                        stringBuilder.Append("&lt;");
-                                        break;
-                                    case '>':
-                                        stringBuilder.Append("&gt;");
-                                        break;
-                                    case '"':
-                                        stringBuilder.Append("&quot;");
-                                        break;
-                                    case '\'':
-                                        stringBuilder.Append("&#39;");
-                                        break;
-                                    case '&':
-                                        stringBuilder.Append("&amp;");
-                                        break;
-                                    default:
-                                        stringBuilder.Append(Model[i]);
-                                        break;
-                                }
+                                AppendEscapedCharacter(stringBuilder, Model[i]);
                             }
                         }
                     }
