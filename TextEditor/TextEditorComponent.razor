@@ -203,6 +203,9 @@
                                 case '\t':
                                     stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
                                     break;
+                                case '\0':
+                                    stringBuilder.Append("0");
+                                    break;
                                 case ' ':
                                     stringBuilder.Append("&nbsp;");
                                     break;
@@ -244,6 +247,9 @@
                                     case '\t':
                                         stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
                                         break;
+                                    case '\0':
+                                        stringBuilder.Append("0");
+                                        break;
                                     case ' ':
                                         stringBuilder.Append("&nbsp;");
                                         break;
@@ -277,6 +283,9 @@
                             {
                                 case '\t':
                                     stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
+                                    break;
+                                case '\0':
+                                    stringBuilder.Append("0");
                                     break;
                                 case ' ':
                                     stringBuilder.Append("&nbsp;");
@@ -317,6 +326,9 @@
                                 {
                                     case '\t':
                                         stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
+                                        break;
+                                    case '\0':
+                                        stringBuilder.Append("0");
                                         break;
                                     case ' ':
                                         stringBuilder.Append("&nbsp;");
