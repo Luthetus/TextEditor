@@ -4,14 +4,12 @@ namespace TextEditor;
 
 public partial class TextEditorModel
 {
-    // bug likely 'case H' start
     public override string ToString()
     {
+        SquashEdits();
         return _textBuilder.ToString();
     }
-    // bug likely 'case H' end
 
-    // bug likely 'case G' start
     public char this[int index]
     {
         get
@@ -59,9 +57,7 @@ public partial class TextEditorModel
             }
         }
     }
-    // bug likely 'case G' end
 
-    // bug likely 'case I' start
     public int Length
     {
         get
@@ -86,7 +82,6 @@ public partial class TextEditorModel
             }
         }
     }
-    // bug likely 'case I' end
 
     /// <summary>
     /// This method inserts at the provided positionIndex, and if the positionIndex is <= the user's position index, then the user's position index is increased by the amount of text inserted
@@ -100,7 +95,6 @@ public partial class TextEditorModel
 
         bool batchEdits = false;
 
-        // bug likely 'case A' start
         if (shouldMakeEditHistory)
         {
             if (!EditIsUndone && (EditKind == EditKind.InsertLtr && EditPosition + EditLength == positionIndex))
@@ -113,7 +107,6 @@ public partial class TextEditorModel
                 EditPosition = positionIndex;
             }
         }
-        // bug likely 'case A' end
 
         StringBuilder stringBuilder;
         if (__unsafe__insertDirectly)
@@ -332,7 +325,6 @@ public partial class TextEditorModel
 
     public void SquashEdits()
     {
-        // bug likely 'case F' start
         switch (EditKind)
         {
             case EditKind.None:
@@ -366,7 +358,6 @@ public partial class TextEditorModel
         EditPosition = 0;
         EditLength = 0;
         EditKind = EditKind.None;
-        // bug likely 'case F' end
     }
 
     /// <summary>This method will respect the selection if it exists</summary>
