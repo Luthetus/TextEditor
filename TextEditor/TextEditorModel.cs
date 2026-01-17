@@ -19,6 +19,15 @@ public class TextEditorModel
     /// because perhaps you deleted a single character.
     /// 
     /// So you need to look at the current EditKind as well.
+    /// 
+    /// ===========
+    /// 3 case
+    /// - prior to the gap buffer
+    ///     - "nothing" needs to be done
+    /// - within the gap buffer
+    ///     - reading from the gap buffer
+    /// - after the gap buffer
+    ///     - offset by the length of the gap buffer
     /// </summary>
     protected readonly StringBuilder _gapBuffer = new();
 
@@ -28,9 +37,36 @@ public class TextEditorModel
         _gapBuffer.Append(character);
     }
 
-    public char this[int key]
+    public char this[int index]
     {
-        get => _textBuilder[key];
+        get
+        {
+            switch (EditKind)
+            {
+                case EditKind.None:
+                    return _textBuilder[index];
+                case EditKind.InsertLtr:
+                    if (index < EditPosition)
+                    {
+                        return _textBuilder[index];
+                    }
+                    else if (index >= EditPosition && index <= EditPosition + _gapBuffer.Length - 1)
+                    {
+                        return _gapBuffer[index - EditPosition];
+                    }
+                    else 
+                    {
+                        return _textBuilder[index - EditPosition];
+                    }
+                case EditKind.RemoveDeleteLtr:
+                case EditKind.RemoveBackspaceRtl:
+                    break;
+#if DEBUG
+                default:
+                    throw new NotImplementedException();
+#endif
+            }
+        }
     }
 
     public override string ToString()
@@ -38,7 +74,21 @@ public class TextEditorModel
         return _textBuilder.ToString();
     }
 
-    public int Length => _textBuilder.Length;
+    public int Length
+    {
+        get
+        {
+            var totalLength = _textBuilder.Length;
+
+            if (_gapBuffer.Length > 0)
+            {
+                // -1 for the '\0' that represents the inserted gap buffer
+                totalLength = -1 + _gapBuffer.Length;
+            }
+
+            return totalLength;
+        }
+    }
 
     /// <summary>
     /// You'd only need to store either PositionIndex or both LineIndex and ColumnIndex
