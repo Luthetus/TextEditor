@@ -548,11 +548,17 @@ public class TextEditorModel
     /// </summary>
     public void InsertTextAtPosition(ReadOnlySpan<char> text, int positionIndex, bool shouldMakeEditHistory = true, bool __unsafe__insertDirectly = false)
     {
+        var insertionIndex = positionIndex;
+
         StringBuilder stringBuilder;
         if (__unsafe__insertDirectly)
+        {
             stringBuilder = _textBuilder;
+        }
         else
+        {
             stringBuilder = _gapBuffer;
+        }
 
         var entryPositionIndex = positionIndex;
 
@@ -578,27 +584,28 @@ public class TextEditorModel
             //
             if (character == '\n')
             {
-                stringBuilder.Insert(positionIndex, '\n');
+                stringBuilder.Insert(insertionIndex, '\n');
                 InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
             else if (character == '\r')
             {
                 if (i < text.Length - 1 && text[i + 1] == '\n')
                     ++i;
-                stringBuilder.Insert(positionIndex, '\n');
+                stringBuilder.Insert(insertionIndex, '\n');
                 InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
             else if (character == '\t')
             {
-                stringBuilder.Insert(positionIndex, '\t');
+                stringBuilder.Insert(insertionIndex, '\t');
                 InsertTextAtPosition_InsertTab(ref tabInsertedIndex, ref tabInsertedCount, entryPositionIndex, positionIndex);
             }
             else
             {
 
-                stringBuilder.Insert(positionIndex, character);
+                stringBuilder.Insert(insertionIndex, character);
             }
 
+            ++insertionIndex;
             ++positionIndex;
         }
 
