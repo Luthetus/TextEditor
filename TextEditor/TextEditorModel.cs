@@ -38,6 +38,8 @@ public class TextEditorModel
     public int EditPosition;
     public int EditLength;
     public EditKind EditKind = EditKind.None;
+    public int EditId;
+    public int LexerSeenEditId;
     
     /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
@@ -85,6 +87,10 @@ public class TextEditorModel
     protected int _decorationArrayCapacity = 0;
     public const byte NoneDecorationByte = 0;
     public const byte KeywordDecorationByte = 1;
+
+    // The problem of this lexer syntax highlighting offset
+    // and the gap buffer for edits,
+    // have a lot of overlap I might just start the gap buffer.
 
     protected const int _defaultCapacity = 4;
 
