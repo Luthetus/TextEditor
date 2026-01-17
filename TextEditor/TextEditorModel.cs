@@ -562,6 +562,12 @@ public class TextEditorModel
         }
 
         var entryPositionIndex = positionIndex;
+        
+        if (shouldMakeEditHistory)
+        {
+            if (EditIsUndone || EditKind != EditKind.InsertLtr || EditPosition + EditLength != entryPositionIndex)
+                SquashEdits();
+        }
 
         var lineBreakInsertedIndex = -1;
         var lineBreakInsertedCount = 0;
@@ -642,8 +648,6 @@ public class TextEditorModel
             }
             else
             {
-                SquashEdits();
-
                 EditKind = EditKind.InsertLtr;
                 EditPosition = entryPositionIndex;
                 EditLength = positionIndex - entryPositionIndex;
