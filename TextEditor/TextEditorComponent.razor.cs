@@ -477,6 +477,17 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             Model.EditIsUndone = true;
             if (Model.EditKind == EditKind.InsertLtr)
             {
+                /*
+                 insert [abc123]
+                 nosquish
+                 Ctrl+z
+                 _gapBuffer still says [abc123]
+                 _textBuffer still says []
+                 Ctrl+y again nothing changes
+                 you add a layer of "IsUndone" the change to when you read
+                 */
+
+
                 Model.EditedTextHistoryCount = 0;
                 Model.History_EnsureCapacity(Model.EditLength);
                 Model.EditedTextHistoryCount = Model.EditLength;
