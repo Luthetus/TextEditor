@@ -305,12 +305,14 @@ public partial class TextEditorModel
             case EditKind.None:
                 break;
             case EditKind.InsertLtr:
-                _textBuilder.Insert(EditPosition, _gapBuffer);
+                if (!EditIsUndone)
+                    _textBuilder.Insert(EditPosition, _gapBuffer);
                 _gapBuffer.Clear();
                 break;
             case EditKind.RemoveBackspaceRtl:
             case EditKind.RemoveDeleteLtr:
-                _textBuilder.Remove(EditPosition, EditLength);
+                if (!EditIsUndone)
+                    _textBuilder.Remove(EditPosition, EditLength);
                 break;
             default:
 #if DEBUG
