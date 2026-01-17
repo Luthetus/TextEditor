@@ -951,6 +951,16 @@ public class TextEditorModel
                 }
                 else
                 {// nah I don't have any diea what I'm doing rn lmao
+                    // I'm so tired mentally in terms of solving a problem
+                    // but my brain is just screaming for me to go go go keep going
+                    // I could just run
+                    //
+
+                    // I hope I can sleep
+                    // i need to take I am sick so I'm taking nyquil
+                    //
+                    // "we could be heroes"
+                    //
                     SquashEdits();
                     History_EnsureCapacity(count);
                     for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
