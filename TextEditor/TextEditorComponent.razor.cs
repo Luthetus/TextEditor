@@ -470,6 +470,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 
         // delete whenyoudeletedontmarkas'\0'thenyoucanrestorethetextthatway
 
+        // anythingbeyondthemostrecenteditifyouhavemorethan1historyyoubrpprobabkiwenantgineoijaoiewfbibuputindibndidndindbd dndnbndnbndbnsejinosEGojisegoijegsijo;gjoig
+
         if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
             Model.EditIsUndone = true;
