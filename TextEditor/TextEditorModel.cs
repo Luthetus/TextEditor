@@ -111,6 +111,8 @@ public class TextEditorModel
 
                         // I am just completely delirious right now I have no idea what's ahppening I'm gonna just look for anmother song
 
+                        // oh I fgorr foe fgo I gotta go to bed
+
                         return _textBuilder[index + EditLength - 1];
                     }
                     else
