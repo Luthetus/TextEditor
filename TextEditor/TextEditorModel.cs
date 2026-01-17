@@ -141,6 +141,7 @@ public class TextEditorModel
                     return _textBuilder.Length - 1 + _gapBuffer.Length;
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
+                    // not impl
                     throw new NotImplementedException();
                 default:
 #if DEBUG
