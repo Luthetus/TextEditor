@@ -578,11 +578,6 @@ public class TextEditorModel
             // always insert '\n' for line endings, and then track separately the desired line end.
             // upon saving, create a string that has the '\n' included as the desired line end.
             //
-            // this logic is duplicated in:
-            // - SetText(...)
-            // - InsertTextAtPosition()
-            // - InsertCharacterAtPosition() // only partially duplicated here since it is a char insertion
-            //
             if (character == '\n')
             {
                 stringBuilder.Insert(insertionIndex, '\n');
