@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Text;
 
 namespace TextEditor;
 
@@ -655,6 +656,46 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 lineIndex,
                 supposedColumnIndex
             );
+    }
+
+    private string GetTotalHeightStyle(StringBuilder stringBuilder)
+    {
+        stringBuilder.Append("height:");
+        stringBuilder.Append(((Model.LineBreakPositionList.Count + 1) * _measurements.LineHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var totalHeightStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return totalHeightStyle;
+    }
+
+    private string GetLargeRectangleToOffsetLinesStyle(StringBuilder stringBuilder, int startLineIndex)
+    {
+        stringBuilder.Append("height:");
+        stringBuilder.Append((startLineIndex * _measurements.LineHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var largeRectangleToOffsetLinesStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return largeRectangleToOffsetLinesStyle;
+    }
+
+    private void Selection_DoAppendChunk_A(StringBuilder stringBuilder, int pos, int linePosStart, double xleftExtraFromTabs, int lineIndex)
+    {
+        stringBuilder.Append("left:");
+        stringBuilder.Append((Model.Measurements.CharacterWidth * (pos - linePosStart) + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("top:");
+        stringBuilder.Append((Model.Measurements.LineHeight * lineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("width:");
+    }
+
+    private string Selection_GetStyle_B(StringBuilder stringBuilder, int widthCount, double xleftExtraFromTabs)
+    {
+        stringBuilder.Append((Model.Measurements.CharacterWidth * widthCount + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var selectStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return selectStyle;
     }
 
     public void Dispose()
