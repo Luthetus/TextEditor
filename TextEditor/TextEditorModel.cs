@@ -950,13 +950,9 @@ public class TextEditorModel
                     _editedTextHistoryCount = EditLength;
                 }
                 else
-                {
+                {// nah I don't have any diea what I'm doing rn lmao
                     SquashEdits();
-                    _editedTextHistoryCount = 0;
-                    EditKind = EditKind.RemoveDeleteLtr;
-                    EditPosition = positionIndex;
-                    History_EnsureCapacity(EditLength = count);
-                    _editedTextHistoryCount = EditLength;
+                    History_EnsureCapacity(count);
                     for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
                     {
                         // ctrl + a then ctrl + x is off by 1 when I ctrl + v it back
@@ -964,6 +960,11 @@ public class TextEditorModel
                         // squash then update edit then try to read index => exception
                         _editedTextHistory[editHistoryIndex] = _textBuilder[i];
                     }
+                    _editedTextHistoryCount = 0;
+                    EditKind = EditKind.RemoveDeleteLtr;
+                    EditPosition = positionIndex;
+                    EditLength = count;
+                    _editedTextHistoryCount = EditLength;
                 }
             }
         }
