@@ -107,13 +107,42 @@ public class TextEditorModel
                         // the capacity is 161
                         // it gives 160???
                         // hwhat
-                        
+
 
                         // I am just completely delirious right now I have no idea what's ahppening I'm gonna just look for anmother song
 
                         // oh I fgorr foe fgo I gotta go to bed
 
-                        return _textBuilder[index + EditLength - 1];
+
+
+
+
+                        /*
+                         [ applesauce ]
+                         [ appl0sauce ]
+
+                         [ appl0sauce ]
+                         [0, 3]
+                         [4] => '\0' => [5] => index + editlength
+                         */
+
+
+                        // is the length off by 1? too high?
+
+
+                        /*
+                         [ applesauce ]
+                         [ applesauc0 ]
+
+                         [ applesauc0 ]
+                         [0, 8]
+                         [4] => '\0' => [5] => index + editlength
+                         */
+
+                        // the edit occurred at 9 but why did it ask me for the 9nth index
+
+
+                        return _textBuilder[index + EditLength];
                     }
                     else
                     {
