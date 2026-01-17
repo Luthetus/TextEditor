@@ -94,7 +94,8 @@ public class TextEditorModel
                     }
                     else if (index >= EditPosition && index <= EditPosition + EditLength)
                     {
-                        // += length += depth
+                        // += length is += EditPosition
+                        // += depth  is += (index - EditPosition)
                         return _gapBuffer[index - EditPosition];
                     }
                     else
