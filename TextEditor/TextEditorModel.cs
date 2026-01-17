@@ -92,7 +92,7 @@ public class TextEditorModel
                     {
                         return _textBuilder[index];
                     }
-                    else if (index >= EditPosition && index <= EditPosition + EditLength)
+                    else if (index >= EditPosition && index < EditPosition + EditLength)
                     {
                         // += length is += EditPosition
                         // += depth  is += (index - EditPosition)
@@ -101,6 +101,11 @@ public class TextEditorModel
 
                         // I don't even know I'm just sitting here smiling and laughing I'm so confused
                         // I gotta slow it down and read the text I'm jusst spinnin
+
+                        var d_index = index;
+                        var d_editLength = EditLength;
+                        var lengthTBuilder = _textBuilder.Length;
+                        var va = d_index + d_editLength;
 
                         return _textBuilder[index + EditLength];
                     }
