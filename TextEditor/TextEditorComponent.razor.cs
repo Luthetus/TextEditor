@@ -476,9 +476,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             Model.EditIsUndone = true;
             if (Model.EditKind == EditKind.InsertLtr)
             {
-                Model._editedTextHistoryCount = 0;
+                Model.EditedTextHistoryCount = 0;
                 Model.History_EnsureCapacity(Model.EditLength);
-                Model._editedTextHistoryCount = Model.EditLength;
+                Model.EditedTextHistoryCount = Model.EditLength;
                 for (int editHistoryIndex = 0, i = Model.EditPosition; editHistoryIndex < Model.EditLength; editHistoryIndex++, i++)
                 {
                     Model._editedTextHistory[editHistoryIndex] = Model[i];
@@ -489,13 +489,13 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             }
             else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else if (Model.EditKind == EditKind.RemoveDeleteLtr)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
@@ -511,7 +511,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             Model.EditIsUndone = false;
             if (Model.EditKind == EditKind.InsertLtr)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }

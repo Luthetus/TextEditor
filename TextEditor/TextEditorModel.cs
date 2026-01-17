@@ -154,7 +154,7 @@ public class TextEditorModel
     public TextEditorMeasurements Measurements { get; set; }
 
     public int _editedTextHistoryCapacity => _editedTextHistory.Length;
-    public int _editedTextHistoryCount;
+    public int EditedTextHistoryCount;
     public char[] _editedTextHistory = new char[4];
     public bool EditIsUndone;
     public int EditPosition;
@@ -410,7 +410,7 @@ public class TextEditorModel
         ColumnIndex = 0;
         SelectionAnchor = 0;
         SelectionEnd = 0;
-        _editedTextHistoryCount = 0;
+        EditedTextHistoryCount = 0;
         EditIsUndone = false;
         EditPosition = 0;
         EditLength = 0;
@@ -638,15 +638,15 @@ public class TextEditorModel
         switch (EditKind)
         {
             case EditKind.None:
-                return;
+                break;
             case EditKind.InsertLtr:
                 _textBuilder.Insert(EditPosition, _gapBuffer);
                 _gapBuffer.Clear();
-                return;
+                break;
             case EditKind.RemoveBackspaceRtl:
             case EditKind.RemoveDeleteLtr:
                 _textBuilder.Remove(EditPosition, EditLength);
-                return;
+                break;
             default:
 #if DEBUG
                 throw new NotImplementedException();
@@ -655,6 +655,19 @@ public class TextEditorModel
                 return;
 #endif
         }
+
+        // Perhaps long term these will be redundant.
+        // But you probably wanna ensure the state is being cleared when you squash
+        // lest you have some odd bug and it turns out some random value wasn't cleared
+        // and you're going down some rabit hole to figure out what's happening.
+        //
+        // (redundant because the next edit will set these properties)
+        //
+        EditedTextHistoryCount = 0;
+        EditIsUndone = false;
+        EditPosition = 0;
+        EditLength = 0;
+        EditKind = EditKind.None;
     }
 
     /// <summary>This method will respect the selection if it exists</summary>
@@ -779,7 +792,7 @@ public class TextEditorModel
         if (newCapacity < totalEditLength) newCapacity = totalEditLength;
 
         var newArray = new char[newCapacity];
-        Array.Copy(_editedTextHistory, 0, newArray, 0, _editedTextHistoryCount);
+        Array.Copy(_editedTextHistory, 0, newArray, 0, EditedTextHistoryCount);
         _editedTextHistory = newArray;
     }
 
@@ -800,23 +813,23 @@ public class TextEditorModel
                 if (Validate_BatchRemoveBackspaceRtl(editWasUndone, positionIndex, count))
                 {
                     History_EnsureCapacity(EditLength + count);
-                    Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, _editedTextHistoryCount);
+                    Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, EditedTextHistoryCount);
                     for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
                     {
                         _editedTextHistory[editHistoryIndex] = this[i];
                     }
                     EditLength += count;
                     EditPosition = positionIndex;
-                    _editedTextHistoryCount += count;
+                    EditedTextHistoryCount += count;
                 }
                 else
                 {
                     SquashEdits();
-                    _editedTextHistoryCount = 0;
+                    EditedTextHistoryCount = 0;
                     EditKind = EditKind.RemoveBackspaceRtl;
                     EditPosition = positionIndex;
                     History_EnsureCapacity(EditLength = count);
-                    _editedTextHistoryCount = EditLength;
+                    EditedTextHistoryCount = EditLength;
                     for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
                     {
                         // squash then update edit then try to read index => exception
@@ -829,12 +842,12 @@ public class TextEditorModel
                 if (Validate_BatchRemoveDeleteLtr(editWasUndone, positionIndex, count))
                 {
                     History_EnsureCapacity(EditLength + count);
-                    for (int editHistoryIndex = _editedTextHistoryCount, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                    for (int editHistoryIndex = EditedTextHistoryCount, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
                     {
                         _editedTextHistory[editHistoryIndex] = this[i];
                     }
                     EditLength += count;
-                    _editedTextHistoryCount = EditLength;
+                    EditedTextHistoryCount = EditLength;
                 }
                 else
                 {
@@ -845,11 +858,11 @@ public class TextEditorModel
                         // squash then update edit then try to read index => exception
                         _editedTextHistory[editHistoryIndex] = _textBuilder[i];
                     }
-                    _editedTextHistoryCount = 0;
+                    EditedTextHistoryCount = 0;
                     EditKind = EditKind.RemoveDeleteLtr;
                     EditPosition = positionIndex;
                     EditLength = count;
-                    _editedTextHistoryCount = EditLength;
+                    EditedTextHistoryCount = EditLength;
                 }
             }
         }

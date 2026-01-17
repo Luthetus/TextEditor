@@ -30,7 +30,7 @@ public class UnitTest1
         Assert.Equal(0, model.ColumnIndex);
         Assert.Equal(0, model.SelectionAnchor);
         Assert.Equal(0, model.SelectionEnd);
-        Assert.Equal(0, model._editedTextHistoryCount);
+        Assert.Equal(0, model.EditedTextHistoryCount);
         Assert.False(model.EditIsUndone);
         Assert.Equal(0, model.EditPosition);
         Assert.Equal(0, model.EditLength);
@@ -55,7 +55,7 @@ public class UnitTest1
         model.ColumnIndex = 1;
         model.SelectionAnchor = 1;
         model.SelectionEnd = 1;
-        model._editedTextHistoryCount = 1;
+        model.EditedTextHistoryCount = 1;
         model.EditIsUndone = true;
         model.EditPosition = 1;
         model.EditLength = 1;
@@ -72,7 +72,7 @@ public class UnitTest1
         Assert.Equal(0, model.ColumnIndex);
         Assert.Equal(0, model.SelectionAnchor);
         Assert.Equal(0, model.SelectionEnd);
-        Assert.Equal(0, model._editedTextHistoryCount);
+        Assert.Equal(0, model.EditedTextHistoryCount);
         Assert.False(model.EditIsUndone);
         Assert.Equal(0, model.EditPosition);
         Assert.Equal(0, model.EditLength);
@@ -93,7 +93,7 @@ public class UnitTest1
         Assert.Equal(0, model.ColumnIndex);
         Assert.Equal(0, model.SelectionAnchor);
         Assert.Equal(0, model.SelectionEnd);
-        Assert.Equal(0, model._editedTextHistoryCount);
+        Assert.Equal(0, model.EditedTextHistoryCount);
         Assert.False(model.EditIsUndone);
         Assert.Equal(0, model.EditPosition);
         Assert.Equal(0, model.EditLength);
@@ -118,7 +118,7 @@ public class UnitTest1
         model.ColumnIndex = 1;
         model.SelectionAnchor = 1;
         model.SelectionEnd = 1;
-        model._editedTextHistoryCount = 1;
+        model.EditedTextHistoryCount = 1;
         model.EditIsUndone = true;
         model.EditPosition = 1;
         model.EditLength = 1;
@@ -134,7 +134,7 @@ public class UnitTest1
         Assert.Equal(0, model.ColumnIndex);
         Assert.Equal(0, model.SelectionAnchor);
         Assert.Equal(0, model.SelectionEnd);
-        Assert.Equal(0, model._editedTextHistoryCount);
+        Assert.Equal(0, model.EditedTextHistoryCount);
         Assert.False(model.EditIsUndone);
         Assert.Equal(0, model.EditPosition);
         Assert.Equal(0, model.EditLength);
