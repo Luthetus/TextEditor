@@ -462,70 +462,87 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnUndo()
     {
-        // TODO: Keep this commented out until non CtrlZ/CtrlY edits work properly
-        /*
+        // If you do the gap buffer optimization you can only do it for the most recent edit and then have to move the text still if you support more than one edit?
+        //
+        // you only support 1 edit so
+
+        // insert thenctrlzyoucanjustholdthegapbufferanduseitforctrly
+
+        // delete whenyoudeletedontmarkas'\0'thenyoucanrestorethetextthatway
+
+        // anythingbeyondthemostrecenteditifyouhavemorethan1historyyoubrpprobabkiwenantgineoijaoiewfbibuputindibndidndindbd dndnbndnbndbnsejinosEGojisegoijegsijo;gjoig
+
         if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
+            // in all cases if IsUndone then execute same code as when editkind is None
+
             Model.EditIsUndone = true;
             if (Model.EditKind == EditKind.InsertLtr)
             {
-                Model.EditedTextHistoryCount = 0;
-                Model.History_EnsureCapacity(Model.EditLength);
-                Model.EditedTextHistoryCount = Model.EditLength;
-                for (int editHistoryIndex = 0, i = Model.EditPosition; editHistoryIndex < Model.EditLength; editHistoryIndex++, i++)
-                {
-                    Model._editedTextHistory[editHistoryIndex] = Model[i];
-                }
-                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
+                /*
+                 insert [abc123]
+                 nosquish
+                 Ctrl+z
+                 _gapBuffer still says [abc123]
+                 _textBuffer still says []
+                 Ctrl+y again nothing changes
+                 you add a layer of "IsUndone" the change to when you read
+                 then when you squish if not undone then you insert
+                 */
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                /*
+                 _textbuffer [abc123]
+                 backspace [321]
+                 dont make _textBuffer [abc'\0''\0''\0']
+                 do instead leave as is _textbuffer [abc123]
+                 ctrl y u have text there to readd
+                 */
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else if (Model.EditKind == EditKind.RemoveDeleteLtr)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                /*
+                 _textbuffer [abc123]
+                 delete [123]
+                 dont make _textBuffer [abc'\0''\0''\0']
+                 do instead leave as is _textbuffer [abc123]
+                 ctrl y u have text there to readd
+                 */
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             StateHasChanged();
         }
-        */
     }
     
     [JSInvokable]
     public void OnRedo()
     {
-        // TODO: Keep this commented out until non CtrlZ/CtrlY edits work properly
-        /*
         if (Model.EditKind != EditKind.None && Model.EditIsUndone)
         {
             Model.EditIsUndone = false;
             if (Model.EditKind == EditKind.InsertLtr)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
             {
-                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else if (Model.EditKind == EditKind.RemoveDeleteLtr)
             {
-                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             StateHasChanged();
         }
-        */
     }
 
     [JSInvokable]
