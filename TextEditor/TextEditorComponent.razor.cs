@@ -141,41 +141,43 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         {
             Model.InsertText(key);
         }
-    
-        switch (key)
+        else
         {
-            case "Enter":
-                Model.InsertText("\n");
-                break;
-            case "Tab":
-                Model.InsertText("\t");
-                break;
-            case "ArrowLeft":
-                Model.MoveCursor(MoveCursorKind.ArrowLeft, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "ArrowDown":
-                Model.MoveCursor(MoveCursorKind.ArrowDown, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "ArrowUp":
-                Model.MoveCursor(MoveCursorKind.ArrowUp, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "ArrowRight":
-                Model.MoveCursor(MoveCursorKind.ArrowRight, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "Home":
-                Model.MoveCursor(MoveCursorKind.Home, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "End":
-                Model.MoveCursor(MoveCursorKind.End, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "Delete":
-                Model.RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: ctrlKey);
-                break;
-            case "Backspace":
-                Model.RemoveTextAtPositionByCursor(RemoveKind.BackspaceRtl, ctrlKey: ctrlKey);
-                break;
+            switch (key)
+            {
+                case "Enter":
+                    Model.InsertText("\n");
+                    break;
+                case "Tab":
+                    Model.InsertText("\t");
+                    break;
+                case "ArrowLeft":
+                    Model.MoveCursor(MoveCursorKind.ArrowLeft, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "ArrowDown":
+                    Model.MoveCursor(MoveCursorKind.ArrowDown, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "ArrowUp":
+                    Model.MoveCursor(MoveCursorKind.ArrowUp, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "ArrowRight":
+                    Model.MoveCursor(MoveCursorKind.ArrowRight, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "Home":
+                    Model.MoveCursor(MoveCursorKind.Home, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "End":
+                    Model.MoveCursor(MoveCursorKind.End, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "Delete":
+                    Model.RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: ctrlKey);
+                    break;
+                case "Backspace":
+                    Model.RemoveTextAtPositionByCursor(RemoveKind.BackspaceRtl, ctrlKey: ctrlKey);
+                    break;
+            }
         }
-        
+
         StateHasChanged();
     }
 
