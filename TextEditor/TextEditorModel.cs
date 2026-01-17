@@ -99,6 +99,8 @@ public class TextEditorModel
 
                         // no length is the EditLength...
 
+                        // I don't even know I'm just sitting here smiling and laughing I'm so confused
+                        // I gotta slow it down and read the text I'm jusst spinnin
 
                         return _textBuilder[index + EditLength];
                     }
