@@ -77,8 +77,6 @@ public partial class TextEditorModel
     public int LineIndex { get; set; }
     public int ColumnIndex { get; set; }
 
-    public TextEditorMeasurements Measurements { get; set; }
-
     public int _editedTextHistoryCapacity => _editedTextHistory.Length;
     public int EditedTextHistoryCount;
     public char[] _editedTextHistory = new char[4];

@@ -16,16 +16,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     private int OnMouseDown_DetailRank3_OriginalLineIndex;
 
     private DotNetObjectReference<TextEditorComponent>? _dotNetHelper;
-    /// <summary>
-    /// No persistence of TextEditorModel comes with the library.
-    ///
-    /// But the presumption here is that someone might choose to persist a TextEditorModel,
-    /// and that they'd like to know what the measurements last were,
-    /// because those measurements relate to the virtualized content that was displayed.
-    ///
-    /// In 'OnParametersSet()' the Model has its 'Measurements' property set to that of the component's '_measurements' field.
-    /// Additionally this set is performed within 'InitializeAndTakeMeasurements()'.
-    /// </summary>
     private TextEditorMeasurements _measurements;
     /// <summary>
     /// This field most closely relates to whether the non-Blazor UI events were added via JavaScript or not.
@@ -49,8 +39,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         if (Model is null)
             throw new NotImplementedException($"The Blazor parameter '{nameof(Model)}' cannot be null");
-        
-        Model.Measurements = _measurements;
             
         base.OnParametersSet();
     }
@@ -68,7 +56,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("textEditor.initializeAndTakeMeasurements", _dotNetHelper);
         _textEditorHeight = _measurements.EditorHeight;
-        Model.Measurements = _measurements;
         _failedToInitialize = _measurements.IsDefault();
     }
     
@@ -76,7 +63,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("textEditor.takeMeasurements");
         _textEditorHeight = _measurements.EditorHeight;
-        Model.Measurements = _measurements;
     }
 
     private double _scrollTop;
@@ -602,11 +588,11 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (rX < 0) rX = 0;
         if (rY < 0) rY = 0;
 
-        var lineIndex = (int)(rY / Model.Measurements.LineHeight);
+        var lineIndex = (int)(rY / Measurements.LineHeight);
         if (lineIndex > Model.LineBreakPositionList.Count)
             lineIndex = Model.LineBreakPositionList.Count;
 
-        var columnIndexDouble = rX / Model.Measurements.CharacterWidth;
+        var columnIndexDouble = rX / Measurements.CharacterWidth;
         var supposedColumnIndex = (int)Math.Round(columnIndexDouble, MidpointRounding.AwayFromZero);
 
         var (xlineIndex, xlinePosStart, xlinePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.GetPositionIndex(lineIndex, supposedColumnIndex));
@@ -691,13 +677,13 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 count++;
         }
         // tabCount == 4, extra is 4 - 1 => 3
-        var xleftExtraFromTabs = count * 3 * Model.Measurements.CharacterWidth;
+        var xleftExtraFromTabs = count * 3 * Measurements.CharacterWidth;
 
         stringBuilder.Append("left:");
-        stringBuilder.Append((Model.Measurements.CharacterWidth * (pos - linePosStart) + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append((Measurements.CharacterWidth * (pos - linePosStart) + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
         stringBuilder.Append("top:");
-        stringBuilder.Append((Model.Measurements.LineHeight * lineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append((Measurements.LineHeight * lineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
         stringBuilder.Append("width:");
 
@@ -718,9 +704,9 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 count++;
         }
         // tabCount == 4, extra is 4 - 1 => 3
-        xleftExtraFromTabs = count * 3 * Model.Measurements.CharacterWidth;
+        xleftExtraFromTabs = count * 3 * Measurements.CharacterWidth;
 
-        stringBuilder.Append((Model.Measurements.CharacterWidth * widthCount + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append((Measurements.CharacterWidth * widthCount + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
         var selectStyle = stringBuilder.ToString();
         stringBuilder.Clear();
@@ -786,7 +772,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         var tabCountOnSameLinePriorToCursor = Model.GetTabCountOnSameLinePriorToCursor();
         // tabCount == 4, extra is 4 - 1 => 3
-        var leftExtraFromTabs = tabCountOnSameLinePriorToCursor * 3 * Model.Measurements.CharacterWidth;
+        var leftExtraFromTabs = tabCountOnSameLinePriorToCursor * 3 * Measurements.CharacterWidth;
 
         stringBuilder.Append("left:");
         //
@@ -795,11 +781,11 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         // Avoid ',' in css when user's culture would default to using that in place of '.'
         // with System.Globalization.CultureInfo.InvariantCulture
         //
-        stringBuilder.Append((Model.Measurements.CharacterWidth * Model.ColumnIndex + leftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append((Measurements.CharacterWidth * Model.ColumnIndex + leftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
 
         stringBuilder.Append("top:");
-        stringBuilder.Append((Model.Measurements.LineHeight * Model.LineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append((Measurements.LineHeight * Model.LineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         stringBuilder.Append("px;");
 
         var cursorStyle = stringBuilder.ToString();
