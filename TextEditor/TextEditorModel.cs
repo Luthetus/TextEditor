@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 
 namespace TextEditor;
@@ -7,11 +6,9 @@ public class TextEditorModel
 {
     private readonly StringBuilder _textBuilder = new();
     /// <summary>
-    /// The gap buffer is being added, and presumably you wouldn't want
-    /// such a "clean/natural" way to get the _textBuilder.
+    /// The gap buffer is being added, and presumably you wouldn't want such a "clean/natural" way to get the _textBuilder.
     /// 
-    /// So wrapped the protected access to it in a method makes it "feel awkward"
-    /// and thus notifies the person that they might be going down the wrong route,
+    /// So wrapped the protected access to it in a method makes it "feel awkward" and thus notifies the person that they might be going down the wrong route,
     /// i.e.: that they want to say something along the lines of 'this[i]'
     /// </summary>
     protected StringBuilder GetTextBuilder() => _textBuilder;
@@ -94,62 +91,10 @@ public class TextEditorModel
                     }
                     else if (index >= EditPosition && index < EditPosition + EditLength)
                     {
-                        // += length is += EditPosition
-                        // += depth  is += (index - EditPosition)
-
-                        // no length is the EditLength...
-
-                        // I don't even know I'm just sitting here smiling and laughing I'm so confused
-                        // I gotta slow it down and read the text I'm jusst spinnin
-
-                        //var va = d_index + d_editLength;
-
-                        // the capacity is 161
-                        // it gives 160???
-                        // hwhat
-
-
-                        // I am just completely delirious right now I have no idea what's ahppening I'm gonna just look for anmother song
-
-                        // oh I fgorr foe fgo I gotta go to bed
-
-
-
-
-
-                        /*
-                         [ applesauce ]
-                         [ appl0sauce ]
-
-                         [ appl0sauce ]
-                         [0, 3]
-                         [4] => '\0' => [5] => index + editlength
-                         */
-
-
-                        // is the length off by 1? too high?
-
-
-                        /*
-                         [ applesauce ]
-                         [ applesauc0 ]
-
-                         [ applesauc0 ]
-                         [0, 8]
-                         [4] => '\0' => [5] => index + editlength
-                         */
-
-                        // the edit occurred at 9 but why did it ask me for the 9nth index
-
-
                         return _textBuilder[index + EditLength];
                     }
                     else
                     {
-                        // if you delete the text by replacing it with '\0' the text isn't actually gone.
-                        // it gives you a small index so you add.
-                        //
-                        // dah idk lol
                         return _textBuilder[index + EditLength];
                     }
                 default:
@@ -183,9 +128,7 @@ public class TextEditorModel
                     return _textBuilder.Length - 1 + _gapBuffer.Length;
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
-                    // not impl
                     return _textBuilder.Length - EditLength;
-                    //throw new NotImplementedException();
                 default:
 #if DEBUG
                     throw new NotImplementedException();
@@ -199,8 +142,7 @@ public class TextEditorModel
     }
 
     /// <summary>
-    /// You'd only need to store either PositionIndex or both LineIndex and ColumnIndex
-    /// since one can calculate the other.
+    /// You'd only need to store either PositionIndex or both LineIndex and ColumnIndex since one can calculate the other.
     /// 
     /// But I feel just keeping both representations up to date is best from a usability standpoint.
     /// Otherwise you'd have to ask for one or the other by accessing mutable state that might change out from under you during the calculation.
@@ -220,11 +162,9 @@ public class TextEditorModel
     public EditKind EditKind = EditKind.None;
     
     /// <summary>
-    /// You can keep this feature disabled by leaving the property null (the default).
-    /// Otherwise, you need to instantiate the list and begin populating it.
+    /// You can keep this feature disabled by leaving the property null (the default). Otherwise, you need to instantiate the list and begin populating it.
     ///
-    /// This list is NOT expected to be sorted.
-    /// A tooltip event will perform a linear search through this list to find the matching position index.
+    /// This list is NOT expected to be sorted. A tooltip event will perform a linear search through this list to find the matching position index.
     /// </summary>
     public List<TextEditorTooltip>? TooltipList { get; set; } = null;
     public const byte CharacterTooltipByteKind = 0;
@@ -244,20 +184,16 @@ public class TextEditorModel
 
     public bool HasSelection => SelectionAnchor != SelectionEnd;
 
-    /// <summary>
-    /// The position index
-    /// </summary>
+    /// <summary>The position index</summary>
     public int SelectionAnchor { get; set; }
-    /// <summary>
-    /// The position index
-    /// </summary>
+    /// <summary>The position index</summary>
     public int SelectionEnd { get; set; }
 
     /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
     /// Otherwise, you need to instantiate the list by invoking "EnableDecorations()" and begin populating the method "Decorate(...)".
     ///
-    /// This list is expected to be sorted.
+    /// Each index in this list is expected to correspond to the respective index of the text
     /// </summary>
     public byte[]? DecorationArray => _decorationArray;
     protected byte[]? _decorationArray = null;
@@ -272,8 +208,7 @@ public class TextEditorModel
     {
         var (lineIndex, linePosStart, linePosEnd) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
 
-        // you don't need to know the end of the line, just read backwards until a '\n' or startOfFile, then jump back to starting position and go forward until
-        // either a '\n' or EOF
+        // you don't need to know the end of the line, just read backwards until a '\n' or startOfFile, then jump back to starting position and go forward until either a '\n' or EOF
         int count = 0;
         for (int i = linePosStart; i < PositionIndex; i++)
         {
@@ -286,9 +221,7 @@ public class TextEditorModel
         return count;
     }
 
-    /// <summary>
-    /// If you return 'null', then the tooltip is essentially "cancelled" as if the event never occurred.
-    /// </summary>
+    /// <summary>If you return 'null', then the tooltip is essentially "cancelled" as if the event never occurred.</summary>
     public virtual string? GetTooltipText(TextEditorTooltip tooltip)
     {
         switch (tooltip.ByteKind)
@@ -501,45 +434,29 @@ public class TextEditorModel
     }
 
     /// <summary>
-    /// This method uses the user's current position as the insertion point.
-    /// and if the positionIndex is <= the user's position index,
-    /// then the user's position index is increased by the amount of text inserted
-    /// (note that the text ultimately inserted might not be equal to the text parameter
-    ///  because line endings are always inserted as '\n' then upon saving the file
-    ///  they are written out as the desired line ending)
+    /// This method uses the user's current position as the insertion point. and if the positionIndex is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file they are written out as the desired line ending)
     ///  
-    /// This method internally invokes 'InsertTextAtPosition(text, PositionIndex);'
-    ///  
-    /// <see cref="InsertTextAtPosition(string, int)"/> and <see cref="InsertTextAtLineColumn(string, int, int)"/>
-    /// are alternative methods that one can use to insert at a position that isn't the user's cursor.
+    /// <see cref="InsertTextAtPosition(string, int)"/> and <see cref="InsertTextAtLineColumn(string, int, int)"/> are alternative methods that one can use to insert at a position that isn't the user's cursor.
     /// 
-    /// If "\n", "\r", or "\r\n" appear in the text, "\n" will be inserted in place of it because:
-    /// always insert '\n' for line endings, and then track separately the desired line end.
-    /// upon saving, create a string that has the '\n' included as the desired line end.
+    /// If "\n", "\r", or "\r\n" appear in the text, "\n" will be inserted in place of it because: always insert '\n' for line endings, and then track separately the desired line end. upon saving, create a string that has the '\n' included as the desired line end.
     /// </summary>
     public void InsertText(ReadOnlySpan<char> text)
     {
         if (HasSelection)
             RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: false);
-
         InsertTextAtPosition(text, PositionIndex);
     }
 
     /// <summary>
-    /// This method inserts at the provided lineIndex and columnIndex,
-    /// and if the 'calculated positionIndex' is <= the user's position index,
-    /// then the user's position index is increased by the amount of text inserted
-    /// (note that the text ultimately inserted might not be equal to the text parameter
-    ///  because line endings are always inserted as '\n' then upon saving the file
-    ///  they are written out as the desired line ending)
+    /// This method inserts at the provided lineIndex and columnIndex, and if the 'calculated positionIndex' is <= the user's position index,
+    /// then the user's position index is increased by the amount of text inserted (note that the text ultimately inserted might not be equal to the text parameter
+    ///  because line endings are always inserted as '\n' then upon saving the file they are written out as the desired line ending)
     ///  
-    /// This method internally invokes 'InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));'
-    /// 
-    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
-    /// if that is the desired insertion point.
+    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position if that is the desired insertion point.
     /// </summary>
-    public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex) =>
-        InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));
+    public void InsertTextAtLineColumn(string text, int lineIndex, int columnIndex) => InsertTextAtPosition(text, GetPositionIndex(lineIndex, columnIndex));
 
     protected void InsertTextAtPosition_InsertLineBreak(ref int lineBreakInsertedIndex, ref int lineBreakInsertedCount, int entryPositionIndex, int positionIndex)
     {
@@ -600,18 +517,12 @@ public class TextEditorModel
     // the undo/redo logic...
 
     /// <summary>
-    /// This method inserts at the provided positionIndex,
-    /// and if the positionIndex is <= the user's position index,
-    /// then the user's position index is increased by the amount of text inserted
-    /// (note that the text ultimately inserted might not be equal to the text parameter
-    ///  because line endings are always inserted as '\n' then upon saving the file
-    ///  they are written out as the desired line ending)
+    /// This method inserts at the provided positionIndex, and if the positionIndex is <= the user's position index, then the user's position index is increased by the amount of text inserted
+    /// (note that the text ultimately inserted might not be equal to the text parameter because line endings are always inserted as '\n' then upon saving the file they are written out as the desired line ending)
     /// 
-    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
-    /// if that is the desired insertion point.
+    /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position if that is the desired insertion point.
     /// 
-    /// 'bool __unsafe__insertDirectly' should remain as the default false value 99.9% of the time,
-    /// it is intended for internal use only.
+    /// 'bool __unsafe__insertDirectly' should remain as the default false value 99.9% of the time, it is intended for internal use only.
     /// </summary>
     public void InsertTextAtPosition(ReadOnlySpan<char> text, int positionIndex, bool shouldMakeEditHistory = true, bool __unsafe__insertDirectly = false)
     {
@@ -722,12 +633,6 @@ public class TextEditorModel
         }
     }
 
-    /// <summary>
-    /// The decorations can be shifted by the current contiguous edit.
-    /// 
-    /// Anytime the contiguous edit moves, you need to make sure the previous edit
-    /// modifies the decorations for good so the shift is persisted.
-    /// </summary>
     public void SquashEdits()
     {
         switch (EditKind)
@@ -750,20 +655,9 @@ public class TextEditorModel
                 return;
 #endif
         }
-        /*
-        if (DecorationArray is null)
-            return;
-
-        DecorateEnsureCapacityWritable();
-
-        // hmm
-        Array.Copy(DecorationArray, EditPosition, DecorationArray, EditPosition + EditLength, Length - EditPosition);
-        */
     }
 
-    /// <summary>
-    /// This method will respect the selection if it exists
-    /// </summary>
+    /// <summary>This method will respect the selection if it exists</summary>
     public virtual void RemoveTextAtPositionByCursor(RemoveKind removeKind, bool ctrlKey)
     {
         if (HasSelection)
@@ -872,6 +766,7 @@ public class TextEditorModel
         return EditKind == EditKind.RemoveDeleteLtr && !editWasUndone && EditPosition == positionIndex;
     }
 
+    /// <summary>Source code from List was copy, pasted, modified into this method</summary>
     public void History_EnsureCapacity(int totalEditLength)
     {
         if (_editedTextHistoryCapacity >= totalEditLength)
@@ -888,17 +783,9 @@ public class TextEditorModel
         _editedTextHistory = newArray;
     }
 
-    /// <summary>
-    /// This method ignores the selection
-    /// </summary>
+    /// <summary>This method ignores the selection</summary>
     public virtual void RemoveTextAtPositionByRandomAccess(int positionIndex, int count, RemoveKind removeKind, bool shouldMakeEditHistory = true)
     {
-
-        // Delete from the gap buffer is another case...
-        // unless I write the gap buffer then remove.
-        // Honestly it's probably a good idea to do that first since I've never written a gap buffer.
-        // It doesn't seem too bad but I don't wanna get too complicated and fall flat on my face either.
-
         if (positionIndex < 0)
             return;
         if (positionIndex >= Length)
@@ -950,24 +837,11 @@ public class TextEditorModel
                     _editedTextHistoryCount = EditLength;
                 }
                 else
-                {// nah I don't have any diea what I'm doing rn lmao
-                    // I'm so tired mentally in terms of solving a problem
-                    // but my brain is just screaming for me to go go go keep going
-                    // I could just run
-                    //
-
-                    // I hope I can sleep
-                    // i need to take I am sick so I'm taking nyquil
-                    // ... like I have a cold or something is what I mean so I been taking that
-                    //
-                    // "we could be heroes"
-                    //
+                {
                     SquashEdits();
                     History_EnsureCapacity(count);
                     for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
                     {
-                        // ctrl + a then ctrl + x is off by 1 when I ctrl + v it back
-
                         // squash then update edit then try to read index => exception
                         _editedTextHistory[editHistoryIndex] = _textBuilder[i];
                     }
@@ -1086,11 +960,9 @@ public class TextEditorModel
     }
 
     /// <summary>
-    /// If provided an invalid lineIndex or columnIndex this method will re-invoke itself
-    /// with the closest valid lineIndex, and columnIndex.
+    /// If provided an invalid lineIndex or columnIndex this method will re-invoke itself with the closest valid lineIndex, and columnIndex.
     /// 
-    /// The method validates lineIndex first, then checks if the columnIndex provided
-    /// is valid for the validated lineIndex.
+    /// The method validates lineIndex first, then checks if the columnIndex provided is valid for the validated lineIndex.
     /// 
     /// If the provided columnIndex exists on the validated lineIndex then the columnIndex stays the same.
     /// Otherwise the columnIndex is then changed to the closest valid columnIndex for the given line.
@@ -1128,12 +1000,7 @@ public class TextEditorModel
         return GetPositionIndex(lineIndex, columnIndex);
     }
 
-    /// <summary>
-    /// If there is no valid column index then '-1' is returned.
-    /// 
-    /// This may seem slightly contrary to the <see cref="GetPositionIndex(int, int)"/> and <see cref="TryGetPositionIndex(int, int, out int)"/>
-    /// pattern. But this method checks for a valid column index specifically, so the only option is to return a valid columnIndex or -1.
-    /// </summary>
+    /// <summary>If there is no valid column index then '-1' is returned.</summary>
     public int GetLastValidColumnIndex(int lineIndex)
     {
         if (lineIndex == 0)
@@ -1245,15 +1112,9 @@ public class TextEditorModel
     }
 
     /// <summary>
-    /// Maybe this is more a remark...
-    /// but something to keep in mind when wanting plain text MIGHT be:
-    ///
-    /// Returning 'null' avoids the HTML attribute name 'class' from being written.
-    /// Whereas 'string.Empty' will still write the HTML attribute name 'class'.
-    ///
-    ///
-    /// But, if you ever wanted to change the color of plain text you'd be in trouble
-    /// without a CSS class to target.
+    /// Maybe this is more a remark... but something to keep in mind when wanting plain text MIGHT be:
+    /// Returning 'null' avoids the HTML attribute name 'class' from being written. Whereas 'string.Empty' will still write the HTML attribute name 'class'.
+    /// But, if you ever wanted to change the color of plain text you'd be in trouble without a CSS class to target.
     /// </summary>
     public virtual string? DecorationMapToCssClass(byte decorationByte)
     {
@@ -1296,10 +1157,7 @@ public class TextEditorModel
     {
     }
 
-    /// <summary>
-    /// 'startPosition' is inclusive
-    /// 'endPosition' is exclusive
-    /// </summary>
+    /// <summary> 'startPosition' is inclusive, 'endPosition' is exclusive</summary>
     public void Decorate(int startPosition, int endPosition, byte decorationByte)
     {
         if (DecorationArray is null)
