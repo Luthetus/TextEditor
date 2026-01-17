@@ -558,6 +558,7 @@ public class TextEditorModel
         else
         {
             stringBuilder = _gapBuffer;
+            insertionIndex -= positionIndex;
         }
 
         var entryPositionIndex = positionIndex;
@@ -601,7 +602,6 @@ public class TextEditorModel
             }
             else
             {
-
                 stringBuilder.Insert(insertionIndex, character);
             }
 
