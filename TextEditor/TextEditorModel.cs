@@ -423,7 +423,7 @@ public class TextEditorModel
     {
         Clear();
 
-        InsertTextAtPosition(text, 0, stringBuilder: _textBuilder, shouldMakeEditHistory: false);
+        InsertTextAtPosition(text, 0, shouldMakeEditHistory: false, __unsafe__insertDirectly: true);
         PositionIndex = 0;
         LineIndex = 0;
         ColumnIndex = 0;
@@ -542,10 +542,17 @@ public class TextEditorModel
     /// 
     /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
     /// if that is the desired insertion point.
+    /// 
+    /// 'bool __unsafe__insertDirectly' should remain as the default false value 99.9% of the time,
+    /// it is intended for internal use only.
     /// </summary>
-    public void InsertTextAtPosition(ReadOnlySpan<char> text, int positionIndex, StringBuilder? stringBuilder = null, bool shouldMakeEditHistory = true)
+    public void InsertTextAtPosition(ReadOnlySpan<char> text, int positionIndex, bool shouldMakeEditHistory = true, bool __unsafe__insertDirectly = false)
     {
-        stringBuilder ??= _gapBuffer;
+        StringBuilder stringBuilder;
+        if (__unsafe__insertDirectly)
+            stringBuilder = _textBuilder;
+        else
+            stringBuilder = _gapBuffer;
 
         var entryPositionIndex = positionIndex;
 
@@ -588,6 +595,7 @@ public class TextEditorModel
             }
             else
             {
+
                 stringBuilder.Insert(positionIndex, character);
             }
 
