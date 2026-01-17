@@ -485,6 +485,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                  _textBuffer still says []
                  Ctrl+y again nothing changes
                  you add a layer of "IsUndone" the change to when you read
+                 then when you squish if not undone then you insert
                  */
 
 
