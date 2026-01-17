@@ -756,6 +756,58 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         return Model.DecorationArray[i];
     }
 
+    private string GetTooltipStyle(StringBuilder stringBuilder)
+    {
+        stringBuilder.Append("left:");
+        stringBuilder.Append(Math.Max(0, _tooltipClientX - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("top:");
+        stringBuilder.Append(Math.Max(0, _tooltipClientY - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var tooltipStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return tooltipStyle;
+    }
+
+    private string GetDropdownStyle(StringBuilder stringBuilder)
+    {
+        stringBuilder.Append("left:");
+        stringBuilder.Append(Math.Max(0, _dropdownClientX - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("top:");
+        stringBuilder.Append(Math.Max(0, _dropdownClientY - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var dropdownStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return dropdownStyle;
+    }
+
+    private string GetCursorStyle(StringBuilder stringBuilder)
+    {
+        var tabCountOnSameLinePriorToCursor = Model.GetTabCountOnSameLinePriorToCursor();
+        // tabCount == 4, extra is 4 - 1 => 3
+        var leftExtraFromTabs = tabCountOnSameLinePriorToCursor * 3 * Model.Measurements.CharacterWidth;
+
+        stringBuilder.Append("left:");
+        //
+        // Two decimal places for the double values avoids excessive information being sent when the visual difference is negligible.
+        //
+        // Avoid ',' in css when user's culture would default to using that in place of '.'
+        // with System.Globalization.CultureInfo.InvariantCulture
+        //
+        stringBuilder.Append((Model.Measurements.CharacterWidth * Model.ColumnIndex + leftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+
+        stringBuilder.Append("top:");
+        stringBuilder.Append((Model.Measurements.LineHeight * Model.LineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+
+        var cursorStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+
+        return cursorStyle;
+    }
+
     public void Dispose()
     {
         _dotNetHelper?.Dispose();
