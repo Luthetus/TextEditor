@@ -102,10 +102,11 @@ public class TextEditorModel
                         // I don't even know I'm just sitting here smiling and laughing I'm so confused
                         // I gotta slow it down and read the text I'm jusst spinnin
 
-                        var d_index = index;
-                        var d_editLength = EditLength;
-                        var lengthTBuilder = _textBuilder.Length;
-                        var va = d_index + d_editLength;
+                        //var va = d_index + d_editLength;
+
+                        // the capacity is 161
+                        // it gives 160???
+                        // hwhat
 
                         return _textBuilder[index + EditLength - 1];
                     }
