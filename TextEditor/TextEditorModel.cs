@@ -62,6 +62,7 @@ public class TextEditorModel
 
     }
 
+    // bug likely 'case G' start
     public char this[int index]
     {
         get
@@ -109,12 +110,16 @@ public class TextEditorModel
             }
         }
     }
+    // bug likely 'case G' end
 
+    // bug likely 'case H' start
     public override string ToString()
     {
         return _textBuilder.ToString();
     }
+    // bug likely 'case H' end
 
+    // bug likely 'case I' start
     public int Length
     {
         get
@@ -140,6 +145,7 @@ public class TextEditorModel
             }
         }
     }
+    // bug likely 'case I' end
 
     /// <summary>
     /// You'd only need to store either PositionIndex or both LineIndex and ColumnIndex since one can calculate the other.
@@ -541,11 +547,13 @@ public class TextEditorModel
 
         var entryPositionIndex = positionIndex;
         
+        // bug likely 'case A' start
         if (shouldMakeEditHistory)
         {
             if (EditIsUndone || EditKind != EditKind.InsertLtr || EditPosition + EditLength != entryPositionIndex)
                 SquashEdits();
         }
+        // bug likely 'case A' end
 
         var lineBreakInsertedIndex = -1;
         var lineBreakInsertedCount = 0;
@@ -633,8 +641,129 @@ public class TextEditorModel
         }
     }
 
+    /// <summary>This method ignores the selection</summary>
+    public virtual void RemoveTextAtPositionByRandomAccess(int positionIndex, int count, RemoveKind removeKind, bool shouldMakeEditHistory = true)
+    {
+        if (positionIndex < 0)
+            return;
+        if (positionIndex >= Length)
+            return;
+
+        if (shouldMakeEditHistory)
+        {
+            var editWasUndone = EditIsUndone;
+            EditIsUndone = false;
+            if (removeKind == RemoveKind.BackspaceRtl)
+            {
+                if (Validate_BatchRemoveBackspaceRtl(editWasUndone, positionIndex, count))
+                {
+                    // bug likely 'case B' start
+                    History_EnsureCapacity(EditLength + count);
+                    Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, EditedTextHistoryCount);
+                    for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
+                    {
+                        _editedTextHistory[editHistoryIndex] = this[i];
+                    }
+                    EditLength += count;
+                    EditPosition = positionIndex;
+                    EditedTextHistoryCount += count;
+                    // bug likely 'case B' end
+                }
+                else
+                {
+                    // bug likely 'case C' start
+                    SquashEdits();
+                    EditedTextHistoryCount = 0;
+                    EditKind = EditKind.RemoveBackspaceRtl;
+                    EditPosition = positionIndex;
+                    History_EnsureCapacity(EditLength = count);
+                    EditedTextHistoryCount = EditLength;
+                    for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                    {
+                        // squash then update edit then try to read index => exception
+                        _editedTextHistory[editHistoryIndex] = _textBuilder[i];
+                    }
+                    // bug likely 'case C' end
+                }
+            }
+            else if (removeKind == RemoveKind.DeleteLtr)
+            {
+                if (Validate_BatchRemoveDeleteLtr(editWasUndone, positionIndex, count))
+                {
+                    // bug likely 'case D' start
+                    History_EnsureCapacity(EditLength + count);
+                    for (int editHistoryIndex = EditedTextHistoryCount, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                    {
+                        _editedTextHistory[editHistoryIndex] = this[i];
+                    }
+                    EditLength += count;
+                    EditedTextHistoryCount = EditLength;
+                    // bug likely 'case D' end
+                }
+                else
+                {
+                    // bug likely 'case E' start
+                    SquashEdits();
+                    History_EnsureCapacity(count);
+                    for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
+                    {
+                        // squash then update edit then try to read index => exception
+                        _editedTextHistory[editHistoryIndex] = _textBuilder[i];
+                    }
+                    EditedTextHistoryCount = 0;
+                    EditKind = EditKind.RemoveDeleteLtr;
+                    EditPosition = positionIndex;
+                    EditLength = count;
+                    EditedTextHistoryCount = EditLength;
+                    // bug likely 'case E' end
+                }
+            }
+        }
+
+        var start = positionIndex;
+        var end = positionIndex + count;
+
+        // this has a few overloads...:
+        // _textBuilder.Replace();
+        //
+        // gonna just for loop for now
+        for (int i = positionIndex; i < positionIndex + count; i++)
+        {
+            _textBuilder[i] = '\0';
+        }
+
+        var lineBreakOriginalCount = LineBreakPositionList.Count;
+
+        for (var i = LineBreakPositionList.Count - 1; i >= 0; i--)
+        {
+            if (LineBreakPositionList[i] >= end)
+                LineBreakPositionList[i] -= count;
+            else if (LineBreakPositionList[i] >= start)
+                LineBreakPositionList.RemoveAt(i);
+        }
+
+        for (var i = TabPositionList.Count - 1; i >= 0; i--)
+        {
+            if (TabPositionList[i] >= end)
+                TabPositionList[i] -= count;
+            else if (TabPositionList[i] >= start)
+                TabPositionList.RemoveAt(i);
+        }
+
+        if (PositionIndex > start)
+        {
+            PositionIndex -= count;
+            // If a selection leaves the cursor as is (such as the current implementation of Ctrl + A)
+            // then this logic gives a negative value.
+            if (PositionIndex < 0)
+                PositionIndex = 0;
+            (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
+        }
+    }
+
     public void SquashEdits()
     {
+        // bug likely 'case F' start
         switch (EditKind)
         {
             case EditKind.None:
@@ -668,6 +797,7 @@ public class TextEditorModel
         EditPosition = 0;
         EditLength = 0;
         EditKind = EditKind.None;
+        // bug likely 'case F' end
     }
 
     /// <summary>This method will respect the selection if it exists</summary>
@@ -710,13 +840,9 @@ public class TextEditorModel
                     while (PositionIndex + count < linePosEnd)
                     {
                         if (GetCharacterKind(this[PositionIndex + count]) == originalCharacterKind)
-                        {
                             ++count;
-                        }
                         else
-                        {
                             break;
-                        }
                     }
                 }
                 RemoveTextAtPositionByRandomAccess(PositionIndex, count, RemoveKind.DeleteLtr);
@@ -794,118 +920,6 @@ public class TextEditorModel
         var newArray = new char[newCapacity];
         Array.Copy(_editedTextHistory, 0, newArray, 0, EditedTextHistoryCount);
         _editedTextHistory = newArray;
-    }
-
-    /// <summary>This method ignores the selection</summary>
-    public virtual void RemoveTextAtPositionByRandomAccess(int positionIndex, int count, RemoveKind removeKind, bool shouldMakeEditHistory = true)
-    {
-        if (positionIndex < 0)
-            return;
-        if (positionIndex >= Length)
-            return;
-
-        if (shouldMakeEditHistory)
-        {
-            var editWasUndone = EditIsUndone;
-            EditIsUndone = false;
-            if (removeKind == RemoveKind.BackspaceRtl)
-            {
-                if (Validate_BatchRemoveBackspaceRtl(editWasUndone, positionIndex, count))
-                {
-                    History_EnsureCapacity(EditLength + count);
-                    Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, EditedTextHistoryCount);
-                    for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
-                    {
-                        _editedTextHistory[editHistoryIndex] = this[i];
-                    }
-                    EditLength += count;
-                    EditPosition = positionIndex;
-                    EditedTextHistoryCount += count;
-                }
-                else
-                {
-                    SquashEdits();
-                    EditedTextHistoryCount = 0;
-                    EditKind = EditKind.RemoveBackspaceRtl;
-                    EditPosition = positionIndex;
-                    History_EnsureCapacity(EditLength = count);
-                    EditedTextHistoryCount = EditLength;
-                    for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
-                    {
-                        // squash then update edit then try to read index => exception
-                        _editedTextHistory[editHistoryIndex] = _textBuilder[i];
-                    }
-                }
-            }
-            else if (removeKind == RemoveKind.DeleteLtr)
-            {
-                if (Validate_BatchRemoveDeleteLtr(editWasUndone, positionIndex, count))
-                {
-                    History_EnsureCapacity(EditLength + count);
-                    for (int editHistoryIndex = EditedTextHistoryCount, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
-                    {
-                        _editedTextHistory[editHistoryIndex] = this[i];
-                    }
-                    EditLength += count;
-                    EditedTextHistoryCount = EditLength;
-                }
-                else
-                {
-                    SquashEdits();
-                    History_EnsureCapacity(count);
-                    for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
-                    {
-                        // squash then update edit then try to read index => exception
-                        _editedTextHistory[editHistoryIndex] = _textBuilder[i];
-                    }
-                    EditedTextHistoryCount = 0;
-                    EditKind = EditKind.RemoveDeleteLtr;
-                    EditPosition = positionIndex;
-                    EditLength = count;
-                    EditedTextHistoryCount = EditLength;
-                }
-            }
-        }
-
-        var start = positionIndex;
-        var end = positionIndex + count;
-
-        // this has a few overloads...:
-        // _textBuilder.Replace();
-        //
-        // gonna just for loop for now
-        for (int i = positionIndex; i < positionIndex + count; i++)
-        {
-            _textBuilder[i] = '\0';
-        }
-
-        var lineBreakOriginalCount = LineBreakPositionList.Count;
-
-        for (var i = LineBreakPositionList.Count - 1; i >= 0; i--)
-        {
-            if (LineBreakPositionList[i] >= end)
-                LineBreakPositionList[i] -= count;
-            else if (LineBreakPositionList[i] >= start)
-                LineBreakPositionList.RemoveAt(i);
-        }
-        
-        for (var i = TabPositionList.Count - 1; i >= 0; i--)
-        {
-            if (TabPositionList[i] >= end)
-                TabPositionList[i] -= count;
-            else if (TabPositionList[i] >= start)
-                TabPositionList.RemoveAt(i);
-        }
-
-        if (PositionIndex > start)
-        {
-            PositionIndex -= count;
-            // If a selection leaves the cursor as is (such as the current implementation of Ctrl + A)
-            // then this logic gives a negative value.
-            if (PositionIndex < 0)
-                PositionIndex = 0;
-            (LineIndex, ColumnIndex) = GetLineColumnIndices(PositionIndex);
-        }
     }
 
     public virtual (int lineIndex, int linePosStart, int linePosEnd) GetLineInformationExcludingLineEndingCharacterByPositionIndex(int positionIndex)

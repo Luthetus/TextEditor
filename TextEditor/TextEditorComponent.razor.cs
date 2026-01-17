@@ -471,6 +471,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnUndo()
     {
+        // TODO: Keep this commented out until non CtrlZ/CtrlY edits work properly
+        /*
         if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
             Model.EditIsUndone = true;
@@ -501,11 +503,14 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             }
             StateHasChanged();
         }
+        */
     }
     
     [JSInvokable]
     public void OnRedo()
     {
+        // TODO: Keep this commented out until non CtrlZ/CtrlY edits work properly
+        /*
         if (Model.EditKind != EditKind.None && Model.EditIsUndone)
         {
             Model.EditIsUndone = false;
@@ -529,6 +534,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             }
             StateHasChanged();
         }
+        */
     }
 
     [JSInvokable]
