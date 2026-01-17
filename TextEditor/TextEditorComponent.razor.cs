@@ -463,6 +463,10 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     public void OnUndo()
     {
         // If you do the gap buffer optimization you can only do it for the most recent edit and then have to move the text still if you support more than one edit?
+        //
+        // you only support 1 edit so
+
+        // insert thenctrlzyoucanjustholdthegapbufferanduseitforctrly
 
         if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
