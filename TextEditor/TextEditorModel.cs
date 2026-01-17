@@ -423,7 +423,7 @@ public class TextEditorModel
     {
         Clear();
 
-        InsertTextAtPosition(text, 0, shouldMakeEditHistory: false);
+        InsertTextAtPosition(text, 0, stringBuilder: _textBuilder, shouldMakeEditHistory: false);
         PositionIndex = 0;
         LineIndex = 0;
         ColumnIndex = 0;
@@ -543,8 +543,10 @@ public class TextEditorModel
     /// <see cref="InsertText(string)"/> can be used to insert text at the user's current position
     /// if that is the desired insertion point.
     /// </summary>
-    public void InsertTextAtPosition(ReadOnlySpan<char> text, int positionIndex, bool shouldMakeEditHistory = true)
+    public void InsertTextAtPosition(ReadOnlySpan<char> text, int positionIndex, StringBuilder? stringBuilder = null, bool shouldMakeEditHistory = true)
     {
+        stringBuilder ??= _gapBuffer;
+
         var entryPositionIndex = positionIndex;
 
         var lineBreakInsertedIndex = -1;
@@ -569,24 +571,24 @@ public class TextEditorModel
             //
             if (character == '\n')
             {
-                _gapBuffer.Insert(positionIndex, '\n');
+                stringBuilder.Insert(positionIndex, '\n');
                 InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
             else if (character == '\r')
             {
                 if (i < text.Length - 1 && text[i + 1] == '\n')
                     ++i;
-                _gapBuffer.Insert(positionIndex, '\n');
+                stringBuilder.Insert(positionIndex, '\n');
                 InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
             else if (character == '\t')
             {
-                _gapBuffer.Insert(positionIndex, '\t');
+                stringBuilder.Insert(positionIndex, '\t');
                 InsertTextAtPosition_InsertTab(ref tabInsertedIndex, ref tabInsertedCount, entryPositionIndex, positionIndex);
             }
             else
             {
-                _gapBuffer.Insert(positionIndex, character);
+                stringBuilder.Insert(positionIndex, character);
             }
 
             ++positionIndex;
