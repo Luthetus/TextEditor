@@ -840,7 +840,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 stringBuilder.Append("&amp;");
                 break;
             default:
-                stringBuilder.Append(Model[i]);
+                stringBuilder.Append(character);
                 break;
         }
     }
