@@ -569,24 +569,24 @@ public class TextEditorModel
             //
             if (character == '\n')
             {
-                _textBuilder.Insert(positionIndex, '\n');
+                _gapBuffer.Insert(positionIndex, '\n');
                 InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
             else if (character == '\r')
             {
                 if (i < text.Length - 1 && text[i + 1] == '\n')
                     ++i;
-                _textBuilder.Insert(positionIndex, '\n');
+                _gapBuffer.Insert(positionIndex, '\n');
                 InsertTextAtPosition_InsertLineBreak(ref lineBreakInsertedIndex, ref lineBreakInsertedCount, entryPositionIndex, positionIndex);
             }
             else if (character == '\t')
             {
-                _textBuilder.Insert(positionIndex, '\t');
+                _gapBuffer.Insert(positionIndex, '\t');
                 InsertTextAtPosition_InsertTab(ref tabInsertedIndex, ref tabInsertedCount, entryPositionIndex, positionIndex);
             }
             else
             {
-                _textBuilder.Insert(positionIndex, character);
+                _gapBuffer.Insert(positionIndex, character);
             }
 
             ++positionIndex;
@@ -790,6 +790,12 @@ public class TextEditorModel
     /// </summary>
     public virtual void RemoveTextAtPositionByRandomAccess(int positionIndex, int count, RemoveKind removeKind, bool shouldMakeEditHistory = true)
     {
+
+        // Delete from the gap buffer is another case...
+        // unless I write the gap buffer then remove.
+        // Honestly it's probably a good idea to do that first since I've never written a gap buffer.
+        // It doesn't seem too bad but I don't wanna get too complicated and fall flat on my face either.
+
         if (positionIndex < 0)
             return;
         if (positionIndex >= Length)
