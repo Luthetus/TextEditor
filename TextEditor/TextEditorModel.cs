@@ -107,7 +107,7 @@ public class TextEditorModel
                         var lengthTBuilder = _textBuilder.Length;
                         var va = d_index + d_editLength;
 
-                        return _textBuilder[index + EditLength];
+                        return _textBuilder[index + EditLength - 1];
                     }
                     else
                     {
