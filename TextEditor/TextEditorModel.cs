@@ -96,11 +96,15 @@ public class TextEditorModel
                     {
                         // += length is += EditPosition
                         // += depth  is += (index - EditPosition)
-                        return _gapBuffer[index - EditPosition];
+                        return _textBuilder[index + EditPosition + (index - EditPosition)];
                     }
                     else
                     {
-                        return _textBuilder[index - _gapBuffer.Length];
+                        // if you delete the text by replacing it with '\0' the text isn't actually gone.
+                        // it gives you a small index so you add.
+                        //
+                        // dah idk lol
+                        return _textBuilder[index + EditPosition];
                     }
                 default:
 #if DEBUG
