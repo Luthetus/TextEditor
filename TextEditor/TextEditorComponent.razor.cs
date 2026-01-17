@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using System.Text;
 
 namespace TextEditor;
 
@@ -16,16 +16,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     private int OnMouseDown_DetailRank3_OriginalLineIndex;
 
     private DotNetObjectReference<TextEditorComponent>? _dotNetHelper;
-    /// <summary>
-    /// No persistence of TextEditorModel comes with the library.
-    ///
-    /// But the presumption here is that someone might choose to persist a TextEditorModel,
-    /// and that they'd like to know what the measurements last were,
-    /// because those measurements relate to the virtualized content that was displayed.
-    ///
-    /// In 'OnParametersSet()' the Model has its 'Measurements' property set to that of the component's '_measurements' field.
-    /// Additionally this set is performed within 'InitializeAndTakeMeasurements()'.
-    /// </summary>
     private TextEditorMeasurements _measurements;
     /// <summary>
     /// This field most closely relates to whether the non-Blazor UI events were added via JavaScript or not.
@@ -49,8 +39,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         if (Model is null)
             throw new NotImplementedException($"The Blazor parameter '{nameof(Model)}' cannot be null");
-        
-        Model.Measurements = _measurements;
             
         base.OnParametersSet();
     }
@@ -68,7 +56,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("textEditor.initializeAndTakeMeasurements", _dotNetHelper);
         _textEditorHeight = _measurements.EditorHeight;
-        Model.Measurements = _measurements;
         _failedToInitialize = _measurements.IsDefault();
     }
     
@@ -76,7 +63,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     {
         _measurements = await JsRuntime.InvokeAsync<TextEditorMeasurements>("textEditor.takeMeasurements");
         _textEditorHeight = _measurements.EditorHeight;
-        Model.Measurements = _measurements;
     }
 
     private double _scrollTop;
@@ -155,41 +141,43 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         {
             Model.InsertText(key);
         }
-    
-        switch (key)
+        else
         {
-            case "Enter":
-                Model.InsertText("\n");
-                break;
-            case "Tab":
-                Model.InsertText("\t");
-                break;
-            case "ArrowLeft":
-                Model.MoveCursor(MoveCursorKind.ArrowLeft, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "ArrowDown":
-                Model.MoveCursor(MoveCursorKind.ArrowDown, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "ArrowUp":
-                Model.MoveCursor(MoveCursorKind.ArrowUp, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "ArrowRight":
-                Model.MoveCursor(MoveCursorKind.ArrowRight, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "Home":
-                Model.MoveCursor(MoveCursorKind.Home, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "End":
-                Model.MoveCursor(MoveCursorKind.End, shiftKey: shiftKey, ctrlKey: ctrlKey);
-                break;
-            case "Delete":
-                Model.RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: ctrlKey);
-                break;
-            case "Backspace":
-                Model.RemoveTextAtPositionByCursor(RemoveKind.BackspaceRtl, ctrlKey: ctrlKey);
-                break;
+            switch (key)
+            {
+                case "Enter":
+                    Model.InsertText("\n");
+                    break;
+                case "Tab":
+                    Model.InsertText("\t");
+                    break;
+                case "ArrowLeft":
+                    Model.MoveCursor(MoveCursorKind.ArrowLeft, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "ArrowDown":
+                    Model.MoveCursor(MoveCursorKind.ArrowDown, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "ArrowUp":
+                    Model.MoveCursor(MoveCursorKind.ArrowUp, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "ArrowRight":
+                    Model.MoveCursor(MoveCursorKind.ArrowRight, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "Home":
+                    Model.MoveCursor(MoveCursorKind.Home, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "End":
+                    Model.MoveCursor(MoveCursorKind.End, shiftKey: shiftKey, ctrlKey: ctrlKey);
+                    break;
+                case "Delete":
+                    Model.RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: ctrlKey);
+                    break;
+                case "Backspace":
+                    Model.RemoveTextAtPositionByCursor(RemoveKind.BackspaceRtl, ctrlKey: ctrlKey);
+                    break;
+            }
         }
-        
+
         StateHasChanged();
     }
 
@@ -472,14 +460,16 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnUndo()
     {
+        // TODO: Keep this commented out until non CtrlZ/CtrlY edits work properly
+        /*
         if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
             Model.EditIsUndone = true;
             if (Model.EditKind == EditKind.InsertLtr)
             {
-                Model._editedTextHistoryCount = 0;
+                Model.EditedTextHistoryCount = 0;
                 Model.History_EnsureCapacity(Model.EditLength);
-                Model._editedTextHistoryCount = Model.EditLength;
+                Model.EditedTextHistoryCount = Model.EditLength;
                 for (int editHistoryIndex = 0, i = Model.EditPosition; editHistoryIndex < Model.EditLength; editHistoryIndex++, i++)
                 {
                     Model._editedTextHistory[editHistoryIndex] = Model[i];
@@ -490,29 +480,32 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             }
             else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else if (Model.EditKind == EditKind.RemoveDeleteLtr)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             StateHasChanged();
         }
+        */
     }
     
     [JSInvokable]
     public void OnRedo()
     {
+        // TODO: Keep this commented out until non CtrlZ/CtrlY edits work properly
+        /*
         if (Model.EditKind != EditKind.None && Model.EditIsUndone)
         {
             Model.EditIsUndone = false;
             if (Model.EditKind == EditKind.InsertLtr)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model._editedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
+                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
@@ -530,6 +523,7 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             }
             StateHasChanged();
         }
+        */
     }
 
     [JSInvokable]
@@ -596,11 +590,11 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         if (rX < 0) rX = 0;
         if (rY < 0) rY = 0;
 
-        var lineIndex = (int)(rY / Model.Measurements.LineHeight);
+        var lineIndex = (int)(rY / Measurements.LineHeight);
         if (lineIndex > Model.LineBreakPositionList.Count)
             lineIndex = Model.LineBreakPositionList.Count;
 
-        var columnIndexDouble = rX / Model.Measurements.CharacterWidth;
+        var columnIndexDouble = rX / Measurements.CharacterWidth;
         var supposedColumnIndex = (int)Math.Round(columnIndexDouble, MidpointRounding.AwayFromZero);
 
         var (xlineIndex, xlinePosStart, xlinePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(Model.GetPositionIndex(lineIndex, supposedColumnIndex));
@@ -650,6 +644,214 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                 lineIndex,
                 supposedColumnIndex
             );
+    }
+
+    private string GetTotalHeightStyle(StringBuilder stringBuilder)
+    {
+        stringBuilder.Append("height:");
+        stringBuilder.Append(((Model.LineBreakPositionList.Count + 1) * _measurements.LineHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var totalHeightStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return totalHeightStyle;
+    }
+
+    private string GetLargeRectangleToOffsetLinesStyle(StringBuilder stringBuilder, int startLineIndex)
+    {
+        stringBuilder.Append("height:");
+        stringBuilder.Append((startLineIndex * _measurements.LineHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var largeRectangleToOffsetLinesStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return largeRectangleToOffsetLinesStyle;
+    }
+
+    private string GetSelectionStyle(StringBuilder stringBuilder, ref int pos, int end)
+    {
+        var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(pos);
+
+        int count = 0;
+        for (int j = linePosStart; j < pos; j++)
+        {
+            if (Model[j] == '\n')
+                break;
+            if (Model[j] == '\t')
+                count++;
+        }
+        // tabCount == 4, extra is 4 - 1 => 3
+        var xleftExtraFromTabs = count * 3 * Measurements.CharacterWidth;
+
+        stringBuilder.Append("left:");
+        stringBuilder.Append((Measurements.CharacterWidth * (pos - linePosStart) + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("top:");
+        stringBuilder.Append((Measurements.LineHeight * lineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("width:");
+
+        var lineSegmentStart = pos;
+        var lineSegmentEnd = linePosEnd < end ? linePosEnd : end;
+        int widthCount = lineSegmentEnd - lineSegmentStart;
+        if (linePosEnd < end)
+        {
+            ++widthCount;
+        }
+
+        count = 0;
+        for (int j = lineSegmentStart; j < lineSegmentEnd; j++)
+        {
+            if (Model[j] == '\n')
+                break;
+            if (Model[j] == '\t')
+                count++;
+        }
+        // tabCount == 4, extra is 4 - 1 => 3
+        xleftExtraFromTabs = count * 3 * Measurements.CharacterWidth;
+
+        stringBuilder.Append((Measurements.CharacterWidth * widthCount + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var selectStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+
+        pos = linePosEnd;
+
+        return selectStyle;
+    }
+
+    private (int startLineIndex, int endLineIndex) GetStartEndLineIndices()
+    {
+        int startLineIndex;
+        if (_measurements.LineHeight != 0)
+            startLineIndex = ((int)(_scrollTop / _measurements.LineHeight) - 1);
+        else
+            startLineIndex = 0;
+        if (startLineIndex < 0) startLineIndex = 0;
+
+        int endLineIndex = startLineIndex + ((int)(_textEditorHeight / _measurements.LineHeight) + 1);
+        if (endLineIndex > Model.LineBreakPositionList.Count + 1) endLineIndex = Model.LineBreakPositionList.Count + 1;
+
+        return (startLineIndex, endLineIndex);
+    }
+
+    /// <summary>
+    /// This is likely a massive performance cost to be checking the if statement for every single decoration byte.
+    /// But the gap buffer isn't working perfectly yet, so abstracting this into a costly bounds check is 100% worth it for now to reduce noise.
+    /// </summary>
+    private byte GetDecorationByte(int i)
+    {
+        if (Model.DecorationArray is null || i >= Model.DecorationArray.Length)
+            return 0;
+        return Model.DecorationArray[i];
+    }
+
+    private string GetTooltipStyle(StringBuilder stringBuilder)
+    {
+        stringBuilder.Append("left:");
+        stringBuilder.Append(Math.Max(0, _tooltipClientX - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("top:");
+        stringBuilder.Append(Math.Max(0, _tooltipClientY - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var tooltipStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return tooltipStyle;
+    }
+
+    private string GetDropdownStyle(StringBuilder stringBuilder)
+    {
+        stringBuilder.Append("left:");
+        stringBuilder.Append(Math.Max(0, _dropdownClientX - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        stringBuilder.Append("top:");
+        stringBuilder.Append(Math.Max(0, _dropdownClientY - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+        var dropdownStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return dropdownStyle;
+    }
+
+    private string GetCursorStyle(StringBuilder stringBuilder)
+    {
+        var tabCountOnSameLinePriorToCursor = Model.GetTabCountOnSameLinePriorToCursor();
+        // tabCount == 4, extra is 4 - 1 => 3
+        var leftExtraFromTabs = tabCountOnSameLinePriorToCursor * 3 * Measurements.CharacterWidth;
+
+        stringBuilder.Append("left:");
+        //
+        // Two decimal places for the double values avoids excessive information being sent when the visual difference is negligible.
+        //
+        // Avoid ',' in css when user's culture would default to using that in place of '.'
+        // with System.Globalization.CultureInfo.InvariantCulture
+        //
+        stringBuilder.Append((Measurements.CharacterWidth * Model.ColumnIndex + leftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+
+        stringBuilder.Append("top:");
+        stringBuilder.Append((Measurements.LineHeight * Model.LineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        stringBuilder.Append("px;");
+
+        var cursorStyle = stringBuilder.ToString();
+        stringBuilder.Clear();
+
+        return cursorStyle;
+    }
+
+    /// <summary>
+    /// (in the case that this won't inline, it still doesn't matter the gap buffer doesn't work, rip out all the noise, if this matters then look at it later when the gap buffer works).
+    /// </summary>
+    private void AppendEscapedCharacter(StringBuilder stringBuilder, char character)
+    {
+        switch (character)
+        {
+            case '\t':
+                stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
+                break;
+            case '\0':
+                stringBuilder.Append("0");
+                break;
+            case ' ':
+                stringBuilder.Append("&nbsp;");
+                break;
+            case '<':
+                stringBuilder.Append("&lt;");
+                break;
+            case '>':
+                stringBuilder.Append("&gt;");
+                break;
+            case '"':
+                stringBuilder.Append("&quot;");
+                break;
+            case '\'':
+                stringBuilder.Append("&#39;");
+                break;
+            case '&':
+                stringBuilder.Append("&amp;");
+                break;
+            default:
+                stringBuilder.Append(character);
+                break;
+        }
+    }
+
+    private (int startPosition, int endPosition) GetStartEndPositions(int startLineIndex, int endLineIndex)
+    {
+        int startPosition = 0;
+        if (startLineIndex == 0)
+            startPosition = 0;
+        else if (startLineIndex - 1 < Model.LineBreakPositionList.Count)
+            startPosition = Model.LineBreakPositionList[startLineIndex - 1] + 1; // You get the line ending of the previous line and then + 1 because all line endings are stored as '\n' until saving the file in which they are swapped out for the desired line endings.
+        else
+            startLineIndex = 0; // I need this so the value is initialized but I TODO: need to look into this case further
+
+        int endPosition;
+        if (endLineIndex == 0 || endLineIndex >= Model.LineBreakPositionList.Count)
+            endPosition = Model.Length; // This might be wrong. I think it takes an extra line (even beyond the "extra line so the virtualization looks smoother").
+        else if (endLineIndex < Model.LineBreakPositionList.Count)
+            endPosition = Model.LineBreakPositionList[endLineIndex];
+        else
+            endPosition = 0; // I need this so the value is initialized but I TODO: need to look into this case further
+
+        return (startPosition, endPosition);
     }
 
     public void Dispose()

@@ -1,469 +1,99 @@
 @using System.Text
 
-<div class="te_theme te_dark"
-     style="color-scheme: dark;">
-@if (_failedToInitialize)
-{
-    <div>
-        Failed to initialize
-    </div>
-}
+<div class="te_theme te_dark" style="color-scheme: dark;">
 
-@{
-    // This is a bit awkward because I don't believe I can stack alloc in the markup / (I think I
-    // also have seen in the past that I can't stackalloc Blazor WASM maybe it was related to unsafe code?).
-    //
-    // I'm going to throw an initial capacity based on feeling alone.
-    // If this is 64, it hopefully will often miss a reallocation.
-    // I'm not sure on the details of what me making this initial capacity larger
-    // would have on the collection of this StringBuilder so... 64 is the number for now I guess.
-    //
-    // UPDATE: originally I had 2 string builders, one for the attribute values,
-    // and one for the text on screen.
-    //
-    // I realize they aren't used at the same time, so I can just allocate one StringBuilder for both uses.
-    //
-    // As a result I'll go up to 128 with the singular one. Because I'm thinking of a comment
-    // (for example this very comment I'm typing now) I see that I hit around 100 characters on each line.
-    // So I need to fit 100 characters in the StringBuilder to get them all in the same span with the same CSS class.
-    //
-    var stringBuilder = new StringBuilder(capacity: 128);
-
-    int startLineIndex;
-    if (_measurements.LineHeight != 0)
-        startLineIndex = ((int)(_scrollTop / _measurements.LineHeight) - 1);
-    else
-        startLineIndex = 0;
-    if (startLineIndex < 0) startLineIndex = 0;
-
-    int endLineIndex = startLineIndex + ((int)(_textEditorHeight / _measurements.LineHeight) + 1);
-    if (endLineIndex > Model.LineBreakPositionList.Count + 1) endLineIndex = Model.LineBreakPositionList.Count + 1;
-}
-
-<div class="te_component-class"
-     tabindex="-1"
-     id="te_component-id">
-    
-     @{
-        stringBuilder.Append("height:");
-        stringBuilder.Append(((Model.LineBreakPositionList.Count + 1) * _measurements.LineHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-        stringBuilder.Append("px;");
-        var totalHeightStyle = stringBuilder.ToString();
-        stringBuilder.Clear();
-     }
-    <div class="te_total-height"
-         style="@totalHeightStyle">
-    </div>
+    @if (_failedToInitialize) // The remainder of the UI has to still render so the JavaScript initialization can find the HTML elements.
+    {
+        <div>
+            Failed to initialize
+        </div>
+    }
 
     @{
-        stringBuilder.Append("height:");
-        stringBuilder.Append((startLineIndex * _measurements.LineHeight).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-        stringBuilder.Append("px;");
-        var aaaa = stringBuilder.ToString();
-        stringBuilder.Clear();
-    }
-    <div style="@aaaa">
-    </div>
-
-    @if (Model.HasSelection)
-    {
-        var start = Model.SelectionAnchor;
-        var end = Model.SelectionEnd;
-
-        if (end < start)
-        {
-            var temp = start;
-            start = end;
-            end = temp;
-        }
-
-        for (int pos = start; pos < end; pos++)
-        {
-            var (lineIndex, linePosStart, linePosEnd) = Model.GetLineInformationExcludingLineEndingCharacterByPositionIndex(pos);
-
-            int count = 0;
-            for (int j = linePosStart; j < pos; j++)
-            {
-                if (Model[j] == '\n')
-                    break;
-                if (Model[j] == '\t')
-                    count++;
-            }
-            // tabCount == 4, extra is 4 - 1 => 3
-            var xleftExtraFromTabs = count * 3 * Model.Measurements.CharacterWidth;
-
-            stringBuilder.Append("left:");
-            stringBuilder.Append((Model.Measurements.CharacterWidth * (pos - linePosStart) + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-            stringBuilder.Append("px;");
-            stringBuilder.Append("top:");
-            stringBuilder.Append((Model.Measurements.LineHeight * lineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-            stringBuilder.Append("px;");
-            stringBuilder.Append("width:");
-            var lineSegmentStart = pos;
-            var lineSegmentEnd = linePosEnd < end ? linePosEnd : end;
-            int widthCount = lineSegmentEnd - lineSegmentStart;
-            if (linePosEnd < end)
-            {
-                ++widthCount;
-            }
-
-            count = 0;
-            for (int j = lineSegmentStart; j < lineSegmentEnd; j++)
-            {
-                if (Model[j] == '\n')
-                    break;
-                if (Model[j] == '\t')
-                    count++;
-            }
-            // tabCount == 4, extra is 4 - 1 => 3
-            xleftExtraFromTabs = count * 3 * Model.Measurements.CharacterWidth;
-
-            stringBuilder.Append((Model.Measurements.CharacterWidth * widthCount + xleftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-            stringBuilder.Append("px;");
-            var selectStyle = stringBuilder.ToString();
-            stringBuilder.Clear();
-
-            <div class="te_select"
-                 style="@selectStyle">
-            </div>
-
-            pos = linePosEnd;
-        }
+        var stringBuilder = new StringBuilder(capacity: 128); // I'm not sure on the details of what me making this initial capacity larger would have on the collection of this StringBuilder so 128 is the number I'll go with for now.
+        var (startLineIndex, endLineIndex) = GetStartEndLineIndices();
     }
 
-    
+    <div class="te_component-class" tabindex="-1" id="te_component-id">
+         
+        <div class="te_total-height" style="@GetTotalHeightStyle(stringBuilder)"></div>
+        <div style="@GetLargeRectangleToOffsetLinesStyle(stringBuilder, startLineIndex)"></div>
 
-    @if (startLineIndex >= 0 && endLineIndex >= 0)
-    {
-        int startPosition = 0;
-        if (startLineIndex == 0)
+        @if (Model.HasSelection)
         {
-            startPosition = 0;
-        }
-        else if (startLineIndex - 1 < Model.LineBreakPositionList.Count)
-        {
-            // You get the line ending of the previous line and then + 1 because all line endings
-            // are stored as '\n' until saving the file in which they are swapped out for the desired line endings.
-            //
-            startPosition = Model.LineBreakPositionList[startLineIndex - 1] + 1;
-        }
-        else
-        {
-            // I need this so the value is initialized but I
-            // TODO: need to look into this case further
-            startLineIndex = 0;
+            var start = Model.SelectionAnchor;
+            var end = Model.SelectionEnd;
+            if (end < start)
+                (start, end) = (end, start);
+            for (int pos = start; pos < end; pos++)
+            {
+                <div class="te_select"
+                     style="@GetSelectionStyle(stringBuilder, ref pos, end)">
+                </div>
+            }
         }
 
-        int endPosition;
-        if (endLineIndex == 0 || endLineIndex >= Model.LineBreakPositionList.Count)
+        @if (startLineIndex >= 0 && endLineIndex >= 0)
         {
-            endPosition = Model.Length;
-        }
-        else if (endLineIndex < Model.LineBreakPositionList.Count)
-        {
-            // This might be wrong. I think it takes an extra line (even beyond the "extra line so the virtualization looks smoother").
-            endPosition = Model.LineBreakPositionList[endLineIndex];
-        }
-        else
-        {
-            // I need this so the value is initialized but I
-            // TODO: need to look into this case further
-            endPosition = 0;
-        }
+            var (startPosition, endPosition) = GetStartEndPositions(startLineIndex, endLineIndex);
+            byte currentDecorationByte = 0;
 
-        int i = startPosition;
-        var exclusiveEndDecorationIndex = 0;
+            while (startPosition < endPosition)
+            {
+                currentDecorationByte = GetDecorationByte(startPosition);
 
-        byte currentDecorationByte = 0;
-
-        if (Model.DecorationArray is not null)
-        {
-            if (Model.DecorationArray.Length <= Model.Length)
-                exclusiveEndDecorationIndex = Model.DecorationArray.Length;
-            else
-                exclusiveEndDecorationIndex = Model.Length;
-        }
-
-        while (i < endPosition)
-        {
-            if (exclusiveEndDecorationIndex > i)
-                currentDecorationByte = Model.DecorationArray![i];
-            else
-                currentDecorationByte = 0;
-
-            <div class="te_row">
-                @for (; i < endPosition; i++)
-                {
-                    if (i < exclusiveEndDecorationIndex)
+                <div class="te_row">
+                    @for (; startPosition < endPosition; startPosition++)
                     {
-                        if (Model[i] != '\n' && Model.DecorationArray![i] == currentDecorationByte)
+                        if (Model[startPosition] != '\n' && GetDecorationByte(startPosition) == currentDecorationByte)
                         {
-                            switch (Model[i])
-                            {
-                                case '\t':
-                                    stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                                    break;
-                                case ' ':
-                                    stringBuilder.Append("&nbsp;");
-                                    break;
-                                case '<':
-                                    stringBuilder.Append("&lt;");
-                                    break;
-                                case '>':
-                                    stringBuilder.Append("&gt;");
-                                    break;
-                                case '"':
-                                    stringBuilder.Append("&quot;");
-                                    break;
-                                case '\'':
-                                    stringBuilder.Append("&#39;");
-                                    break;
-                                case '&':
-                                    stringBuilder.Append("&amp;");
-                                    break;
-                                default:
-                                    stringBuilder.Append(Model[i]);
-                                    break;
-                            }
+                            AppendEscapedCharacter(stringBuilder, Model[startPosition]);
                         }
                         else
                         {
                             <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@((MarkupString)stringBuilder.ToString())</span>
                             stringBuilder.Clear();
-                            currentDecorationByte = Model.DecorationArray![i];
+                            currentDecorationByte = GetDecorationByte(startPosition);
 
-                            if (Model[i] == '\n')
+                            if (Model[startPosition] == '\n')
                             {
-                                ++i;
+                                ++startPosition;
                                 break;
                             }
                             else
                             {
-                                switch (Model[i])
-                                {
-                                    case '\t':
-                                        stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                                        break;
-                                    case ' ':
-                                        stringBuilder.Append("&nbsp;");
-                                        break;
-                                    case '<':
-                                        stringBuilder.Append("&lt;");
-                                        break;
-                                    case '>':
-                                        stringBuilder.Append("&gt;");
-                                        break;
-                                    case '"':
-                                        stringBuilder.Append("&quot;");
-                                        break;
-                                    case '\'':
-                                        stringBuilder.Append("&#39;");
-                                        break;
-                                    case '&':
-                                        stringBuilder.Append("&amp;");
-                                        break;
-                                    default:
-                                        stringBuilder.Append(Model[i]);
-                                        break;
-                                }
+                                AppendEscapedCharacter(stringBuilder, Model[startPosition]);
                             }
                         }
                     }
-                    else
-                    {
-                        if (Model[i] != '\n')
-                        {
-                            switch (Model[i])
-                            {
-                                case '\t':
-                                    stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                                    break;
-                                case ' ':
-                                    stringBuilder.Append("&nbsp;");
-                                    break;
-                                case '<':
-                                    stringBuilder.Append("&lt;");
-                                    break;
-                                case '>':
-                                    stringBuilder.Append("&gt;");
-                                    break;
-                                case '"':
-                                    stringBuilder.Append("&quot;");
-                                    break;
-                                case '\'':
-                                    stringBuilder.Append("&#39;");
-                                    break;
-                                case '&':
-                                    stringBuilder.Append("&amp;");
-                                    break;
-                                default:
-                                    stringBuilder.Append(Model[i]);
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            <span>@((MarkupString)stringBuilder.ToString())</span>
-                            stringBuilder.Clear();
 
-                            if (Model[i] == '\n')
-                            {
-                                ++i;
-                                break;
-                            }
-                            else
-                            {
-                                switch (Model[i])
-                                {
-                                    case '\t':
-                                        stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                                        break;
-                                    case ' ':
-                                        stringBuilder.Append("&nbsp;");
-                                        break;
-                                    case '<':
-                                        stringBuilder.Append("&lt;");
-                                        break;
-                                    case '>':
-                                        stringBuilder.Append("&gt;");
-                                        break;
-                                    case '"':
-                                        stringBuilder.Append("&quot;");
-                                        break;
-                                    case '\'':
-                                        stringBuilder.Append("&#39;");
-                                        break;
-                                    case '&':
-                                        stringBuilder.Append("&amp;");
-                                        break;
-                                    default:
-                                        stringBuilder.Append(Model[i]);
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                @if (i < exclusiveEndDecorationIndex || (i > 0 && i == exclusiveEndDecorationIndex))
-                {
-                    if (stringBuilder.Length > 0)
+                    @if (stringBuilder.Length > 0)
                     {
                         <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@((MarkupString)stringBuilder.ToString())</span>
                         stringBuilder.Clear();
                     }
-                }
-                else
-                {
-                    if (stringBuilder.Length > 0)
-                    {
-                        <span>@((MarkupString)stringBuilder.ToString())</span>
-                        stringBuilder.Clear();
-                    }
-                }
-            </div>
+                </div>
+            }
+        }
+
+        <div id="te_cursor-id" style="@GetCursorStyle(stringBuilder)"></div>
+    </div>
+
+    @if (_tooltipOccurred)
+    {
+        var tooltipText = Model.GetTooltipText(_tooltip);
+        if (tooltipText is null)
+        {
+            _tooltipOccurred = false;
+        }
+        else
+        {
+            <div class="te_tooltip" style="@GetTooltipStyle(stringBuilder)">@tooltipText</div>
         }
     }
 
-    @{
-        var tabCountOnSameLinePriorToCursor = Model.GetTabCountOnSameLinePriorToCursor();
-        // tabCount == 4, extra is 4 - 1 => 3
-        var leftExtraFromTabs = tabCountOnSameLinePriorToCursor * 3 * Model.Measurements.CharacterWidth;
-
-        stringBuilder.Append("left:");
-        //
-        // Two decimal places for the double values avoids excessive information being sent when the visual difference is negligible.
-        //
-        // Avoid ',' in css when user's culture would default to using that in place of '.'
-        // with System.Globalization.CultureInfo.InvariantCulture
-        //
-        stringBuilder.Append((Model.Measurements.CharacterWidth * Model.ColumnIndex + leftExtraFromTabs).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-        stringBuilder.Append("px;");
-
-        stringBuilder.Append("top:");
-        stringBuilder.Append((Model.Measurements.LineHeight * Model.LineIndex).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-        stringBuilder.Append("px;");
-
-        var cursorStyle = stringBuilder.ToString();
-        stringBuilder.Clear();
-    }
-    <div id="te_cursor-id"
-         style="@cursorStyle">
-    </div>
-</div>
-
-@if (_tooltipOccurred)
-{
-    var tooltipText = Model.GetTooltipText(_tooltip);
-    if (tooltipText is null)
+    @if (_showContextMenu)
     {
-        _tooltipOccurred = false;
+        <div class="te_tooltip" style="@GetDropdownStyle(stringBuilder)">dropdown</div>
     }
-    else
-    {
-        stringBuilder.Append("left:");
-        stringBuilder.Append(Math.Max(0, _tooltipClientX - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-        stringBuilder.Append("px;");
-        stringBuilder.Append("top:");
-        stringBuilder.Append(Math.Max(0, _tooltipClientY - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-        stringBuilder.Append("px;");
-        var tooltipStyle = stringBuilder.ToString();
-        stringBuilder.Clear();
-
-        <div class="te_tooltip"
-             style="@tooltipStyle">
-            @tooltipText
-        </div>
-    }
-}
-
-@if (_showContextMenu)
-{
-    stringBuilder.Append("left:");
-    stringBuilder.Append(Math.Max(0, _dropdownClientX - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-    stringBuilder.Append("px;");
-    stringBuilder.Append("top:");
-    stringBuilder.Append(Math.Max(0, _dropdownClientY - 2).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
-    stringBuilder.Append("px;");
-    var dropdownStyle = stringBuilder.ToString();
-    stringBuilder.Clear();
-
-    <div class="te_tooltip"
-         style="@dropdownStyle">
-        dropdown
-    </div>
-}
-
-@* 
-<div class="te_debug-info">
-    CharacterWidth:@Model.Measurements.CharacterWidth<br/>
-    LineHeight:@Model.Measurements.LineHeight<br/>
-    EditorWidth:@Model.Measurements.EditorWidth<br/>
-    EditorHeight:@Model.Measurements.EditorHeight<br/>
-    EditorLeft:@Model.Measurements.EditorLeft<br/>
-    EditorTop:@Model.Measurements.EditorTop<br/>
-    ScrollbarLiteralWidth:@Model.Measurements.ScrollbarLiteralWidth<br/>
-    ScrollbarLiteralHeight:@Model.Measurements.ScrollbarLiteralHeight<br/>
-
-    <hr/>
-
-    LineEndPositionList.Count:@Model.LineBreakPositionList.Count<br />
-
-    <hr/>
-
-    LineIndex: @Model.LineIndex<br />
-    ColumnIndex: @Model.ColumnIndex<br />
-    PositionIndex: @Model.PositionIndex<br />
-    
-    <hr/>
-
-    SelectionAnchor: @Model.SelectionAnchor<br/>
-    SelectionEnd: @Model.SelectionEnd<br/>
-    
-    <hr/>
-
-    <button @onclick="TakeMeasurements">Remeasure</button>
-
-</div>
-*@
 </div>

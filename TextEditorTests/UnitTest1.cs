@@ -30,7 +30,7 @@ public class UnitTest1
         Assert.Equal(0, model.ColumnIndex);
         Assert.Equal(0, model.SelectionAnchor);
         Assert.Equal(0, model.SelectionEnd);
-        Assert.Equal(0, model._editedTextHistoryCount);
+        Assert.Equal(0, model.EditedTextHistoryCount);
         Assert.False(model.EditIsUndone);
         Assert.Equal(0, model.EditPosition);
         Assert.Equal(0, model.EditLength);
@@ -48,12 +48,14 @@ public class UnitTest1
         // then it's undefined behavior and presumed to be capable of causing an exception to be thrown
         // when rendering (but I don't know for certain of an example exception scenario, this is my mindset).
         //
+        model.__DEBUG_AppendGapBuffer('a');
+        Assert.False(model.GapBufferIsEmpty);
         model.PositionIndex = 1;
         model.LineIndex = 1;
         model.ColumnIndex = 1;
         model.SelectionAnchor = 1;
         model.SelectionEnd = 1;
-        model._editedTextHistoryCount = 1;
+        model.EditedTextHistoryCount = 1;
         model.EditIsUndone = true;
         model.EditPosition = 1;
         model.EditLength = 1;
@@ -62,6 +64,7 @@ public class UnitTest1
         var input2 = "abc\n\t";
         model.SetText(input2);
         Assert.Equal(input2, model.ToString());
+        Assert.True(model.GapBufferIsEmpty);
         Assert.Single(model.LineBreakPositionList);
         Assert.Single(model.TabPositionList);
         Assert.Equal(0, model.PositionIndex);
@@ -69,7 +72,7 @@ public class UnitTest1
         Assert.Equal(0, model.ColumnIndex);
         Assert.Equal(0, model.SelectionAnchor);
         Assert.Equal(0, model.SelectionEnd);
-        Assert.Equal(0, model._editedTextHistoryCount);
+        Assert.Equal(0, model.EditedTextHistoryCount);
         Assert.False(model.EditIsUndone);
         Assert.Equal(0, model.EditPosition);
         Assert.Equal(0, model.EditLength);
@@ -90,7 +93,7 @@ public class UnitTest1
         Assert.Equal(0, model.ColumnIndex);
         Assert.Equal(0, model.SelectionAnchor);
         Assert.Equal(0, model.SelectionEnd);
-        Assert.Equal(0, model._editedTextHistoryCount);
+        Assert.Equal(0, model.EditedTextHistoryCount);
         Assert.False(model.EditIsUndone);
         Assert.Equal(0, model.EditPosition);
         Assert.Equal(0, model.EditLength);
@@ -108,12 +111,14 @@ public class UnitTest1
         // then it's undefined behavior and presumed to be capable of causing an exception to be thrown
         // when rendering (but I don't know for certain of an example exception scenario, this is my mindset).
         //
+        model.__DEBUG_AppendGapBuffer('a');
+        Assert.False(model.GapBufferIsEmpty);
         model.PositionIndex = 1;
         model.LineIndex = 1;
         model.ColumnIndex = 1;
         model.SelectionAnchor = 1;
         model.SelectionEnd = 1;
-        model._editedTextHistoryCount = 1;
+        model.EditedTextHistoryCount = 1;
         model.EditIsUndone = true;
         model.EditPosition = 1;
         model.EditLength = 1;
@@ -121,6 +126,7 @@ public class UnitTest1
 
         model.Clear();
         Assert.Equal(string.Empty, model.ToString());
+        Assert.True(model.GapBufferIsEmpty);
         Assert.Empty(model.LineBreakPositionList);
         Assert.Empty(model.TabPositionList);
         Assert.Equal(0, model.PositionIndex);
@@ -128,7 +134,7 @@ public class UnitTest1
         Assert.Equal(0, model.ColumnIndex);
         Assert.Equal(0, model.SelectionAnchor);
         Assert.Equal(0, model.SelectionEnd);
-        Assert.Equal(0, model._editedTextHistoryCount);
+        Assert.Equal(0, model.EditedTextHistoryCount);
         Assert.False(model.EditIsUndone);
         Assert.Equal(0, model.EditPosition);
         Assert.Equal(0, model.EditLength);
