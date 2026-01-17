@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 
 namespace TextEditor;
@@ -50,6 +51,11 @@ public class TextEditorModel
         _gapBuffer.Append(character);
     }
 
+    public void SomethingBadHappenedButDontCrashSomeonesApp()
+    {
+
+    }
+
     public char this[int index]
     {
         get
@@ -74,10 +80,15 @@ public class TextEditorModel
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
                     throw new NotImplementedException();
-#if DEBUG
                 default:
+#if DEBUG
                     throw new NotImplementedException();
+#else
+                    // ???
+                    SomethingBadHappenedButDontCrashSomeonesApp();
+                    return 'a';
 #endif
+
             }
         }
     }
@@ -91,15 +102,25 @@ public class TextEditorModel
     {
         get
         {
-            var totalLength = _textBuilder.Length;
-
-            if (_gapBuffer.Length > 0)
+            switch (EditKind)
             {
-                // -1 for the '\0' that represents the inserted gap buffer
-                totalLength = -1 + _gapBuffer.Length;
+                case EditKind.None:
+                    return _textBuilder.Length;
+                case EditKind.InsertLtr:
+                    // -1 for the '\0' that represents the inserted gap buffer
+                    return _textBuilder.Length - 1 + _gapBuffer.Length;
+                case EditKind.RemoveDeleteLtr:
+                case EditKind.RemoveBackspaceRtl:
+                    throw new NotImplementedException();
+                default:
+#if DEBUG
+                    throw new NotImplementedException();
+#else
+                    // ???
+                    SomethingBadHappenedButDontCrashSomeonesApp();
+                    return 'a';
+#endif
             }
-
-            return totalLength;
         }
     }
 
