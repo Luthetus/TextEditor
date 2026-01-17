@@ -730,6 +730,21 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         return selectStyle;
     }
 
+    private (int startLineIndex, int endLineIndex) GetStartEndLineIndices()
+    {
+        int startLineIndex;
+        if (_measurements.LineHeight != 0)
+            startLineIndex = ((int)(_scrollTop / _measurements.LineHeight) - 1);
+        else
+            startLineIndex = 0;
+        if (startLineIndex < 0) startLineIndex = 0;
+
+        int endLineIndex = startLineIndex + ((int)(_textEditorHeight / _measurements.LineHeight) + 1);
+        if (endLineIndex > Model.LineBreakPositionList.Count + 1) endLineIndex = Model.LineBreakPositionList.Count + 1;
+
+        return (startLineIndex, endLineIndex);
+    }
+
     public void Dispose()
     {
         _dotNetHelper?.Dispose();

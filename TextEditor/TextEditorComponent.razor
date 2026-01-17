@@ -13,15 +13,7 @@
         // I'm not sure on the details of what me making this initial capacity larger would have on the collection of this StringBuilder so 128 is the number I'll go with for now.
         var stringBuilder = new StringBuilder(capacity: 128);
 
-        int startLineIndex;
-        if (_measurements.LineHeight != 0)
-            startLineIndex = ((int)(_scrollTop / _measurements.LineHeight) - 1);
-        else
-            startLineIndex = 0;
-        if (startLineIndex < 0) startLineIndex = 0;
-
-        int endLineIndex = startLineIndex + ((int)(_textEditorHeight / _measurements.LineHeight) + 1);
-        if (endLineIndex > Model.LineBreakPositionList.Count + 1) endLineIndex = Model.LineBreakPositionList.Count + 1;
+        var (startLineIndex, endLineIndex) = GetStartEndLineIndices();
     }
 
     <div class="te_component-class" tabindex="-1" id="te_component-id">
