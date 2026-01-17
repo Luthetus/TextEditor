@@ -862,7 +862,14 @@ public class TextEditorModel
         var start = positionIndex;
         var end = positionIndex + count;
 
-        _textBuilder.Remove(positionIndex, count);
+        // this has a few overloads...:
+        // _textBuilder.Replace();
+        //
+        // gonna just for loop for now
+        for (int i = positionIndex; i < positionIndex + count; i++)
+        {
+            _textBuilder[i] = '\0';
+        }
 
         var lineBreakOriginalCount = LineBreakPositionList.Count;
 
