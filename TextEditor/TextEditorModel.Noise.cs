@@ -77,7 +77,7 @@ public partial class TextEditorModel
     public int LineIndex { get; set; }
     public int ColumnIndex { get; set; }
 
-    public int _editedTextHistoryCapacity => _editedTextHistory.Length;
+    public int EditedTextHistoryCapacity => _editedTextHistory.Length;
     public int EditedTextHistoryCount;
     public char[] _editedTextHistory = new char[4];
     public bool EditIsUndone;
@@ -130,14 +130,12 @@ public partial class TextEditorModel
 
     public virtual int GetTabCountOnSameLinePriorToCursor()
     {
+        // TODO: rewrite this; you don't need to know the end of the line, just read backwards until a '\n' or startOfFile, then jump back to starting position and go forward until either a '\n' or EOF
         var (lineIndex, linePosStart, linePosEnd) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
-
-        // you don't need to know the end of the line, just read backwards until a '\n' or startOfFile, then jump back to starting position and go forward until either a '\n' or EOF
+        
         int count = 0;
         for (int i = linePosStart; i < PositionIndex; i++)
         {
-            if (this[i] == '\n')
-                break;
             if (this[i] == '\t')
                 count++;
         }
@@ -571,89 +569,6 @@ public partial class TextEditorModel
         }
     }
 
-    public virtual CharacterKind GetCharacterKind(char character)
-    {
-        // I considered using ASCII codes but I think the switch is faster and it won't take that long.
-        switch (character)
-        {
-            /* Lowercase Letters */
-            case 'a':
-            case 'b':
-            case 'c':
-            case 'd':
-            case 'e':
-            case 'f':
-            case 'g':
-            case 'h':
-            case 'i':
-            case 'j':
-            case 'k':
-            case 'l':
-            case 'm':
-            case 'n':
-            case 'o':
-            case 'p':
-            case 'q':
-            case 'r':
-            case 's':
-            case 't':
-            case 'u':
-            case 'v':
-            case 'w':
-            case 'x':
-            case 'y':
-            case 'z':
-            /* Uppercase Letters */
-            case 'A':
-            case 'B':
-            case 'C':
-            case 'D':
-            case 'E':
-            case 'F':
-            case 'G':
-            case 'H':
-            case 'I':
-            case 'J':
-            case 'K':
-            case 'L':
-            case 'M':
-            case 'N':
-            case 'O':
-            case 'P':
-            case 'Q':
-            case 'R':
-            case 'S':
-            case 'T':
-            case 'U':
-            case 'V':
-            case 'W':
-            case 'X':
-            case 'Y':
-            case 'Z':
-            /* Underscore */
-            case '_':
-            /* Digits */
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                return CharacterKind.LetterOrDigit;
-            case ' ':
-            case '\t':
-            case '\r':
-            case '\n':
-                return CharacterKind.Whitespace;
-            default:
-                return CharacterKind.Punctuation;
-        }
-    }
-
     /// <summary>
     /// Maybe this is more a remark... but something to keep in mind when wanting plain text MIGHT be:
     /// Returning 'null' avoids the HTML attribute name 'class' from being written. Whereas 'string.Empty' will still write the HTML attribute name 'class'.
@@ -764,6 +679,89 @@ public partial class TextEditorModel
 
         _decorationArrayCapacity = newCapacity;
         _decorationArray = new byte[_decorationArrayCapacity];
+    }
+
+    public virtual CharacterKind GetCharacterKind(char character)
+    {
+        // I considered using ASCII codes but I think the switch is faster and it won't take that long.
+        switch (character)
+        {
+            /* Lowercase Letters */
+            case 'a':
+            case 'b':
+            case 'c':
+            case 'd':
+            case 'e':
+            case 'f':
+            case 'g':
+            case 'h':
+            case 'i':
+            case 'j':
+            case 'k':
+            case 'l':
+            case 'm':
+            case 'n':
+            case 'o':
+            case 'p':
+            case 'q':
+            case 'r':
+            case 's':
+            case 't':
+            case 'u':
+            case 'v':
+            case 'w':
+            case 'x':
+            case 'y':
+            case 'z':
+            /* Uppercase Letters */
+            case 'A':
+            case 'B':
+            case 'C':
+            case 'D':
+            case 'E':
+            case 'F':
+            case 'G':
+            case 'H':
+            case 'I':
+            case 'J':
+            case 'K':
+            case 'L':
+            case 'M':
+            case 'N':
+            case 'O':
+            case 'P':
+            case 'Q':
+            case 'R':
+            case 'S':
+            case 'T':
+            case 'U':
+            case 'V':
+            case 'W':
+            case 'X':
+            case 'Y':
+            case 'Z':
+            /* Underscore */
+            case '_':
+            /* Digits */
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                return CharacterKind.LetterOrDigit;
+            case ' ':
+            case '\t':
+            case '\r':
+            case '\n':
+                return CharacterKind.Whitespace;
+            default:
+                return CharacterKind.Punctuation;
+        }
     }
 
     /*

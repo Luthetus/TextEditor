@@ -475,10 +475,10 @@ public partial class TextEditorModel
     /// <summary>Source code from List was copy, pasted, modified into this method</summary>
     public void History_EnsureCapacity(int totalEditLength)
     {
-        if (_editedTextHistoryCapacity >= totalEditLength)
+        if (EditedTextHistoryCapacity >= totalEditLength)
             return;
         
-        int newCapacity = _editedTextHistoryCapacity * 2;
+        int newCapacity = EditedTextHistoryCapacity * 2;
         // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
         // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
         if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
