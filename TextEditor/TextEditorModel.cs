@@ -959,6 +959,8 @@ public class TextEditorModel
                     _editedTextHistoryCount = EditLength;
                     for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
                     {
+                        // ctrl + a then ctrl + x is off by 1 when I ctrl + v it back
+
                         // squash then update edit then try to read index => exception
                         _editedTextHistory[editHistoryIndex] = _textBuilder[i];
                     }
