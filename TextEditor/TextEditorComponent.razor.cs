@@ -845,6 +845,27 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         }
     }
 
+    private (int startPosition, int endPosition) GetStartEndPositions(int startLineIndex, int endLineIndex)
+    {
+        int startPosition = 0;
+        if (startLineIndex == 0)
+            startPosition = 0;
+        else if (startLineIndex - 1 < Model.LineBreakPositionList.Count)
+            startPosition = Model.LineBreakPositionList[startLineIndex - 1] + 1; // You get the line ending of the previous line and then + 1 because all line endings are stored as '\n' until saving the file in which they are swapped out for the desired line endings.
+        else
+            startLineIndex = 0; // I need this so the value is initialized but I TODO: need to look into this case further
+
+        int endPosition;
+        if (endLineIndex == 0 || endLineIndex >= Model.LineBreakPositionList.Count)
+            endPosition = Model.Length; // This might be wrong. I think it takes an extra line (even beyond the "extra line so the virtualization looks smoother").
+        else if (endLineIndex < Model.LineBreakPositionList.Count)
+            endPosition = Model.LineBreakPositionList[endLineIndex];
+        else
+            endPosition = 0; // I need this so the value is initialized but I TODO: need to look into this case further
+
+        return (startPosition, endPosition);
+    }
+
     public void Dispose()
     {
         _dotNetHelper?.Dispose();
