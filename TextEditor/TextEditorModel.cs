@@ -4,6 +4,13 @@ namespace TextEditor;
 
 public partial class TextEditorModel
 {
+    // bug likely 'case H' start
+    public override string ToString()
+    {
+        return _textBuilder.ToString();
+    }
+    // bug likely 'case H' end
+
     // bug likely 'case G' start
     public char this[int index]
     {
@@ -53,13 +60,6 @@ public partial class TextEditorModel
         }
     }
     // bug likely 'case G' end
-
-    // bug likely 'case H' start
-    public override string ToString()
-    {
-        return _textBuilder.ToString();
-    }
-    // bug likely 'case H' end
 
     // bug likely 'case I' start
     public int Length
