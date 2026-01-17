@@ -468,6 +468,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
 
         // insert thenctrlzyoucanjustholdthegapbufferanduseitforctrly
 
+        // delete whenyoudeletedontmarkas'\0'thenyoucanrestorethetextthatway
+
         if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
             Model.EditIsUndone = true;
