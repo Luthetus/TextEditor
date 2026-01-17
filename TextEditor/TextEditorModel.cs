@@ -96,7 +96,11 @@ public class TextEditorModel
                     {
                         // += length is += EditPosition
                         // += depth  is += (index - EditPosition)
-                        return _textBuilder[index + EditPosition + (index - EditPosition)];
+
+                        // no length is the EditLength...
+
+
+                        return _textBuilder[index + EditLength];
                     }
                     else
                     {
@@ -104,7 +108,7 @@ public class TextEditorModel
                         // it gives you a small index so you add.
                         //
                         // dah idk lol
-                        return _textBuilder[index + EditPosition];
+                        return _textBuilder[index + EditLength];
                     }
                 default:
 #if DEBUG
