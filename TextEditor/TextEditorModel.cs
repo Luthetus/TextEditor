@@ -107,6 +107,9 @@ public class TextEditorModel
                         // the capacity is 161
                         // it gives 160???
                         // hwhat
+                        
+
+                        // I am just completely delirious right now I have no idea what's ahppening I'm gonna just look for anmother song
 
                         return _textBuilder[index + EditLength - 1];
                     }
