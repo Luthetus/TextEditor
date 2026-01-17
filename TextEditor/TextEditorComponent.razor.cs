@@ -462,8 +462,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnUndo()
     {
-        // TODO: Keep this commented out until non CtrlZ/CtrlY edits work properly
-        /*
+        // If you do the gap buffer optimization you can only do it for the most recent edit and then have to move the text still if you support more than one edit?
+
         if (Model.EditKind != EditKind.None && !Model.EditIsUndone)
         {
             Model.EditIsUndone = true;
@@ -494,7 +494,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
             }
             StateHasChanged();
         }
-        */
     }
     
     [JSInvokable]
