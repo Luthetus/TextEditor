@@ -912,14 +912,15 @@ public class TextEditorModel
             {
                 if (Validate_BatchRemoveBackspaceRtl(editWasUndone, positionIndex, count))
                 {
-                    EditPosition = positionIndex;
-                    History_EnsureCapacity(EditLength += count);
+                    History_EnsureCapacity(EditLength + count);
                     Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, _editedTextHistoryCount);
-                    _editedTextHistoryCount += count;
                     for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
                     {
                         _editedTextHistory[editHistoryIndex] = this[i];
                     }
+                    EditLength += count;
+                    EditPosition = positionIndex;
+                    _editedTextHistoryCount += count;
                 }
                 else
                 {
