@@ -56,7 +56,7 @@ public class TextEditorModel
                     }
                     else 
                     {
-                        return _textBuilder[index - EditPosition];
+                        return _textBuilder[index - _gapBuffer.Length];
                     }
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
