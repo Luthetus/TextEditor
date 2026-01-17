@@ -48,6 +48,8 @@ public class UnitTest1
         // then it's undefined behavior and presumed to be capable of causing an exception to be thrown
         // when rendering (but I don't know for certain of an example exception scenario, this is my mindset).
         //
+        model.__DEBUG_AppendGapBuffer('a');
+        Assert.False(model.GapBufferIsEmpty);
         model.PositionIndex = 1;
         model.LineIndex = 1;
         model.ColumnIndex = 1;
@@ -62,6 +64,7 @@ public class UnitTest1
         var input2 = "abc\n\t";
         model.SetText(input2);
         Assert.Equal(input2, model.ToString());
+        Assert.True(model.GapBufferIsEmpty);
         Assert.Single(model.LineBreakPositionList);
         Assert.Single(model.TabPositionList);
         Assert.Equal(0, model.PositionIndex);
@@ -108,6 +111,8 @@ public class UnitTest1
         // then it's undefined behavior and presumed to be capable of causing an exception to be thrown
         // when rendering (but I don't know for certain of an example exception scenario, this is my mindset).
         //
+        model.__DEBUG_AppendGapBuffer('a');
+        Assert.False(model.GapBufferIsEmpty);
         model.PositionIndex = 1;
         model.LineIndex = 1;
         model.ColumnIndex = 1;
@@ -121,6 +126,7 @@ public class UnitTest1
 
         model.Clear();
         Assert.Equal(string.Empty, model.ToString());
+        Assert.True(model.GapBufferIsEmpty);
         Assert.Empty(model.LineBreakPositionList);
         Assert.Empty(model.TabPositionList);
         Assert.Equal(0, model.PositionIndex);

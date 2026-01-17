@@ -22,6 +22,12 @@ public class TextEditorModel
     /// </summary>
     protected readonly StringBuilder _gapBuffer = new();
 
+    public bool GapBufferIsEmpty => _gapBuffer.Length == 0;
+    public void __DEBUG_AppendGapBuffer(char character)
+    {
+        _gapBuffer.Append(character);
+    }
+
     public char this[int key]
     {
         get => _textBuilder[key];
@@ -305,6 +311,7 @@ public class TextEditorModel
     public void Clear()
     {
         _textBuilder.Clear();
+        _gapBuffer.Clear();
         LineBreakPositionList.Clear();
         TabPositionList.Clear();
         PositionIndex = 0;
