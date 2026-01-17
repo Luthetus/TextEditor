@@ -5,7 +5,16 @@ namespace TextEditor;
 
 public class TextEditorModel
 {
-    protected readonly StringBuilder _textBuilder = new();
+    private readonly StringBuilder _textBuilder = new();
+    /// <summary>
+    /// The gap buffer is being added, and presumably you wouldn't want
+    /// such a "clean/natural" way to get the _textBuilder.
+    /// 
+    /// So wrapped the protected access to it in a method makes it "feel awkward"
+    /// and thus notifies the person that they might be going down the wrong route,
+    /// i.e.: that they want to say something along the lines of 'this[i]'
+    /// </summary>
+    protected StringBuilder GetTextBuilder() => _textBuilder;
 
     /// <summary>
     /// An insertion gap buffer is a single '\0' in the _textBuilder.
@@ -203,9 +212,9 @@ public class TextEditorModel
         int count = 0;
         for (int i = linePosStart; i < PositionIndex; i++)
         {
-            if (_textBuilder[i] == '\n')
+            if (this[i] == '\n')
                 break;
-            if (_textBuilder[i] == '\t')
+            if (this[i] == '\t')
                 count++;
         }
 
@@ -220,13 +229,13 @@ public class TextEditorModel
         switch (tooltip.ByteKind)
         {
             case CharacterTooltipByteKind:
-                if (_textBuilder.Length > tooltip.StartPositionIndex)
+                if (this.Length > tooltip.StartPositionIndex)
                 {
-                    return _textBuilder[tooltip.StartPositionIndex].ToString();
+                    return this[tooltip.StartPositionIndex].ToString();
                 }
                 break;
             case TextTooltipByteKind:
-                if (_textBuilder.Length > tooltip.StartPositionIndex && _textBuilder.Length > tooltip.EndPositionIndex - 1)
+                if (this.Length > tooltip.StartPositionIndex && this.Length > tooltip.EndPositionIndex - 1)
                 {
                     return _textBuilder.ToString(tooltip.StartPositionIndex, tooltip.EndPositionIndex - tooltip.StartPositionIndex);
                 }
@@ -258,12 +267,12 @@ public class TextEditorModel
                     --PositionIndex;
                     if (ctrlKey)
                     {
-                        var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex]);
+                        var originalCharacterKind = GetCharacterKind(this[PositionIndex]);
                         var localPositionIndex = PositionIndex;
                         var localColumnIndex = ColumnIndex;
                         while (localColumnIndex - 1 > -1)
                         {
-                            if (GetCharacterKind(_textBuilder[localPositionIndex - 1]) == originalCharacterKind)
+                            if (GetCharacterKind(this[localPositionIndex - 1]) == originalCharacterKind)
                             {
                                 --localColumnIndex;
                                 --localPositionIndex;
@@ -323,12 +332,12 @@ public class TextEditorModel
                         ++PositionIndex;
                         if (ctrlKey)
                         {
-                            var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex - 1]);
+                            var originalCharacterKind = GetCharacterKind(this[PositionIndex - 1]);
                             var localPositionIndex = PositionIndex;
                             var localColumnIndex = ColumnIndex;
                             while (localColumnIndex < lastValidColumnIndex)
                             {
-                                if (GetCharacterKind(_textBuilder[localPositionIndex]) == originalCharacterKind)
+                                if (GetCharacterKind(this[localPositionIndex]) == originalCharacterKind)
                                 {
                                     ++localColumnIndex;
                                     ++localPositionIndex;
@@ -686,11 +695,11 @@ public class TextEditorModel
                 var count = 1;
                 if (ctrlKey)
                 {
-                    var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex]);
+                    var originalCharacterKind = GetCharacterKind(this[PositionIndex]);
                     var (_, _, linePosEnd) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
                     while (PositionIndex + count < linePosEnd)
                     {
-                        if (GetCharacterKind(_textBuilder[PositionIndex + count]) == originalCharacterKind)
+                        if (GetCharacterKind(this[PositionIndex + count]) == originalCharacterKind)
                         {
                             ++count;
                         }
@@ -712,14 +721,14 @@ public class TextEditorModel
             var count = 1;
             if (ctrlKey && ColumnIndex > 0)
             {
-                var originalCharacterKind = GetCharacterKind(_textBuilder[PositionIndex - count]);
+                var originalCharacterKind = GetCharacterKind(this[PositionIndex - count]);
                 var (_, linePosStart, _) = GetLineInformationExcludingLineEndingCharacterByPositionIndex(PositionIndex);
                 if (PositionIndex - count > linePosStart)
                 {
                     ++count;
                     while (PositionIndex - count >= linePosStart)
                     {
-                        if (GetCharacterKind(_textBuilder[PositionIndex - count]) != originalCharacterKind)
+                        if (GetCharacterKind(this[PositionIndex - count]) != originalCharacterKind)
                         {
                             --count;
                             break;
@@ -1143,7 +1152,7 @@ public class TextEditorModel
         var selectionBuilder = new StringBuilder(capacity: end - start);
         for (int i = start; i < end; i++)
         {
-            selectionBuilder.Append(_textBuilder[i]);
+            selectionBuilder.Append(this[i]);
         }
 
         return selectionBuilder.ToString();
@@ -1175,13 +1184,13 @@ public class TextEditorModel
     /// <summary>Various parts of the List.cs source code were pasted/modified in here</summary>
     public void DecorateEnsureCapacityWritable()
     {
-        if (_decorationArrayCapacity < _textBuilder.Length)
+        if (_decorationArrayCapacity < this.Length)
         {
-            int newCapacity = _textBuilder.Length == 0 ? _defaultCapacity : _decorationArrayCapacity * 2;
+            int newCapacity = this.Length == 0 ? _defaultCapacity : _decorationArrayCapacity * 2;
             // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
             // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
             if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-            if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
+            if (newCapacity < this.Length) newCapacity = this.Length;
 
             var newArray = new byte[newCapacity];
             Array.Copy(DecorationArray, 0, newArray, 0, _decorationArrayCapacity);
@@ -1199,13 +1208,13 @@ public class TextEditorModel
 
         int newCapacity;
 
-        if (_textBuilder.Length == 0)
+        if (this.Length == 0)
         {
             newCapacity = _defaultCapacity;
         }
         else
         {
-            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)_textBuilder.Length);
+            newCapacity = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)this.Length);
             // Why does my IDE code say '< -1'???
             if (newCapacity <= 0)
             {
@@ -1214,7 +1223,7 @@ public class TextEditorModel
             else
             {
                 if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-                if (newCapacity < _textBuilder.Length) newCapacity = _textBuilder.Length;
+                if (newCapacity < this.Length) newCapacity = this.Length;
             }
         }
 
