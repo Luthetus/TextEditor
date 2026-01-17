@@ -6,6 +6,22 @@ public class TextEditorModel
 {
     protected readonly StringBuilder _textBuilder = new();
 
+    /// <summary>
+    /// An insertion gap buffer is a single '\0' in the _textBuilder.
+    /// 
+    /// When deleting, the deleted text is replaced with '\0'
+    /// 
+    /// When squashing the insertion gap buffer the singular '\0' is replaced with the text in the gap buffer.
+    /// 
+    /// When squashing the deleting, the contiguous '\0' are removed from the _textBuilder in bulk.
+    /// 
+    /// You cannot differentiate an insertion vs deleting gap buffer scenario by the single '\0' alone,
+    /// because perhaps you deleted a single character.
+    /// 
+    /// So you need to look at the current EditKind as well.
+    /// </summary>
+    protected readonly StringBuilder _gapBuffer = new();
+
     public char this[int key]
     {
         get => _textBuilder[key];
@@ -38,8 +54,6 @@ public class TextEditorModel
     public int EditPosition;
     public int EditLength;
     public EditKind EditKind = EditKind.None;
-    public int EditId;
-    public int LexerSeenEditId;
     
     /// <summary>
     /// You can keep this feature disabled by leaving the property null (the default).
@@ -87,10 +101,6 @@ public class TextEditorModel
     protected int _decorationArrayCapacity = 0;
     public const byte NoneDecorationByte = 0;
     public const byte KeywordDecorationByte = 1;
-
-    // The problem of this lexer syntax highlighting offset
-    // and the gap buffer for edits,
-    // have a lot of overlap I might just start the gap buffer.
 
     protected const int _defaultCapacity = 4;
 
