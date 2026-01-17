@@ -51,35 +51,33 @@
             else
                 endPosition = 0; // I need this so the value is initialized but I TODO: need to look into this case further
 
-            int i = startPosition;
-
             byte currentDecorationByte = 0;
 
-            while (i < endPosition)
+            while (startPosition < endPosition)
             {
-                currentDecorationByte = GetDecorationByte(i);
+                currentDecorationByte = GetDecorationByte(startPosition);
 
                 <div class="te_row">
-                    @for (; i < endPosition; i++)
+                    @for (; startPosition < endPosition; startPosition++)
                     {
-                        if (Model[i] != '\n' && GetDecorationByte(i) == currentDecorationByte)
+                        if (Model[startPosition] != '\n' && GetDecorationByte(startPosition) == currentDecorationByte)
                         {
-                            AppendEscapedCharacter(stringBuilder, Model[i]);
+                            AppendEscapedCharacter(stringBuilder, Model[startPosition]);
                         }
                         else
                         {
                             <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@((MarkupString)stringBuilder.ToString())</span>
                             stringBuilder.Clear();
-                            currentDecorationByte = GetDecorationByte(i);
+                            currentDecorationByte = GetDecorationByte(startPosition);
 
-                            if (Model[i] == '\n')
+                            if (Model[startPosition] == '\n')
                             {
-                                ++i;
+                                ++startPosition;
                                 break;
                             }
                             else
                             {
-                                AppendEscapedCharacter(stringBuilder, Model[i]);
+                                AppendEscapedCharacter(stringBuilder, Model[startPosition]);
                             }
                         }
                     }
