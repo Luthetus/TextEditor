@@ -55,112 +55,61 @@
                 endPosition = 0; // I need this so the value is initialized but I TODO: need to look into this case further
 
             int i = startPosition;
-            var exclusiveEndDecorationIndex = 0;
 
             byte currentDecorationByte = 0;
 
-            if (Model.DecorationArray is not null)
-            {
-                if (Model.DecorationArray.Length <= Model.Length)
-                    exclusiveEndDecorationIndex = Model.DecorationArray.Length;
-                else
-                    exclusiveEndDecorationIndex = Model.Length;
-            }
-
             while (i < endPosition)
             {
-                if (exclusiveEndDecorationIndex > i)
-                    currentDecorationByte = Model.DecorationArray![i];
-                else
-                    currentDecorationByte = 0;
+                currentDecorationByte = GetDecorationByte(i);
 
                 <div class="te_row">
                     @for (; i < endPosition; i++)
                     {
-                        if (i < exclusiveEndDecorationIndex)
+                        if (Model[i] != '\n' && GetDecorationByte(i) == currentDecorationByte)
                         {
-                            if (Model[i] != '\n' && Model.DecorationArray![i] == currentDecorationByte)
+                            switch (Model[i])
                             {
-                                switch (Model[i])
-                                {
-                                    case '\t':
-                                        stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                                        break;
-                                    case '\0':
-                                        stringBuilder.Append("0");
-                                        break;
-                                    case ' ':
-                                        stringBuilder.Append("&nbsp;");
-                                        break;
-                                    case '<':
-                                        stringBuilder.Append("&lt;");
-                                        break;
-                                    case '>':
-                                        stringBuilder.Append("&gt;");
-                                        break;
-                                    case '"':
-                                        stringBuilder.Append("&quot;");
-                                        break;
-                                    case '\'':
-                                        stringBuilder.Append("&#39;");
-                                        break;
-                                    case '&':
-                                        stringBuilder.Append("&amp;");
-                                        break;
-                                    default:
-                                        stringBuilder.Append(Model[i]);
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@((MarkupString)stringBuilder.ToString())</span>
-                                stringBuilder.Clear();
-                                currentDecorationByte = Model.DecorationArray![i];
-
-                                if (Model[i] == '\n')
-                                {
-                                    ++i;
+                                case '\t':
+                                    stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
                                     break;
-                                }
-                                else
-                                {
-                                    switch (Model[i])
-                                    {
-                                        case '\t':
-                                            stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                                            break;
-                                        case '\0':
-                                            stringBuilder.Append("0");
-                                            break;
-                                        case ' ':
-                                            stringBuilder.Append("&nbsp;");
-                                            break;
-                                        case '<':
-                                            stringBuilder.Append("&lt;");
-                                            break;
-                                        case '>':
-                                            stringBuilder.Append("&gt;");
-                                            break;
-                                        case '"':
-                                            stringBuilder.Append("&quot;");
-                                            break;
-                                        case '\'':
-                                            stringBuilder.Append("&#39;");
-                                            break;
-                                        case '&':
-                                            stringBuilder.Append("&amp;");
-                                            break;
-                                        default:
-                                            stringBuilder.Append(Model[i]);
-                                            break;
-                                    }
-                                }
+                                case '\0':
+                                    stringBuilder.Append("0");
+                                    break;
+                                case ' ':
+                                    stringBuilder.Append("&nbsp;");
+                                    break;
+                                case '<':
+                                    stringBuilder.Append("&lt;");
+                                    break;
+                                case '>':
+                                    stringBuilder.Append("&gt;");
+                                    break;
+                                case '"':
+                                    stringBuilder.Append("&quot;");
+                                    break;
+                                case '\'':
+                                    stringBuilder.Append("&#39;");
+                                    break;
+                                case '&':
+                                    stringBuilder.Append("&amp;");
+                                    break;
+                                default:
+                                    stringBuilder.Append(Model[i]);
+                                    break;
                             }
                         }
                         else
                         {
-                            if (Model[i] != '\n')
+                            <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@((MarkupString)stringBuilder.ToString())</span>
+                            stringBuilder.Clear();
+                            currentDecorationByte = GetDecorationByte(i);
+
+                            if (Model[i] == '\n')
+                            {
+                                ++i;
+                                break;
+                            }
+                            else
                             {
                                 switch (Model[i])
                                 {
@@ -193,68 +142,13 @@
                                         break;
                                 }
                             }
-                            else
-                            {
-                                <span>@((MarkupString)stringBuilder.ToString())</span>
-                                stringBuilder.Clear();
-
-                                if (Model[i] == '\n')
-                                {
-                                    ++i;
-                                    break;
-                                }
-                                else
-                                {
-                                    switch (Model[i])
-                                    {
-                                        case '\t':
-                                            stringBuilder.Append("&nbsp;&nbsp;&nbsp;&nbsp;");
-                                            break;
-                                        case '\0':
-                                            stringBuilder.Append("0");
-                                            break;
-                                        case ' ':
-                                            stringBuilder.Append("&nbsp;");
-                                            break;
-                                        case '<':
-                                            stringBuilder.Append("&lt;");
-                                            break;
-                                        case '>':
-                                            stringBuilder.Append("&gt;");
-                                            break;
-                                        case '"':
-                                            stringBuilder.Append("&quot;");
-                                            break;
-                                        case '\'':
-                                            stringBuilder.Append("&#39;");
-                                            break;
-                                        case '&':
-                                            stringBuilder.Append("&amp;");
-                                            break;
-                                        default:
-                                            stringBuilder.Append(Model[i]);
-                                            break;
-                                    }
-                                }
-                            }
                         }
                     }
 
-                    @if (i < exclusiveEndDecorationIndex || (i > 0 && i == exclusiveEndDecorationIndex))
+                    @if (stringBuilder.Length > 0)
                     {
-                        if (stringBuilder.Length > 0)
-                        {
-                            <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@((MarkupString)stringBuilder.ToString())</span>
-                            stringBuilder.Clear();
-                        }
-                    }
-                    else
-                    {
-                        if (stringBuilder.Length > 0)
-                        {
-                            <span>@((MarkupString)stringBuilder.ToString())</span>
-                            stringBuilder.Clear();
-                        }
+                        <span class="@Model.DecorationMapToCssClass(currentDecorationByte)">@((MarkupString)stringBuilder.ToString())</span>
+                        stringBuilder.Clear();
                     }
                 </div>
             }

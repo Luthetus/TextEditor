@@ -745,6 +745,17 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         return (startLineIndex, endLineIndex);
     }
 
+    /// <summary>
+    /// This is likely a massive performance cost to be checking the if statement for every single decoration byte.
+    /// But the gap buffer isn't working perfectly yet, so abstracting this into a costly bounds check is 100% worth it for now to reduce noise.
+    /// </summary>
+    private byte GetDecorationByte(int i)
+    {
+        if (Model.DecorationArray is null || i >= Model.DecorationArray.Length)
+            return 0;
+        return Model.DecorationArray[i];
+    }
+
     public void Dispose()
     {
         _dotNetHelper?.Dispose();
