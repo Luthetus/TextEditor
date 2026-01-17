@@ -250,6 +250,8 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         _showContextMenu = false;
         if (detailRank == 1)
         {
+            if (shiftKey)
+                Model.SelectionAnchor = Model.PositionIndex;
             (Model.LineIndex, Model.ColumnIndex) = GetRelativeIndicesYFirst(relativeY, relativeX);
             Model.PositionIndex = Model.GetPositionIndex(Model.LineIndex, Model.ColumnIndex);
             if (!shiftKey)
@@ -673,8 +675,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         int count = 0;
         for (int j = linePosStart; j < pos; j++)
         {
-            if (Model[j] == '\n')
-                break;
             if (Model[j] == '\t')
                 count++;
         }
@@ -700,8 +700,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
         count = 0;
         for (int j = lineSegmentStart; j < lineSegmentEnd; j++)
         {
-            if (Model[j] == '\n')
-                break;
             if (Model[j] == '\t')
                 count++;
         }
