@@ -101,6 +101,23 @@ public partial class TextEditorModel
     {
         var insertionIndex = positionIndex;
 
+        bool batchEdits = false;
+
+        // bug likely 'case A' start
+        if (shouldMakeEditHistory)
+        {
+            if (!EditIsUndone && (EditKind == EditKind.InsertLtr && EditPosition + EditLength == positionIndex))
+            {
+                batchEdits = true;
+            }
+            else
+            {
+                SquashEdits();
+                EditPosition = positionIndex;
+            }
+        }
+        // bug likely 'case A' end
+
         StringBuilder stringBuilder;
         if (__unsafe__insertDirectly)
         {
@@ -109,19 +126,11 @@ public partial class TextEditorModel
         else
         {
             stringBuilder = _gapBuffer;
-            insertionIndex -= positionIndex;
+            insertionIndex -= EditPosition;
         }
 
         var entryPositionIndex = positionIndex;
         
-        // bug likely 'case A' start
-        if (shouldMakeEditHistory)
-        {
-            if (EditIsUndone || EditKind != EditKind.InsertLtr || EditPosition + EditLength != entryPositionIndex)
-                SquashEdits();
-        }
-        // bug likely 'case A' end
-
         var lineBreakInsertedIndex = -1;
         var lineBreakInsertedCount = 0;
 
@@ -134,9 +143,7 @@ public partial class TextEditorModel
         {
             var character = text[i];
 
-            // always insert '\n' for line endings, and then track separately the desired line end.
-            // upon saving, create a string that has the '\n' included as the desired line end.
-            //
+            // always insert '\n' for line endings, and then track separately the desired line end. upon saving, create a string that has the '\n' included as the desired line end.
             if (character == '\n')
             {
                 stringBuilder.Insert(insertionIndex, '\n');
@@ -193,9 +200,7 @@ public partial class TextEditorModel
 
         if (shouldMakeEditHistory)
         {
-            var editWasUndone = EditIsUndone;
-            EditIsUndone = false;
-            if (!editWasUndone && (EditKind == EditKind.InsertLtr && EditPosition + EditLength == entryPositionIndex))
+            if (batchEdits)
             {
                 EditLength += positionIndex - entryPositionIndex;
             }
