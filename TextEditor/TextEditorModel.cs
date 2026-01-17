@@ -142,7 +142,8 @@ public class TextEditorModel
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
                     // not impl
-                    throw new NotImplementedException();
+                    return _textBuilder.Length - EditLength;
+                    //throw new NotImplementedException();
                 default:
 #if DEBUG
                     throw new NotImplementedException();
