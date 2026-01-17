@@ -25,13 +25,8 @@
         {
             var start = Model.SelectionAnchor;
             var end = Model.SelectionEnd;
-
             if (end < start)
-            {
-                var temp = start;
-                start = end;
-                end = temp;
-            }
+                (start, end) = (end, start);
 
             for (int pos = start; pos < end; pos++)
             {
