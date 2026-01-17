@@ -931,7 +931,8 @@ public class TextEditorModel
                     _editedTextHistoryCount = EditLength;
                     for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
                     {
-                        _editedTextHistory[editHistoryIndex] = this[i];
+                        // squash then update edit then try to read index => exception
+                        _editedTextHistory[editHistoryIndex] = _textBuilder[i];
                     }
                 }
             }
@@ -956,7 +957,8 @@ public class TextEditorModel
                     _editedTextHistoryCount = EditLength;
                     for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
                     {
-                        _editedTextHistory[editHistoryIndex] = this[i];
+                        // squash then update edit then try to read index => exception
+                        _editedTextHistory[editHistoryIndex] = _textBuilder[i];
                     }
                 }
             }
