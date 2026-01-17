@@ -532,6 +532,8 @@ public class TextEditorModel
         TabPositionList.Insert(tabInsertedIndex + tabInsertedCount++, positionIndex);
     }
 
+    // the undo/redo logic...
+
     /// <summary>
     /// This method inserts at the provided positionIndex,
     /// and if the positionIndex is <= the user's position index,
