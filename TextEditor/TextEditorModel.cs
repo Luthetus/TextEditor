@@ -19,7 +19,11 @@ public partial class TextEditorModel
                 case EditKind.None:
                     return _textBuilder[index];
                 case EditKind.InsertLtr:
-                    if (index < EditPosition)
+                    if (EditIsUndone)
+                    {
+                        return _textBuilder[index];
+                    }
+                    else if (index < EditPosition)
                     {
                         return _textBuilder[index];
                     }
@@ -27,13 +31,17 @@ public partial class TextEditorModel
                     {
                         return _gapBuffer[index - EditPosition];
                     }
-                    else 
+                    else
                     {
                         return _textBuilder[index - _gapBuffer.Length];
                     }
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
-                    if (index < EditPosition)
+                    if (EditIsUndone)
+                    {
+                        return _textBuilder[index];
+                    }
+                    else if (index < EditPosition)
                     {
                         return _textBuilder[index];
                     }
@@ -67,10 +75,16 @@ public partial class TextEditorModel
                 case EditKind.None:
                     return _textBuilder.Length;
                 case EditKind.InsertLtr:
-                    return _textBuilder.Length + _gapBuffer.Length;
+                    if (EditIsUndone)
+                        return _textBuilder.Length;
+                    else
+                        return _textBuilder.Length + _gapBuffer.Length;
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
-                    return _textBuilder.Length - EditLength;
+                    if (EditIsUndone)
+                        return _textBuilder.Length;
+                    else
+                        return _textBuilder.Length - EditLength;
                 default:
 #if DEBUG
                     throw new NotImplementedException();
@@ -220,31 +234,17 @@ public partial class TextEditorModel
                 if (Validate_BatchRemoveBackspaceRtl(editWasUndone, positionIndex, count))
                 {
                     // bug likely 'case B' start
-                    History_EnsureCapacity(EditLength + count);
-                    Array.Copy(_editedTextHistory, 0, _editedTextHistory, count, EditedTextHistoryCount);
-                    for (int editHistoryIndex = 0, i = positionIndex; editHistoryIndex < count; editHistoryIndex++, i++)
-                    {
-                        _editedTextHistory[editHistoryIndex] = this[i];
-                    }
                     EditLength += count;
                     EditPosition = positionIndex;
-                    EditedTextHistoryCount += count;
                     // bug likely 'case B' end
                 }
                 else
                 {
                     // bug likely 'case C' start
                     SquashEdits();
-                    EditedTextHistoryCount = 0;
                     EditKind = EditKind.RemoveBackspaceRtl;
                     EditPosition = positionIndex;
-                    History_EnsureCapacity(EditLength = count);
-                    EditedTextHistoryCount = EditLength;
-                    for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
-                    {
-                        // squash then update edit then try to read index => exception
-                        _editedTextHistory[editHistoryIndex] = _textBuilder[i];
-                    }
+                    EditLength = count;
                     // bug likely 'case C' end
                 }
             }
@@ -253,30 +253,16 @@ public partial class TextEditorModel
                 if (Validate_BatchRemoveDeleteLtr(editWasUndone, positionIndex, count))
                 {
                     // bug likely 'case D' start
-                    History_EnsureCapacity(EditLength + count);
-                    for (int editHistoryIndex = EditedTextHistoryCount, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
-                    {
-                        _editedTextHistory[editHistoryIndex] = this[i];
-                    }
                     EditLength += count;
-                    EditedTextHistoryCount = EditLength;
                     // bug likely 'case D' end
                 }
                 else
                 {
                     // bug likely 'case E' start
                     SquashEdits();
-                    History_EnsureCapacity(count);
-                    for (int editHistoryIndex = 0, i = EditPosition; editHistoryIndex < EditLength; editHistoryIndex++, i++)
-                    {
-                        // squash then update edit then try to read index => exception
-                        _editedTextHistory[editHistoryIndex] = _textBuilder[i];
-                    }
-                    EditedTextHistoryCount = 0;
                     EditKind = EditKind.RemoveDeleteLtr;
                     EditPosition = positionIndex;
                     EditLength = count;
-                    EditedTextHistoryCount = EditLength;
                     // bug likely 'case E' end
                 }
             }
@@ -284,17 +270,6 @@ public partial class TextEditorModel
 
         var start = positionIndex;
         var end = positionIndex + count;
-
-        // this has a few overloads...:
-        // _textBuilder.Replace();
-        //
-        // gonna just for loop for now
-        for (int i = positionIndex; i < positionIndex + count; i++)
-        {
-            _textBuilder[i] = '\0';
-        }
-
-        var lineBreakOriginalCount = LineBreakPositionList.Count;
 
         for (var i = LineBreakPositionList.Count - 1; i >= 0; i--)
         {
@@ -353,7 +328,6 @@ public partial class TextEditorModel
         //
         // (redundant because the next edit will set these properties)
         //
-        EditedTextHistoryCount = 0;
         EditIsUndone = false;
         EditPosition = 0;
         EditLength = 0;
@@ -365,7 +339,7 @@ public partial class TextEditorModel
     {
         if (HasSelection)
         {
-            EditIsUndone = false;
+            SquashEdits();
 
             var start = SelectionAnchor;
             var end = SelectionEnd;
@@ -463,22 +437,5 @@ public partial class TextEditorModel
     protected bool Validate_BatchRemoveDeleteLtr(bool editWasUndone, int positionIndex, int count)
     {
         return EditKind == EditKind.RemoveDeleteLtr && !editWasUndone && EditPosition == positionIndex;
-    }
-
-    /// <summary>Source code from List was copy, pasted, modified into this method</summary>
-    public void History_EnsureCapacity(int totalEditLength)
-    {
-        if (EditedTextHistoryCapacity >= totalEditLength)
-            return;
-        
-        int newCapacity = EditedTextHistoryCapacity * 2;
-        // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
-        // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-        if ((uint)newCapacity > Array.MaxLength) newCapacity = Array.MaxLength;
-        if (newCapacity < totalEditLength) newCapacity = totalEditLength;
-
-        var newArray = new char[newCapacity];
-        Array.Copy(_editedTextHistory, 0, newArray, 0, EditedTextHistoryCount);
-        _editedTextHistory = newArray;
     }
 }

@@ -489,15 +489,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                  you add a layer of "IsUndone" the change to when you read
                  then when you squish if not undone then you insert
                  */
-
-                Model.EditedTextHistoryCount = 0;
-                Model.History_EnsureCapacity(Model.EditLength);
-                Model.EditedTextHistoryCount = Model.EditLength;
-                for (int editHistoryIndex = 0, i = Model.EditPosition; editHistoryIndex < Model.EditLength; editHistoryIndex++, i++)
-                {
-                    Model._editedTextHistory[editHistoryIndex] = Model[i];
-                }
-                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
@@ -510,8 +501,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                  do instead leave as is _textbuffer [abc123]
                  ctrl y u have text there to readd
                  */
-
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
@@ -524,8 +513,6 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
                  do instead leave as is _textbuffer [abc123]
                  ctrl y u have text there to readd
                  */
-
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
@@ -536,32 +523,26 @@ public sealed partial class TextEditorComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void OnRedo()
     {
-        // TODO: Keep this commented out until non CtrlZ/CtrlY edits work properly
-        /*
         if (Model.EditKind != EditKind.None && Model.EditIsUndone)
         {
             Model.EditIsUndone = false;
             if (Model.EditKind == EditKind.InsertLtr)
             {
-                Model.InsertTextAtPosition(new ReadOnlySpan<char>(Model._editedTextHistory, 0, Model.EditedTextHistoryCount), Model.EditPosition, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition + Model.EditLength;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else if (Model.EditKind == EditKind.RemoveBackspaceRtl)
             {
-                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             else if (Model.EditKind == EditKind.RemoveDeleteLtr)
             {
-                Model.RemoveTextAtPositionByRandomAccess(positionIndex: Model.EditPosition, count: Model.EditLength, RemoveKind.DeleteLtr, shouldMakeEditHistory: false);
                 Model.PositionIndex = Model.EditPosition;
                 (Model.LineIndex, Model.ColumnIndex) = Model.GetLineColumnIndices(Model.PositionIndex);
             }
             StateHasChanged();
         }
-        */
     }
 
     [JSInvokable]

@@ -68,9 +68,6 @@ public partial class TextEditorModel
     public int LineIndex { get; set; }
     public int ColumnIndex { get; set; }
 
-    public int EditedTextHistoryCapacity => _editedTextHistory.Length;
-    public int EditedTextHistoryCount;
-    public char[] _editedTextHistory = new char[4];
     public bool EditIsUndone;
     public int EditPosition;
     public int EditLength;
@@ -323,7 +320,6 @@ public partial class TextEditorModel
         ColumnIndex = 0;
         SelectionAnchor = 0;
         SelectionEnd = 0;
-        EditedTextHistoryCount = 0;
         EditIsUndone = false;
         EditPosition = 0;
         EditLength = 0;
@@ -358,7 +354,10 @@ public partial class TextEditorModel
     public void InsertText(ReadOnlySpan<char> text)
     {
         if (HasSelection)
+        {
+            SquashEdits();
             RemoveTextAtPositionByCursor(RemoveKind.DeleteLtr, ctrlKey: false);
+        }
         InsertTextAtPosition(text, PositionIndex);
     }
 
