@@ -88,7 +88,19 @@ public class TextEditorModel
                     }
                 case EditKind.RemoveDeleteLtr:
                 case EditKind.RemoveBackspaceRtl:
-                    throw new NotImplementedException();
+                    if (index < EditPosition)
+                    {
+                        return _textBuilder[index];
+                    }
+                    else if (index >= EditPosition && index <= EditPosition + EditLength)
+                    {
+                        // += length += depth
+                        return _gapBuffer[index - EditPosition];
+                    }
+                    else
+                    {
+                        return _textBuilder[index - _gapBuffer.Length];
+                    }
                 default:
 #if DEBUG
                     throw new NotImplementedException();
